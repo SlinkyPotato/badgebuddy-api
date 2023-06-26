@@ -9,7 +9,6 @@ async function bootstrap() {
     .setTitle('Badge Buddy API')
     .setDescription('The Badge Buddy API description')
     .setVersion('1.0')
-    .addTag('badge-buddy')
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('swagger', app, document);
