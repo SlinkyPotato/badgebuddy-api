@@ -1,16 +1,8 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpStatus } from '@nestjs/common';
 import { RegistrationService } from './registration.service';
 import { CreateRegistrationDto } from './dto/create-registration.dto';
 import { UpdateRegistrationDto } from './dto/update-registration.dto';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('registration')
 @Controller('registration')
@@ -18,6 +10,8 @@ export class RegistrationController {
   constructor(private readonly registrationService: RegistrationService) {}
 
   @Post()
+  @ApiResponse({ status: HttpStatus.CREATED, description: 'Created' })
+  @ApiResponse({ status: HttpStatus.CONFLICT, description: 'Server already registered' })
   create(@Body() createRegistrationDto: CreateRegistrationDto) {
     return this.registrationService.create(createRegistrationDto);
   }
@@ -33,10 +27,7 @@ export class RegistrationController {
   }
 
   @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateRegistrationDto: UpdateRegistrationDto,
-  ) {
+  update(@Param('id') id: string, @Body() updateRegistrationDto: UpdateRegistrationDto) {
     return this.registrationService.update(+id, updateRegistrationDto);
   }
 
