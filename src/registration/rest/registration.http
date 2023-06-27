@@ -1,3 +1,4 @@
+### POST Request to register server
 POST http://localhost:3000/registration
 Accept: application/json
 Content-Type: application/json
@@ -10,3 +11,8 @@ Content-Type: application/json
   "privateChannelId": "",
   "announcementChannelId": ""
 }
+
+### DELETE Request to delete server
+DELETE http://localhost:3000/registration/850840267082563596
+Accept: application/json
+Content-Type: application/json

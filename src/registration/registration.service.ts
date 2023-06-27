@@ -1,9 +1,13 @@
-import { ConflictException, Injectable } from '@nestjs/common';
-import { CreateRegistrationDto } from './dto/create-registration.dto';
-import { UpdateRegistrationDto } from './dto/update-registration.dto';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { DiscordServer } from './schemas/discord-server.schema';
 import { Model } from 'mongoose';
+import { PostRegistrationResponseDto } from './dto/post-registration.response.dto';
+import { PostRegistrationRequestDto } from './dto/post-registration.request.dto';
 
 @Injectable()
 export class RegistrationService {
@@ -12,7 +16,9 @@ export class RegistrationService {
     private discordServerModel: Model<DiscordServer>,
   ) {}
 
-  async create(createRegistrationDto: CreateRegistrationDto) {
+  async create(
+    createRegistrationDto: PostRegistrationRequestDto,
+  ): Promise<PostRegistrationResponseDto> {
     const retrievedDiscordServer = await this.discordServerModel
       .findOne({
         serverId: createRegistrationDto.guildId,
@@ -29,22 +35,26 @@ export class RegistrationService {
     createdRegistration.roles = {
       authorizedDegenId: createRegistrationDto.authorizedDegenRoleId,
     };
-    return createdRegistration.save();
+    const result = await createdRegistration.save();
+    return {
+      guildId: result.serverId,
+      _id: result._id.toString(),
+    };
   }
 
-  findAll() {
-    return `This action returns all registration`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} registration`;
-  }
-
-  update(id: number, updateRegistrationDto: UpdateRegistrationDto) {
-    return `This action updates a #${id} registration`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} registration`;
+  async remove(id: string): Promise<any> {
+    const discordServer = await this.discordServerModel
+      .findOne({
+        serverId: id,
+      })
+      .exec();
+    console.log(discordServer);
+    const result = await this.discordServerModel
+      .deleteOne({ serverId: id })
+      .exec();
+    if (result.deletedCount != 1) {
+      throw new NotFoundException('Server not found');
+    }
+    return;
   }
 }

@@ -3,7 +3,7 @@ import { HydratedDocument } from 'mongoose';
 
 export type DiscordServerDocument = HydratedDocument<DiscordServer>;
 
-@Schema()
+@Schema({ collection: 'discordServers' })
 export class DiscordServer {
   @Prop({ required: true })
   serverId: string;
