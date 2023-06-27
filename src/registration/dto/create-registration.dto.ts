@@ -10,12 +10,12 @@ export class CreateRegistrationDto {
   @ApiProperty()
   authorizedDegenRoleId: string;
 
-  @ApiProperty()
+  @ApiProperty({ required: false })
   categoryChannelId: string;
 
-  @ApiProperty()
+  @ApiProperty({ required: false })
   privateChannelId: string;
 
-  @ApiProperty()
+  @ApiProperty({ required: false })
   announcementChannelId: string;
 }

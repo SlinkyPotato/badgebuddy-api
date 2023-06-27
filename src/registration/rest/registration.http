@@ -1,0 +1,12 @@
+POST http://localhost:3000/registration
+Accept: application/json
+Content-Type: application/json
+
+{
+  "guildId": "850840267082563596",
+  "guildName": "test",
+  "authorizedDegenRoleId": "sdfdsfs",
+  "categoryChannelId": "",
+  "privateChannelId": "",
+  "announcementChannelId": ""
+}
