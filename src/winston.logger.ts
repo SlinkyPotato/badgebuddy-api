@@ -1,5 +1,5 @@
 import { utilities, WinstonModule, WinstonModuleOptions } from 'nest-winston';
-import * as winston from 'winston';
+import winston from 'winston';
 import { transport } from 'winston';
 
 const loggerConfig: WinstonModuleOptions = {
