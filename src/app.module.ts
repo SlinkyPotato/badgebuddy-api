@@ -10,7 +10,9 @@ import { ConfigModule } from '@nestjs/config';
   imports: [
     EventsModule,
     RegistrationModule,
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({
+      ignoreEnvFile: true,
+    }),
     MongooseModule.forRoot(process.env.MONGODB_URI ?? ''),
   ],
   controllers: [AppController],
