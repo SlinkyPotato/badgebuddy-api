@@ -25,8 +25,6 @@ const elasticTransport = new ElasticsearchTransport({
   },
 });
 
-// TODO: configure log format to display in kibana
-
 // Winston Logger Config
 const loggerConfig: WinstonModuleOptions = {
   level: 'info', // Set the desired log level
