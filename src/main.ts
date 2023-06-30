@@ -1,4 +1,5 @@
 import 'dotenv/config'; // must be first import
+import apm from 'elastic-apm-node/start';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
@@ -6,20 +7,21 @@ import {
   FastifyAdapter,
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
-import { pinoLogger } from './pino.logger';
-import { Logger } from 'nestjs-pino';
+import { PinoLoggerService } from './PinoLoggerService';
 
 async function bootstrap() {
+  apm.startTransaction('bootstrap', 'app');
+  const pinoLogger = PinoLoggerService.createPino();
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     new FastifyAdapter({
       logger: pinoLogger,
     }),
     {
-      bufferLogs: true,
+      // bufferLogs: true,
+      logger: PinoLoggerService.createLogger(pinoLogger),
     },
   );
-  app.useLogger(app.get(Logger));
 
   const config = new DocumentBuilder()
     .setTitle('Badge Buddy API')
@@ -33,5 +35,6 @@ async function bootstrap() {
   // await app.listen(3000, '0.0.0.0');
 
   await app.listen(3000);
+  apm.endTransaction();
 }
 bootstrap();

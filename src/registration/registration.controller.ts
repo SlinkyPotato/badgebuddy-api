@@ -33,7 +33,7 @@ export class RegistrationController {
   create(
     @Body() postRegistrationRequestDto: PostRegistrationRequestDto,
   ): Promise<PostRegistrationResponseDto> {
-    // this.logger.log('RegistrationController.create called');
+    this.logger.log('RegistrationController.create called');
     return this.registrationService.create(postRegistrationRequestDto);
   }
 
