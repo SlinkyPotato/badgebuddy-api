@@ -8,6 +8,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     logger: winstonLogger,
   });
+  winstonLogger.log('test bootstrap call');
   const config = new DocumentBuilder()
     .setTitle('Badge Buddy API')
     .setDescription('The Badge Buddy API description')

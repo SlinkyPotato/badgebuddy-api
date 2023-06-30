@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Logger, Module } from '@nestjs/common';
 import { RegistrationService } from './registration.service';
 import { RegistrationController } from './registration.controller';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -16,6 +16,6 @@ import { ConfigModule } from '@nestjs/config';
     ConfigModule,
   ],
   controllers: [RegistrationController],
-  providers: [RegistrationService],
+  providers: [RegistrationService, Logger],
 })
 export class RegistrationModule {}

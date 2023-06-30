@@ -5,6 +5,7 @@ import {
   Param,
   Delete,
   HttpStatus,
+  Logger,
 } from '@nestjs/common';
 import { RegistrationService } from './registration.service';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -14,7 +15,10 @@ import { PostRegistrationResponseDto } from './dto/post-registration.response.dt
 @ApiTags('registration')
 @Controller('registration')
 export class RegistrationController {
-  constructor(private readonly registrationService: RegistrationService) {}
+  constructor(
+    private readonly registrationService: RegistrationService,
+    private readonly logger: Logger,
+  ) {}
 
   @Post()
   @ApiResponse({
@@ -29,6 +33,7 @@ export class RegistrationController {
   create(
     @Body() postRegistrationRequestDto: PostRegistrationRequestDto,
   ): Promise<PostRegistrationResponseDto> {
+    // this.logger.log('RegistrationController.create called');
     return this.registrationService.create(postRegistrationRequestDto);
   }
 

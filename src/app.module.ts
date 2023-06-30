@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Logger, Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { EventsModule } from './events/events.module';
@@ -16,6 +16,6 @@ import { ConfigModule } from '@nestjs/config';
     MongooseModule.forRoot(process.env.MONGODB_URI ?? ''),
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [Logger, AppService],
 })
 export class AppModule {}
