@@ -1,14 +1,10 @@
 import 'dotenv/config'; // must be first import
-import apm from 'elastic-apm-node/start';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { winstonLogger } from './winston.logger';
 
 async function bootstrap() {
-  // TODO: add apm to nestjs
-  apm;
-
   const app = await NestFactory.create(AppModule, {
     logger: winstonLogger,
   });

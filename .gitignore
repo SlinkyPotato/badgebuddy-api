@@ -37,3 +37,7 @@ lerna-debug.log*
 .flaskenv*
 !.env.project
 !.env.vault
+
+# Certs
+/certs/*
+!/certs/.gitkeep
