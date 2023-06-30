@@ -6,18 +6,21 @@ import {
   FastifyAdapter,
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
-import { winstonLogger } from './winston.logger';
+import { pinoLogger } from './pino.logger';
+import { Logger } from 'nestjs-pino';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     new FastifyAdapter({
-      logger: process.env.NODE_ENV === 'development',
+      logger: pinoLogger,
     }),
     {
-      logger: winstonLogger,
+      bufferLogs: true,
     },
   );
+  app.useLogger(app.get(Logger));
+
   const config = new DocumentBuilder()
     .setTitle('Badge Buddy API')
     .setDescription('The Badge Buddy API description')
