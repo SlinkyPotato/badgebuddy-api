@@ -6,11 +6,13 @@ import {
   Delete,
   HttpStatus,
   Logger,
+  Inject,
 } from '@nestjs/common';
 import { RegistrationService } from './registration.service';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { PostRegistrationRequestDto } from './dto/post-registration.request.dto';
 import { PostRegistrationResponseDto } from './dto/post-registration.response.dto';
+import { Agent } from 'elastic-apm-node';
 
 @ApiTags('registration')
 @Controller('registration')
@@ -18,6 +20,7 @@ export class RegistrationController {
   constructor(
     private readonly registrationService: RegistrationService,
     private readonly logger: Logger,
+    @Inject('APM') private readonly apm: Agent,
   ) {}
 
   @Post()
@@ -33,7 +36,6 @@ export class RegistrationController {
   create(
     @Body() postRegistrationRequestDto: PostRegistrationRequestDto,
   ): Promise<PostRegistrationResponseDto> {
-    this.logger.log('RegistrationController.create called');
     return this.registrationService.create(postRegistrationRequestDto);
   }
 

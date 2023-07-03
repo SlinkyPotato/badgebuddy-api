@@ -7,6 +7,7 @@ import {
   DiscordServerSchema,
 } from './schemas/discord-server.schema';
 import { ConfigModule } from '@nestjs/config';
+import apm from 'elastic-apm-node';
 
 @Module({
   imports: [
@@ -16,6 +17,6 @@ import { ConfigModule } from '@nestjs/config';
     ConfigModule,
   ],
   controllers: [RegistrationController],
-  providers: [RegistrationService, Logger],
+  providers: [RegistrationService, Logger, { provide: 'APM', useValue: apm }],
 })
 export class RegistrationModule {}
