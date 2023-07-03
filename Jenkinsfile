@@ -24,6 +24,8 @@ pipeline {
                     env.NODE_ENV = 'staging'
                     env.DOTENV_KEY = credentials('dotenv-key-staging')
                 }
+                sh 'NODE_VERSION=${NODE_VERSION} PNPM_VERSION=${PNPM_VERSION} NODE_ENV=${NODE_ENV} ' +
+                        'DOTENV_KEY=${DOTENV_KEY}'
                 sh 'docker image build -t amaredeus/badge-buddy-api:latest-beta .'
                 sh 'docker tag amaredeus/badge-buddy-api:latest-beta amaredeus/badge-buddy-api:${PROJECT_VERSION}'
             }
