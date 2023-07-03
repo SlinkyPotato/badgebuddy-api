@@ -7,6 +7,7 @@ services:
       args:
         NODE_VERSION: ${NODE_VERSION}
         PNPM_VERSION: ${PNPM_VERSION}
+        NODE_ENV: ${NODE_ENV}
     networks:
       - local_server
     profiles:
@@ -14,13 +15,14 @@ services:
 
   badge_buddy_api_qa:
     container_name: badge_buddy_api_qa
-    image: amaredeus/badge-buddy-api:latest-qa
+    image: amaredeus/badge-buddy-api:latest-beta
     env_file:
       - .env.staging
     networks:
       - qa_server
+      - elastic
     profiles:
-      - qa
+      - staging
 
   badge_buddy_api_prod:
     container_name: badge_buddy_api_prod
@@ -31,7 +33,7 @@ services:
       - prod_server
       - elastic
     profiles:
-      - prod
+      - production
 
 networks:
   local_server:
@@ -39,4 +41,6 @@ networks:
   qa_server:
     external: true
   prod_server:
+    external: true
+  elastic:
     external: true

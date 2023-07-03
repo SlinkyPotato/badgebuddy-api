@@ -1,13 +1,13 @@
 {
   "name": "badge-buddy",
-  "version": "1.0.0",
+  "version": "1.0.0-beta",
   "description": "Microservices API for Badge Buddy",
   "author": "amaredeus <patinobrian@gmail.com>",
   "private": true,
   "license": "MIT",
   "engines": {
-    "node": "~20.3.1",
-    "pnpm": "~8.6.6"
+    "node": "20.3.1",
+    "pnpm": "8.6.6"
   },
   "scripts": {
     "build": "nest build",
