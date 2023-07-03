@@ -86,10 +86,8 @@ pipeline {
             steps {
                 sshagent(credentials: ['jenkins-ssh']) {
                     sh '''
-                     ssh -o StrictHostKeychecking=no jenkins@${GRANITE_HOST_IP} rm -Rf 
-                     /home/jenkins/apps/badge-buddy-api_qa/**
-                     scp -o StrictHostKeychecking=no -r dist/** 
-                     jenkins@${GRANITE_HOST_IP}:/home/jenkins/apps/badge-buddy-api_qa/
+                     ssh -o StrictHostKeychecking=no jenkins@${GRANITE_HOST_IP} rm -rf /home/jenkins/apps/badge-buddy-api_qa/**
+                     scp -o StrictHostKeychecking=no -r dist/** jenkins@${GRANITE_HOST_IP}:/home/jenkins/apps/badge-buddy-api_qa/
                     '''
                 }
                 sh 'docker compose -f dist/compose.yml --profile staging up -d'
@@ -102,10 +100,8 @@ pipeline {
             steps {
                 sshagent(credentials: ['jenkins-ssh']) {
                     sh '''
-                     ssh -o StrictHostKeychecking=no jenkins@${GRANITE_HOST_IP} rm -Rf 
-                     /home/jenkins/apps/badge-buddy-api_prod/**
-                     scp -o StrictHostKeychecking=no -r dist/** 
-                     jenkins@${GRANITE_HOST_IP}:/home/jenkins/apps/badge-buddy-api_prod/
+                     ssh -o StrictHostKeychecking=no jenkins@${GRANITE_HOST_IP} rm -rf /home/jenkins/apps/badge-buddy-api_prod/**
+                     scp -o StrictHostKeychecking=no -r dist/** jenkins@${GRANITE_HOST_IP}:/home/jenkins/apps/badge-buddy-api_prod/
                     '''
                 }
                 sh 'docker compose -f dist/compose.yml --profile production up -d'
