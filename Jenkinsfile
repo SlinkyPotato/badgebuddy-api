@@ -29,7 +29,8 @@ pipeline {
                         '--build-arg PNPM_VERSION=${PNPM_VERSION} ' +
                         '--build-arg NODE_ENV=${NODE_ENV} ' +
                         '-t amaredeus/badge-buddy-api:latest-beta .'
-                sh 'docker tag amaredeus/badge-buddy-api:latest-beta amaredeus/badge-buddy-api:${PROJECT_VERSION}'
+                sh 'DOTENV_KEY=${DOTENV_KEY} docker tag amaredeus/badge-buddy-api:latest-beta ' +
+                        'amaredeus/badge-buddy-api:${PROJECT_VERSION}'
             }
         }
         stage('Build Docker Production Image for main branch') {
@@ -46,7 +47,8 @@ pipeline {
                         '--build-arg PNPM_VERSION=${PNPM_VERSION} ' +
                         '--build-arg NODE_ENV=${NODE_ENV} ' +
                         '-t amaredeus/badge-buddy-api:latest .'
-                sh 'docker tag amaredeus/badge-buddy-api:latest amaredeus/badge-buddy-api:${PROJECT_VERSION}'
+                sh 'DOTENV_KEY=${DOTENV_KEY} docker tag amaredeus/badge-buddy-api:latest ' +
+                        'amaredeus/badge-buddy-api:${PROJECT_VERSION}'
             }
         }
         stage('Push Images to Docker') {

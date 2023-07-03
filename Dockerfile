@@ -12,14 +12,11 @@ WORKDIR /app
 # Install pnpm
 RUN npm install -g pnpm@${PNPM_VERSION}
 
-# Files required by pnpm install
-COPY pnpm-lock.yaml ./
+# Bundle app source
+COPY . .
 
 # Fetch dep from virtual store
 RUN pnpm fetch
-
-# Bundle app source
-COPY . .
 
 # Install app dependencies
 RUN pnpm install --frozen-lockfile
@@ -31,10 +28,9 @@ RUN pnpm build
 RUN mv CHANGELOG.md ./dist/
 RUN mv LICENSE.md ./dist/
 RUN mv README.md ./dist/
+RUN mv .env.vault ./dist/
 
 # Remove dev dependencies
 RUN pnpm install --prod
-
-RUN pnpm exec dotenv-vault pull ${NODE_ENV}
 
 CMD ["pnpm", "start:prod"]

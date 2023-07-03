@@ -21,6 +21,8 @@ services:
       - elastic
     profiles:
       - staging
+    environment:
+      - DOTENV_KEY
 
   badge_buddy_api_prod:
     container_name: badge_buddy_api_prod
@@ -30,6 +32,8 @@ services:
       - elastic
     profiles:
       - production
+    environment:
+      - DOTENV_KEY
 
 networks:
   local_server:
