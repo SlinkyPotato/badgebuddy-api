@@ -5,6 +5,10 @@
   "author": "amaredeus <patinobrian@gmail.com>",
   "private": true,
   "license": "MIT",
+  "engines": {
+    "node": "~20.3.1",
+    "pnpm": "~8.6.6"
+  },
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",

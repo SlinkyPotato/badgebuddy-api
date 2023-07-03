@@ -1,0 +1,41 @@
+name: badge-buddy-api
+services:
+  badge_buddy_api_local:
+    container_name: badge_buddy_api_local
+    build:
+      context: .
+      args:
+        NODE_VERSION: ${NODE_VERSION}
+        PNPM_VERSION: ${PNPM_VERSION}
+    environment:
+      NODE_VERSION: ${NODE_VERSION}
+    networks:
+      - local_server
+    profiles:
+      - local
+
+  badge_buddy_api_qa:
+    container_name: badge_buddy_api_qa
+    image: amaredeus/badge-buddy-api:latest-qa
+    environment:
+      NODE_VERSION: ${NODE_VERSION}
+    networks:
+      - local_server
+    profiles:
+      - qa
+
+  badge_buddy_api_prod:
+    container_name: badge_buddy_api_prod
+    image: amaredeus/badge-buddy-api:latest
+    build: .
+    environment:
+      NODE_VERSION: ${NODE_VERSION}
+    networks:
+      - local_server
+    profiles:
+      - prod
+
+networks:
+  local_server:
+    external: true
+
