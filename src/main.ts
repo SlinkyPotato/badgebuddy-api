@@ -7,19 +7,19 @@ import {
   FastifyAdapter,
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
-import { PinoLogger } from './pino.logger';
+import { ElasticPinoLogger } from './elasticpino.logger';
 
 async function bootstrap() {
+  const pinoLogger = new ElasticPinoLogger(apm);
+  apm.logger = pinoLogger.logger;
   apm.startTransaction('bootstrap', 'app');
-  const pinoLogger = PinoLogger.createPino();
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     new FastifyAdapter({
-      logger: pinoLogger,
+      logger: pinoLogger.logger,
     }),
     {
-      // bufferLogs: true,
-      logger: PinoLogger.createLogger(pinoLogger),
+      logger: pinoLogger,
     },
   );
 

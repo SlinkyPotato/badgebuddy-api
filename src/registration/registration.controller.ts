@@ -36,7 +36,10 @@ export class RegistrationController {
   create(
     @Body() postRegistrationRequestDto: PostRegistrationRequestDto,
   ): Promise<PostRegistrationResponseDto> {
-    return this.registrationService.create(postRegistrationRequestDto);
+    this.apm.startTransaction('create registration', 'controller');
+    const res = this.registrationService.create(postRegistrationRequestDto);
+    this.apm.endTransaction();
+    return res;
   }
 
   @Delete(':id')

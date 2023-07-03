@@ -43,12 +43,11 @@ export class RegistrationService {
   }
 
   async remove(id: string): Promise<any> {
-    const discordServer = await this.discordServerModel
+    await this.discordServerModel
       .findOne({
         serverId: id,
       })
       .exec();
-    console.log(discordServer);
     const result = await this.discordServerModel
       .deleteOne({ serverId: id })
       .exec();
