@@ -21,7 +21,6 @@ pipeline {
             }
             environment {
                 NODE_ENV = 'staging'
-                DOTENV_KEY = credentials('dotenv-key-staging')
             }
             steps {
                 sh 'docker image build ' +
@@ -29,7 +28,7 @@ pipeline {
                         '--build-arg PNPM_VERSION=${PNPM_VERSION} ' +
                         '--build-arg NODE_ENV=${NODE_ENV} ' +
                         '-t amaredeus/badge-buddy-api:latest-beta .'
-                sh 'DOTENV_KEY=${DOTENV_KEY} docker tag amaredeus/badge-buddy-api:latest-beta ' +
+                sh 'docker tag amaredeus/badge-buddy-api:latest-beta ' +
                         'amaredeus/badge-buddy-api:${PROJECT_VERSION}'
             }
         }
@@ -39,7 +38,6 @@ pipeline {
             }
             environment {
                 NODE_ENV = 'production'
-                DOTENV_KEY = credentials('dotenv-key-production')
             }
             steps {
                 sh 'docker image build ' +
@@ -47,7 +45,7 @@ pipeline {
                         '--build-arg PNPM_VERSION=${PNPM_VERSION} ' +
                         '--build-arg NODE_ENV=${NODE_ENV} ' +
                         '-t amaredeus/badge-buddy-api:latest .'
-                sh 'DOTENV_KEY=${DOTENV_KEY} docker tag amaredeus/badge-buddy-api:latest ' +
+                sh 'docker tag amaredeus/badge-buddy-api:latest ' +
                         'amaredeus/badge-buddy-api:${PROJECT_VERSION}'
             }
         }
@@ -63,7 +61,6 @@ pipeline {
             }
             steps {
                 sh 'docker cp $(docker create amaredeus/badge-buddy-api:latest-beta):/app/dist .'
-                sh 'cp compose.yml dist/compose.yml'
                 sh 'zip -r dist.zip dist'
                 archiveArtifacts 'dist.zip'
             }
@@ -74,7 +71,6 @@ pipeline {
             }
             steps {
                 sh 'docker cp $(docker create amaredeus/badge-buddy-api:latest):/app/dist .'
-                sh 'cp compose-prod.yml dist/compose.yml'
                 sh 'zip -r dist.zip dist'
                 archiveArtifacts 'dist.zip'
             }
@@ -82,6 +78,9 @@ pipeline {
         stage('Deploy Beta App for dev branch') {
             when {
                 branch 'dev'
+            }
+            environment {
+                DOTENV_KEY = credentials('dotenv-key-staging')
             }
             steps {
                 sshagent(credentials: ['jenkins-ssh']) {
@@ -91,12 +90,15 @@ pipeline {
                     '''
                 }
                 sh 'docker compose -f dist/compose.yml --profile staging down'
-                sh 'docker compose -f dist/compose.yml --profile staging up -d'
+                sh 'DOTENV_KEY=${DOTENV_KEY} docker compose -f dist/compose.yml --profile staging up -d'
             }
         }
         stage('Deploy Production app for main branch') {
             when {
                 branch 'main'
+            }
+            environment {
+                DOTENV_KEY = credentials('dotenv-key-production')
             }
             steps {
                 sshagent(credentials: ['jenkins-ssh']) {
@@ -106,7 +108,7 @@ pipeline {
                     '''
                 }
                 sh 'docker compose -f dist/compose.yml --profile production down'
-                sh 'docker compose -f dist/compose.yml --profile production up -d'
+                sh 'DOTENV_KEY=${DOTENV_KEY} docker compose -f dist/compose.yml --profile production up -d'
             }
         }
         stage('Docker Cleanup') {

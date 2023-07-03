@@ -29,6 +29,7 @@ RUN mv CHANGELOG.md ./dist/
 RUN mv LICENSE.md ./dist/
 RUN mv README.md ./dist/
 RUN mv .env.vault ./dist/
+RUN mv compose.yml ./dist/
 
 # Remove dev dependencies
 RUN pnpm install --prod
