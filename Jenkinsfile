@@ -4,6 +4,8 @@ pipeline {
         DOCKER_ACCESS_TOKEN = credentials('amaredeus-docker-token')
         GRANITE_HOST_IP = credentials('granite-host-ip')
         GH_TOKEN = credentials('gh-cli-jenkins-token')
+        DOTENV_KEY_STAGING = credentials('dotenv-key-staging')
+        DOTENV_KEY_PRODUCTION = credentials('dotenv-key-production')
     }
     stages {
         stage('Prepare Package Versions') {
@@ -22,11 +24,10 @@ pipeline {
             steps {
                 script {
                     env.NODE_ENV = 'staging'
-                    env.DOTENV_KEY = credentials('dotenv-key-staging')
                 }
                 sh 'NODE_VERSION=${NODE_VERSION} PNPM_VERSION=${PNPM_VERSION} NODE_ENV=${NODE_ENV} ' +
-                        'DOTENV_KEY=${DOTENV_KEY}'
-                sh 'docker image build -t amaredeus/badge-buddy-api:latest-beta .'
+                        'DOTENV_KEY=${DOTENV_KEY_STAGING} ' +
+                        'docker image build -t amaredeus/badge-buddy-api:latest-beta .'
                 sh 'docker tag amaredeus/badge-buddy-api:latest-beta amaredeus/badge-buddy-api:${PROJECT_VERSION}'
             }
         }
@@ -37,9 +38,10 @@ pipeline {
             steps {
                 script {
                     env.NODE_ENV = 'production'
-                    env.DOTENV_KEY = credentials('dotenv-key-production')
                 }
-                sh 'docker image build -t amaredeus/badge-buddy-api:latest .'
+                sh 'NODE_VERSION=${NODE_VERSION} PNPM_VERSION=${PNPM_VERSION} NODE_ENV=${NODE_ENV} ' +
+                        'DOTENV_KEY=${DOTENV_KEY_PRODUCTION} ' +
+                        'docker image build -t amaredeus/badge-buddy-api:latest .'
                 sh 'docker tag amaredeus/badge-buddy-api:latest amaredeus/badge-buddy-api:${PROJECT_VERSION}'
             }
         }
