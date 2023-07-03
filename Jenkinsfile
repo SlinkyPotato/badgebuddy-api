@@ -20,7 +20,7 @@ pipeline {
                 branch 'dev'
             }
             steps {
-                script: {
+                script {
                     env.NODE_ENV = 'staging'
                     env.DOTENV_KEY = credentials('dotenv-key-staging')
                 }
@@ -33,7 +33,7 @@ pipeline {
                 branch 'main'
             }
             steps {
-                script: {
+                script {
                     env.NODE_ENV = 'production'
                     env.DOTENV_KEY = credentials('dotenv-key-production')
                 }
