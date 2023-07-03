@@ -4,8 +4,6 @@ pipeline {
         DOCKER_ACCESS_TOKEN = credentials('amaredeus-docker-token')
         GRANITE_HOST_IP = credentials('granite-host-ip')
         GH_TOKEN = credentials('gh-cli-jenkins-token')
-        DOTENV_KEY_STAGING = credentials('dotenv-key-staging')
-        DOTENV_KEY_PRODUCTION = credentials('dotenv-key-production')
     }
     stages {
         stage('Prepare Package Versions') {
@@ -21,15 +19,15 @@ pipeline {
             when {
                 branch 'dev'
             }
+            environment {
+                NODE_ENV = 'staging'
+                DOTENV_KEY = credentials('dotenv-key-staging')
+            }
             steps {
-                script {
-                    env.NODE_ENV = 'staging'
-                }
                 sh 'docker image build ' +
                         '--build-arg NODE_VERSION=${NODE_VERSION} ' +
                         '--build-arg PNPM_VERSION=${PNPM_VERSION} ' +
                         '--build-arg NODE_ENV=${NODE_ENV} ' +
-                        '--build-arg DOTENV_KEY=${DOTENV_KEY_STAGING} ' +
                         '-t amaredeus/badge-buddy-api:latest-beta .'
                 sh 'docker tag amaredeus/badge-buddy-api:latest-beta amaredeus/badge-buddy-api:${PROJECT_VERSION}'
             }
@@ -38,15 +36,15 @@ pipeline {
             when {
                 branch 'main'
             }
+            environment {
+                NODE_ENV = 'production'
+                DOTENV_KEY = credentials('dotenv-key-production')
+            }
             steps {
-                script {
-                    env.NODE_ENV = 'production'
-                }
                 sh 'docker image build ' +
                         '--build-arg NODE_VERSION=${NODE_VERSION} ' +
                         '--build-arg PNPM_VERSION=${PNPM_VERSION} ' +
                         '--build-arg NODE_ENV=${NODE_ENV} ' +
-                        '--build-arg DOTENV_KEY=${DOTENV_KEY_PRODUCTION} ' +
                         '-t amaredeus/badge-buddy-api:latest .'
                 sh 'docker tag amaredeus/badge-buddy-api:latest amaredeus/badge-buddy-api:${PROJECT_VERSION}'
             }
@@ -90,6 +88,7 @@ pipeline {
                      scp -o StrictHostKeychecking=no -r dist/** jenkins@${GRANITE_HOST_IP}:/home/jenkins/apps/badge-buddy-api_qa/
                     '''
                 }
+                sh 'docker compose -f dist/compose.yml --profile staging down'
                 sh 'docker compose -f dist/compose.yml --profile staging up -d'
             }
         }
@@ -104,6 +103,7 @@ pipeline {
                      scp -o StrictHostKeychecking=no -r dist/** jenkins@${GRANITE_HOST_IP}:/home/jenkins/apps/badge-buddy-api_prod/
                     '''
                 }
+                sh 'docker compose -f dist/compose.yml --profile production down'
                 sh 'docker compose -f dist/compose.yml --profile production up -d'
             }
         }
