@@ -67,11 +67,6 @@ pipeline {
                 sh 'zip -r dist.zip dist'
                 archiveArtifacts 'dist.zip'
             }
-            post {
-                success {
-                    sh 'cp .env.qa dist/.env'
-                }
-            }
         }
         stage('Archive dist for main branch') {
             when {
@@ -82,11 +77,6 @@ pipeline {
                 sh 'cp compose-prod.yml dist/compose.yml'
                 sh 'zip -r dist.zip dist'
                 archiveArtifacts 'dist.zip'
-            }
-            post {
-                success {
-                    sh 'cp .env.prod dist/.env'
-                }
             }
         }
         stage('Deploy Beta App for dev branch') {

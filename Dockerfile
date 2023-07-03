@@ -4,6 +4,7 @@ FROM node:${NODE_VERSION}-alpine
 
 ARG PNPM_VERSION
 ARG NODE_ENV
+ARG DOTENV_KEY
 
 LABEL description="Microservices API for Badge Buddy"
 
@@ -16,7 +17,7 @@ RUN npm install -g pnpm@${PNPM_VERSION}
 COPY pnpm-lock.yaml ./
 
 # Fetch dep from virtual store
-RUN pnpm fetch --prod
+RUN pnpm fetch
 
 # Bundle app source
 COPY . .
