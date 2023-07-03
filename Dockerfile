@@ -4,6 +4,7 @@ FROM node:${NODE_VERSION}-alpine
 
 ARG PNPM_VERSION
 ARG NODE_ENV
+ARG DOTENV_KEY
 
 LABEL description="Microservices API for Badge Buddy"
 
@@ -34,4 +35,4 @@ RUN mv compose.yml ./dist/
 # Remove dev dependencies
 RUN pnpm install --prod
 
-CMD ["pnpm", "start:prod"]
+CMD ["DOTENV_KEY=${DOTENV_KEY}", "pnpm", "start:prod"]

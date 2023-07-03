@@ -22,7 +22,7 @@ services:
     profiles:
       - staging
     environment:
-      - DOTENV_KEY
+      DOTENV_KEY: ${DOTENV_KEY}
 
   badge_buddy_api_prod:
     container_name: badge_buddy_api_prod
@@ -33,7 +33,7 @@ services:
     profiles:
       - production
     environment:
-      - DOTENV_KEY
+      DOTENV_KEY: ${DOTENV_KEY}
 
 networks:
   local_server:
