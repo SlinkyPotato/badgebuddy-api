@@ -1,8 +1,9 @@
 ARG NODE_VERSION
-ARG PNPM_VERSION
-ARG NODE_ENV
 
 FROM node:${NODE_VERSION}-alpine
+
+ARG PNPM_VERSION
+ARG NODE_ENV
 
 LABEL description="Microservices API for Badge Buddy"
 

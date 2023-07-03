@@ -25,9 +25,12 @@ pipeline {
                 script {
                     env.NODE_ENV = 'staging'
                 }
-                sh 'NODE_VERSION=${NODE_VERSION} PNPM_VERSION=${PNPM_VERSION} NODE_ENV=${NODE_ENV} ' +
-                        'DOTENV_KEY=${DOTENV_KEY_STAGING} ' +
-                        'docker image build -t amaredeus/badge-buddy-api:latest-beta .'
+                sh 'docker image build ' +
+                        '--build-arg NODE_VERSION=${NODE_VERSION} ' +
+                        '--build-arg PNPM_VERSION=${PNPM_VERSION} ' +
+                        '--build-arg NODE_ENV=${NODE_ENV} ' +
+                        '--build-arg DOTENV_KEY=${DOTENV_KEY_STAGING} ' +
+                        '-t amaredeus/badge-buddy-api:latest-beta .'
                 sh 'docker tag amaredeus/badge-buddy-api:latest-beta amaredeus/badge-buddy-api:${PROJECT_VERSION}'
             }
         }
@@ -39,9 +42,12 @@ pipeline {
                 script {
                     env.NODE_ENV = 'production'
                 }
-                sh 'NODE_VERSION=${NODE_VERSION} PNPM_VERSION=${PNPM_VERSION} NODE_ENV=${NODE_ENV} ' +
-                        'DOTENV_KEY=${DOTENV_KEY_PRODUCTION} ' +
-                        'docker image build -t amaredeus/badge-buddy-api:latest .'
+                sh 'docker image build ' +
+                        '--build-arg NODE_VERSION=${NODE_VERSION} ' +
+                        '--build-arg PNPM_VERSION=${PNPM_VERSION} ' +
+                        '--build-arg NODE_ENV=${NODE_ENV} ' +
+                        '--build-arg DOTENV_KEY=${DOTENV_KEY_PRODUCTION} ' +
+                        '-t amaredeus/badge-buddy-api:latest .'
                 sh 'docker tag amaredeus/badge-buddy-api:latest amaredeus/badge-buddy-api:${PROJECT_VERSION}'
             }
         }
