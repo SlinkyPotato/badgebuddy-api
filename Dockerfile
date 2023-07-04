@@ -29,10 +29,8 @@ RUN pnpm build
 RUN mv CHANGELOG.md ./dist/
 RUN mv LICENSE.md ./dist/
 RUN mv README.md ./dist/
-RUN mv .env.vault ./dist/
-RUN mv compose.yml ./dist/
 
 # Remove dev dependencies
 RUN pnpm install --prod
 
-CMD ["DOTENV_KEY=${DOTENV_KEY}", "pnpm", "start:prod"]
+CMD ["pnpm", "start:prod"]

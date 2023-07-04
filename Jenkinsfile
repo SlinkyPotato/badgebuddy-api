@@ -74,6 +74,20 @@ pipeline {
                 archiveArtifacts 'dist.zip'
             }
         }
+        stage('Deploy Docker Compose file') {
+            when {
+                branch 'dev'
+                branch 'main'
+            }
+            steps {
+                sshagent(credentials: ['jenkins-ssh']) {
+                    sh '''
+                     ssh -o StrictHostKeychecking=no jenkins@${GRANITE_HOST_IP} rm -rf /home/jenkins/apps/badge-buddy-api/**
+                     scp -o StrictHostKeychecking=no -r compose.yml jenkins@${GRANITE_HOST_IP}:/home/jenkins/apps/badge-buddy-api/
+                    '''
+                }
+            }
+        }
         stage('Deploy Beta App for dev branch') {
             when {
                 branch 'dev'
@@ -82,14 +96,8 @@ pipeline {
                 DOTENV_KEY = credentials('dotenv-key-staging')
             }
             steps {
-                sshagent(credentials: ['jenkins-ssh']) {
-                    sh '''
-                     ssh -o StrictHostKeychecking=no jenkins@${GRANITE_HOST_IP} rm -rf /home/jenkins/apps/badge-buddy-api_qa/**
-                     scp -o StrictHostKeychecking=no -r dist/** jenkins@${GRANITE_HOST_IP}:/home/jenkins/apps/badge-buddy-api_qa/
-                    '''
-                }
-                sh 'docker compose -f dist/compose.yml --profile staging down'
-                sh 'DOTENV_KEY=${DOTENV_KEY} docker compose -f dist/compose.yml --profile staging up -d'
+                sh 'docker compose --profile staging down'
+                sh 'DOTENV_KEY=${DOTENV_KEY} docker compose --profile staging up -d'
             }
         }
         stage('Deploy Production app for main branch') {
@@ -100,14 +108,8 @@ pipeline {
                 DOTENV_KEY = credentials('dotenv-key-production')
             }
             steps {
-                sshagent(credentials: ['jenkins-ssh']) {
-                    sh '''
-                     ssh -o StrictHostKeychecking=no jenkins@${GRANITE_HOST_IP} rm -rf /home/jenkins/apps/badge-buddy-api_prod/**
-                     scp -o StrictHostKeychecking=no -r dist/** jenkins@${GRANITE_HOST_IP}:/home/jenkins/apps/badge-buddy-api_prod/
-                    '''
-                }
-                sh 'docker compose -f dist/compose.yml --profile production down'
-                sh 'DOTENV_KEY=${DOTENV_KEY} docker compose -f dist/compose.yml --profile production up -d'
+                sh 'docker compose --profile production down'
+                sh 'DOTENV_KEY=${DOTENV_KEY} docker compose --profile production up -d'
             }
         }
         stage('Docker Cleanup') {
