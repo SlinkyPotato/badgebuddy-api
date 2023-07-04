@@ -3,8 +3,6 @@ ARG NODE_VERSION
 FROM node:${NODE_VERSION}-alpine
 
 ARG PNPM_VERSION
-ARG NODE_ENV
-ARG DOTENV_KEY
 
 LABEL description="Microservices API for Badge Buddy"
 

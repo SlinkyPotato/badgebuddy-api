@@ -32,9 +32,9 @@ async function bootstrap() {
   SwaggerModule.setup('swagger', app, document);
 
   // accept connections to other hosts
-  // await app.listen(3000, '0.0.0.0');
+  await app.listen(3000, '0.0.0.0');
 
-  await app.listen(3000);
+  // await app.listen(3000);
   apm.endTransaction();
 }
 bootstrap();

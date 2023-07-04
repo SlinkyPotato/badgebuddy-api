@@ -7,15 +7,20 @@ services:
       args:
         NODE_VERSION: ${NODE_VERSION}
         PNPM_VERSION: ${PNPM_VERSION}
-        NODE_ENV: ${NODE_ENV}
+    environment:
+      DOTENV_KEY: ${DOTENV_KEY}
     networks:
       - local_server
+    ports:
+      - 3002:3000
     profiles:
       - local
 
   badge_buddy_api_qa:
     container_name: badge_buddy_api_qa
     image: amaredeus/badge-buddy-api:latest-beta
+    ports:
+      - 3002:3000
     networks:
       - qa_server
       - elastic
@@ -27,6 +32,8 @@ services:
   badge_buddy_api_prod:
     container_name: badge_buddy_api_prod
     image: amaredeus/badge-buddy-api:latest
+    ports:
+      - 3002:3000
     networks:
       - prod_server
       - elastic
