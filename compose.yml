@@ -20,7 +20,7 @@ services:
     container_name: badge_buddy_api_qa
     image: amaredeus/badge-buddy-api:latest-beta
     ports:
-      - 3002:3000
+      - 3010:3000
     networks:
       - qa_server
       - elastic
