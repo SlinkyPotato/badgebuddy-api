@@ -76,7 +76,7 @@ pipeline {
         }
         stage('Deploy Docker Compose file') {
             when {
-                anyof {
+                anyOf {
                     branch 'dev'
                     branch 'main'
                 }
