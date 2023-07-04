@@ -76,8 +76,10 @@ pipeline {
         }
         stage('Deploy Docker Compose file') {
             when {
-                branch 'dev'
-                branch 'main'
+                anyof {
+                    branch 'dev'
+                    branch 'main'
+                }
             }
             steps {
                 sshagent(credentials: ['jenkins-ssh']) {
