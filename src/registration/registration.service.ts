@@ -35,6 +35,10 @@ export class RegistrationService {
     createdRegistration.roles = {
       authorizedDegenId: createRegistrationDto.roleId,
     };
+    createdRegistration.categoryChannelId = createRegistrationDto.categoryId;
+    createdRegistration.privateChannelId = createRegistrationDto.channelId;
+    createdRegistration.announcementChannelId =
+      createRegistrationDto.newChannelId;
     const result = await createdRegistration.save();
     return {
       guildId: result.serverId,
