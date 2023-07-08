@@ -31,6 +31,7 @@ services:
       - staging
     environment:
       DOTENV_KEY: ${DOTENV_KEY}
+      NODE_ENV: 'staging'
     volumes:
       - ./logs:/app/logs
 
@@ -47,6 +48,7 @@ services:
       - production
     environment:
       DOTENV_KEY: ${DOTENV_KEY}
+      NODE_ENV: 'production'
     volumes:
       - ./logs:/app/logs
 
