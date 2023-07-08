@@ -33,7 +33,7 @@ export class RegistrationService {
     createdRegistration.serverId = createRegistrationDto.guildId;
     createdRegistration.name = createRegistrationDto.guildName;
     createdRegistration.roles = {
-      authorizedDegenId: createRegistrationDto.authorizedDegenRoleId,
+      authorizedDegenId: createRegistrationDto.roleId,
     };
     const result = await createdRegistration.save();
     return {
@@ -41,7 +41,6 @@ export class RegistrationService {
       _id: result._id.toString(),
     };
   }
-
   async remove(id: string): Promise<any> {
     await this.discordServerModel
       .findOne({
