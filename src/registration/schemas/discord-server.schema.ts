@@ -5,31 +5,25 @@ export type DiscordServerDocument = HydratedDocument<DiscordServer>;
 
 @Schema({ collection: 'discordServers' })
 export class DiscordServer {
-  @Prop({ required: true })
-  serverId: string;
+  @Prop({ required: true, unique: true })
+  guildId: string;
 
   @Prop({ required: true })
-  name: string;
+  guildName: string;
 
-  @Prop()
-  isDEGENSetup: boolean;
-
-  @Prop()
+  @Prop({ required: true })
   privateChannelId: string;
 
-  @Prop()
-  categoryChannelId: string;
-
-  @Prop()
-  announcementChannelId: string;
+  @Prop({ required: false })
+  newsChannelId: string;
 
   @Prop(
     raw({
-      authorizedDegenId: { type: String, required: true },
+      poapManagerRoleId: { type: String, required: true },
     }),
   )
   roles: {
-    authorizedDegenId: string;
+    poapManagerRoleId: string;
   };
 }
 

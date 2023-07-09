@@ -21,7 +21,7 @@ export class RegistrationService {
   ): Promise<PostRegistrationResponseDto> {
     const retrievedDiscordServer = await this.discordServerModel
       .findOne({
-        serverId: createRegistrationDto.guildId,
+        guildId: createRegistrationDto.guildId,
       })
       .exec();
 
@@ -30,29 +30,27 @@ export class RegistrationService {
     }
 
     const createdRegistration = new this.discordServerModel();
-    createdRegistration.serverId = createRegistrationDto.guildId;
-    createdRegistration.name = createRegistrationDto.guildName;
+    createdRegistration.guildId = createRegistrationDto.guildId;
+    createdRegistration.guildName = createRegistrationDto.guildName;
     createdRegistration.roles = {
-      authorizedDegenId: createRegistrationDto.roleId,
+      poapManagerRoleId: createRegistrationDto.roleId,
     };
-    createdRegistration.categoryChannelId = createRegistrationDto.categoryId;
     createdRegistration.privateChannelId = createRegistrationDto.channelId;
-    createdRegistration.announcementChannelId =
-      createRegistrationDto.newChannelId;
+    createdRegistration.newsChannelId = createRegistrationDto.newsChannelId;
     const result = await createdRegistration.save();
     return {
-      guildId: result.serverId,
+      guildId: result.guildId,
       _id: result._id.toString(),
     };
   }
   async remove(id: string): Promise<any> {
     await this.discordServerModel
       .findOne({
-        serverId: id,
+        guildId: id,
       })
       .exec();
     const result = await this.discordServerModel
-      .deleteOne({ serverId: id })
+      .deleteOne({ guildId: id })
       .exec();
     if (result.deletedCount != 1) {
       throw new NotFoundException('Server not found');

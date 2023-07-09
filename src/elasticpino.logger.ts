@@ -5,7 +5,7 @@ import { Agent } from 'elastic-apm-node';
 import { PinoLogger } from 'nestjs-pino';
 
 export class ElasticPinoLogger extends PinoLogger implements LoggerService {
-  constructor(private readonly apm: Agent) {
+  constructor(private readonly apm?: Agent | undefined) {
     super({
       pinoHttp: { logger: ElasticPinoLogger.createPino() },
     });
@@ -79,7 +79,7 @@ export class ElasticPinoLogger extends PinoLogger implements LoggerService {
   }
 
   info(mergingObj: unknown, msg?: string, ...args: any[]): void {
-    if (this.apm.currentTransaction) {
+    if (this.apm?.currentTransaction) {
       super.info({
         transactionId: this.apm.currentTraceIds['transaction.id'],
         traceId: this.apm.currentTraceIds['trace.id'],

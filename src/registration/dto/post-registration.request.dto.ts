@@ -15,12 +15,6 @@ export class PostRegistrationRequestDto {
 
   @ApiProperty({
     required: true,
-    description: 'The ID of the category channel',
-  })
-  categoryId: string;
-
-  @ApiProperty({
-    required: true,
     description: 'The ID of the private channel',
   })
   channelId: string;
@@ -29,5 +23,5 @@ export class PostRegistrationRequestDto {
     required: false,
     description: 'The ID of the announcement channel',
   })
-  newChannelId: string;
+  newsChannelId: string;
 }
