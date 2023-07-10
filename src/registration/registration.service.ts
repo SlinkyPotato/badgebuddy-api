@@ -8,6 +8,7 @@ import { DiscordServer } from './schemas/discord-server.schema';
 import { Model } from 'mongoose';
 import { PostRegistrationResponseDto } from './dto/post-registration.response.dto';
 import { PostRegistrationRequestDto } from './dto/post-registration.request.dto';
+import GetRegistrationResponseDto from './dto/get-registration.response.dto';
 
 @Injectable()
 export class RegistrationService {
@@ -56,5 +57,22 @@ export class RegistrationService {
       throw new NotFoundException('Server not found');
     }
     return;
+  }
+
+  async get(id: string): Promise<GetRegistrationResponseDto> {
+    const discordServer = await this.discordServerModel
+      .findOne({ guildId: id })
+      .exec();
+    if (!discordServer) {
+      throw new NotFoundException('Server not found');
+    }
+    const getRegistrationResponseDto = new GetRegistrationResponseDto();
+    getRegistrationResponseDto._id = discordServer._id.toString();
+    getRegistrationResponseDto.guildId = discordServer.guildId;
+    getRegistrationResponseDto.guildName = discordServer.guildName;
+    getRegistrationResponseDto.roleId = discordServer.roles.poapManagerRoleId;
+    getRegistrationResponseDto.channelId = discordServer.privateChannelId;
+    getRegistrationResponseDto.newsChannelId = discordServer.newsChannelId;
+    return getRegistrationResponseDto;
   }
 }

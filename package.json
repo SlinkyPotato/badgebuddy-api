@@ -26,8 +26,8 @@
     "env:push": "dotenv-vault push",
     "env:open": "dotenv-vault open",
     "env:pull": "dotenv-vault pull",
-    "deploy:staging": "node publish.docker.js staging latest-beta",
-    "deploy:production": "node publish.docker.js production latest"
+    "publish-dcoker:staging": "node publish.docker.js staging latest-beta",
+    "publish-docker:production": "node publish.docker.js production latest"
   },
   "dependencies": {
     "@elastic/ecs-pino-format": "^1.3.0",
