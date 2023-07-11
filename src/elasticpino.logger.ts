@@ -51,11 +51,11 @@ export class ElasticPinoLogger extends PinoLogger implements LoggerService {
     if (process.env.NODE_ENV !== 'production') {
       // https://github.com/pinojs/pino-pretty
       targets.push({
-        target: 'pino-pretty',
+        target: 'pino/file',
         options: {
-          timestampKey: '@timestamp',
-          messageKey: 'message',
-          ignore: 'pid,hostname',
+          // timestampKey: '@timestamp',
+          // messageKey: 'message',
+          // ignore: 'pid,hostname',
         },
       });
     }

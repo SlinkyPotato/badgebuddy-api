@@ -8,6 +8,7 @@ import {
   Logger,
   Inject,
   Get,
+  HttpCode,
 } from '@nestjs/common';
 import { RegistrationService } from './registration.service';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -59,6 +60,7 @@ export class RegistrationController {
   }
 
   @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
   @ApiResponse({ status: HttpStatus.NO_CONTENT, description: 'Server removed' })
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,
