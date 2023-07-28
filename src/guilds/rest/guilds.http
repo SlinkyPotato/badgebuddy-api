@@ -1,0 +1,19 @@
+### POST Request to register guild
+POST http://localhost:3000/guilds/850840267082563596
+Accept: application/json
+Content-Type: application/json
+
+{
+  "guildName": "SlinkyPotato's Server",
+  "roleId": "123455",
+  "channelId": "123345",
+  "newsChannelId": "123455"
+}
+
+### GET Request to get guild
+GET http://localhost:3000/guilds/850840267082563596
+
+### DELETE Request to delete guild
+DELETE http://localhost:3000/guilds/850840267082563596
+Accept: application/json
+Content-Type: application/json

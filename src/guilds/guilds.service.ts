@@ -6,20 +6,20 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { DiscordServer } from './schemas/discord-server.schema';
 import { Model } from 'mongoose';
-import { PostRegistrationResponseDto } from './dto/post-registration.response.dto';
-import { PostRegistrationRequestDto } from './dto/post-registration.request.dto';
-import GetRegistrationResponseDto from './dto/get-registration.response.dto';
+import { PostGuildResponseDto } from './dto/post-guild.response.dto';
+import { PostGuildRequestDto } from './dto/post-guild.request.dto';
+import GetGuildResponseDto from './dto/get-guild.response.dto';
 
 @Injectable()
-export class RegistrationService {
+export class GuildsService {
   constructor(
     @InjectModel(DiscordServer.name)
     private discordServerModel: Model<DiscordServer>,
   ) {}
 
   async create(
-    createRegistrationDto: PostRegistrationRequestDto,
-  ): Promise<PostRegistrationResponseDto> {
+    createRegistrationDto: PostGuildRequestDto,
+  ): Promise<PostGuildResponseDto> {
     const retrievedDiscordServer = await this.discordServerModel
       .findOne({
         guildId: createRegistrationDto.guildId,
@@ -27,7 +27,7 @@ export class RegistrationService {
       .exec();
 
     if (retrievedDiscordServer) {
-      throw new ConflictException('Server already registered');
+      throw new ConflictException('Guild already registered');
     }
 
     const createdRegistration = new this.discordServerModel();
@@ -54,19 +54,19 @@ export class RegistrationService {
       .deleteOne({ guildId: id })
       .exec();
     if (result.deletedCount != 1) {
-      throw new NotFoundException('Server not found');
+      throw new NotFoundException('Guild not found');
     }
     return;
   }
 
-  async get(id: string): Promise<GetRegistrationResponseDto> {
+  async get(id: string): Promise<GetGuildResponseDto> {
     const discordServer = await this.discordServerModel
       .findOne({ guildId: id })
       .exec();
     if (!discordServer) {
-      throw new NotFoundException('Server not found');
+      throw new NotFoundException('Guild not found');
     }
-    const getRegistrationResponseDto = new GetRegistrationResponseDto();
+    const getRegistrationResponseDto = new GetGuildResponseDto();
     getRegistrationResponseDto._id = discordServer._id.toString();
     getRegistrationResponseDto.guildId = discordServer.guildId;
     getRegistrationResponseDto.guildName = discordServer.guildName;

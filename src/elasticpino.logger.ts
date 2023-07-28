@@ -1,15 +1,15 @@
 import { LoggerService } from '@nestjs/common';
 import pino, { LoggerOptions } from 'pino';
 import ecsFormat from '@elastic/ecs-pino-format';
-import { Agent } from 'elastic-apm-node';
 import { PinoLogger } from 'nestjs-pino';
 
 export class ElasticPinoLogger extends PinoLogger implements LoggerService {
-  constructor(private readonly apm?: Agent | undefined) {
+  // constructor(private readonly apm?: Agent | undefined) {
+  constructor() {
     super({
       pinoHttp: { logger: ElasticPinoLogger.createPino() },
     });
-    this.apm = apm;
+    // this.apm = apm;
   }
 
   static createPino(): pino.Logger {
@@ -79,16 +79,16 @@ export class ElasticPinoLogger extends PinoLogger implements LoggerService {
   }
 
   info(mergingObj: unknown, msg?: string, ...args: any[]): void {
-    if (this.apm?.currentTransaction) {
-      super.info({
-        transactionId: this.apm.currentTraceIds['transaction.id'],
-        traceId: this.apm.currentTraceIds['trace.id'],
-        spanId: this.apm.currentTraceIds['span.id'],
-        message: msg,
-        ...(mergingObj as object),
-      });
-      return;
-    }
+    // if (this.apm?.currentTransaction) {
+    //   super.info({
+    //     transactionId: this.apm.currentTraceIds['transaction.id'],
+    //     traceId: this.apm.currentTraceIds['trace.id'],
+    //     spanId: this.apm.currentTraceIds['span.id'],
+    //     message: msg,
+    //     ...(mergingObj as object),
+    //   });
+    //   return;
+    // }
     super.info(mergingObj, msg, ...args);
   }
 
