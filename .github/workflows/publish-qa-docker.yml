@@ -20,21 +20,18 @@ jobs:
           with:
             path: 'package.json'
             prop_path: 'version'
-          run: echo ${{ steps.package-version.outputs.prop }}
         - name: Retrieve Node Version
           id: node-version
           uses: notiz-dev/github-action-json-property@v0.2.0
           with:
             path: 'package.json'
             prop_path: 'engines.node'
-          run: echo ${{ steps.node-version.outputs.prop }}
         - name: Retrieve PNPM Version
           id: pnpm-version
           uses: notiz-dev/github-action-json-property@v0.2.0
           with:
             path: 'package.json'
             prop_path: 'engines.pnpm'
-          run: echo ${{ steps.pnpm-version.outputs.prop }}
         - name: Build and push
           uses: docker/build-push-action@v4
           with:
