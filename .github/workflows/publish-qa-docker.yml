@@ -19,8 +19,12 @@ jobs:
             echo "NODE_ENV=staging" >> $GITHUB_ENV
             echo "PROJECT_VERSION=1.0.0-beta" >> $GITHUB_ENV
             echo "NODE_VERSION=20.3.1" >> $GITHUB_ENV
+            echo "PNPM_VERSION=8.6.10" >> $GITHUB_ENV
         - name: Build and push
           uses: docker/build-push-action@v4
           with:
             push: true
+            build-args: |
+              PNPM_VERSION=${{ env.PNPM_VERSION }}
+              NODE_VERSION=${{ env.NODE_VERSION }}
             tags: ${{ secrets.DOCKER_USERNAME }}/badge-buddy-api:latest-staging,${{ secrets.DOCKER_USERNAME }}/badge-buddy-api:${{ env.PROJECT_VERSION }}
