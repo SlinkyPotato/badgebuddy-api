@@ -39,4 +39,5 @@ jobs:
             build-args: |
               PNPM_VERSION=${{ steps.pnpm-version.outputs.prop }}
               NODE_VERSION=${{ steps.node-version.outputs.prop }}
-            tags: ${{ secrets.DOCKER_USERNAME }}/badge-buddy-api:latest-staging,${{ secrets.DOCKER_USERNAME }}/badge-buddy-api:${{ steps.package-version.outputs.prop }}
+            tags: "${{ secrets.DOCKER_USERNAME }}/badge-buddy-api:latest-beta,${{ secrets.DOCKER_USERNAME 
+            }}/badge-buddy-api:${{ steps.package-version.outputs.prop }}"
