@@ -7,6 +7,7 @@ import {
   HttpStatus,
   Logger,
   Param,
+  ParseIntPipe,
   Post,
 } from '@nestjs/common';
 import { GuildsService } from './guilds.service';
@@ -33,8 +34,8 @@ export class GuildsController {
     status: HttpStatus.NOT_FOUND,
     description: 'Guild not found',
   })
-  get(@Param('id') id: string): Promise<GetGuildResponseDto> {
-    return this.guildService.get(id.toString());
+  get(@Param('id', ParseIntPipe) id: string): Promise<GetGuildResponseDto> {
+    return this.guildService.get(id);
   }
 
   @Post(':id')
@@ -48,12 +49,11 @@ export class GuildsController {
     description: 'Guild already registered',
   })
   create(
-    @Param('id') id: string,
+    @Param('id', ParseIntPipe) id: string,
     @Body() postRegistrationRequestDto: PostGuildRequestDto,
   ): Promise<PostGuildResponseDto> {
     // this.apm.startTransaction('register guild', 'controller');
-    postRegistrationRequestDto.guildId = id;
-    const res = this.guildService.create(postRegistrationRequestDto);
+    const res = this.guildService.create(id, postRegistrationRequestDto);
     // this.apm.endTransaction();
     return res;
   }
@@ -65,7 +65,7 @@ export class GuildsController {
     status: HttpStatus.NOT_FOUND,
     description: 'Guild not found',
   })
-  remove(@Param('id') id: string) {
+  remove(@Param('id', ParseIntPipe) id: string) {
     return this.guildService.remove(id);
   }
 }

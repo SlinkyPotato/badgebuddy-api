@@ -18,11 +18,12 @@ export class GuildsService {
   ) {}
 
   async create(
+    id: string,
     createRegistrationDto: PostGuildRequestDto,
   ): Promise<PostGuildResponseDto> {
     const retrievedDiscordServer = await this.discordServerModel
       .findOne({
-        guildId: createRegistrationDto.guildId,
+        guildId: id,
       })
       .exec();
 
@@ -31,7 +32,7 @@ export class GuildsService {
     }
 
     const createdRegistration = new this.discordServerModel();
-    createdRegistration.guildId = createRegistrationDto.guildId;
+    createdRegistration.guildId = id;
     createdRegistration.guildName = createRegistrationDto.guildName;
     createdRegistration.roles = {
       poapManagerRoleId: createRegistrationDto.roleId,
