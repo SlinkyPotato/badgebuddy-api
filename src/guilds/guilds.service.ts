@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { DiscordServer } from './schemas/discord-server.schema';
+import { DiscordGuild } from './schemas/discord-guild.schema';
 import { Model } from 'mongoose';
 import { PostGuildResponseDto } from './dto/post-guild.response.dto';
 import { PostGuildRequestDto } from './dto/post-guild.request.dto';
@@ -13,8 +13,8 @@ import GetGuildResponseDto from './dto/get-guild.response.dto';
 @Injectable()
 export class GuildsService {
   constructor(
-    @InjectModel(DiscordServer.name)
-    private discordServerModel: Model<DiscordServer>,
+    @InjectModel(DiscordGuild.name)
+    private discordServerModel: Model<DiscordGuild>,
   ) {}
 
   async create(

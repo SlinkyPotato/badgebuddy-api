@@ -3,15 +3,15 @@ import { GuildsService } from './guilds.service';
 import { GuildsController } from './guilds.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import {
-  DiscordServer,
-  DiscordServerSchema,
-} from './schemas/discord-server.schema';
+  DiscordGuild,
+  DiscordGuildSchema,
+} from './schemas/discord-guild.schema';
 import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
-      { name: DiscordServer.name, schema: DiscordServerSchema },
+      { name: DiscordGuild.name, schema: DiscordGuildSchema },
     ]),
     ConfigModule,
   ],

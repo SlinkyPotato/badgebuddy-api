@@ -1,10 +1,10 @@
 import { Prop, raw, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 
-export type DiscordServerDocument = HydratedDocument<DiscordServer>;
+export type DiscordServerDocument = HydratedDocument<DiscordGuild>;
 
-@Schema({ collection: 'discordServers' })
-export class DiscordServer {
+@Schema({ collection: 'discordGuilds' })
+export class DiscordGuild {
   @Prop({ required: true, unique: true })
   guildId: string;
 
@@ -27,4 +27,4 @@ export class DiscordServer {
   };
 }
 
-export const DiscordServerSchema = SchemaFactory.createForClass(DiscordServer);
+export const DiscordGuildSchema = SchemaFactory.createForClass(DiscordGuild);
