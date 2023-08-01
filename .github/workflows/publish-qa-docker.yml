@@ -1,3 +1,4 @@
+#file: noinspection YAMLSchemaValidation
 name: Publish Docker image
 on:
     push:
@@ -41,3 +42,24 @@ jobs:
               NODE_VERSION=${{ steps.node-version.outputs.prop }}
             tags: "${{ secrets.DOCKER_USERNAME }}/badge-buddy-api:latest-beta,${{ secrets.DOCKER_USERNAME 
             }}/badge-buddy-api:${{ steps.package-version.outputs.prop }}"
+        - name: Deploy to staging
+          uses: appleboy/ssh-action@master
+          with:
+            host: ${{ secrets.SSH_HOST }}
+            username: ${{ secrets.SSH_USERNAME }}
+            key: ${{ secrets.SSH_KEY }}
+            port: ${{ secrets.SSH_PORT }}
+            script: |
+              docker pull ${{ secrets.DOCKER_USERNAME }}/badge-buddy-api:latest-beta
+              docker stop badge-buddy-api
+              docker rm badge-buddy-api
+              cd ${{ secrets.APP_PATH }}
+              curl -H 'Authorization: token ${{ secrets.GH_TOKEN }}' \
+                -H 'Accept: application/vnd.github.v3.raw' \
+                -o 'package.json' \
+                -L 'https://api.github.com/repos/SlinkyPotato/badge-buddy-api/contents/package.json?ref=dev'
+              curl -H 'Authorization: ${{ secrets.GH_TOKEN }}' \
+                -H 'Accept: application/vnd.github.v3.raw' \
+                -o 'compose.yml' \
+                -L 'https://api.github.com/repos/SlinkyPotato/badge-buddy-api/contents/compose.yml?ref=dev'
+              DOTENV_KEY=${{ secrets.DOTENV_STAGING }} docker compose --profile staging up --build -d
