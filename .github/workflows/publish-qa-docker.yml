@@ -43,11 +43,12 @@ jobs:
             tags: "${{ secrets.DOCKER_USERNAME }}/badge-buddy-api:latest-beta,${{ secrets.DOCKER_USERNAME 
             }}/badge-buddy-api:${{ steps.package-version.outputs.prop }}"
         - name: Deploy to staging
-          uses: appleboy/ssh-action@master
+          uses: appleboy/ssh-action@v1.0.0
           with:
             host: ${{ secrets.SSH_HOST }}
             username: ${{ secrets.SSH_USERNAME }}
             key: ${{ secrets.SSH_KEY }}
+            passphrase: ${{ secrets.SSH_PASSPHRASE }}
             port: ${{ secrets.SSH_PORT }}
             script: |
               docker pull ${{ secrets.DOCKER_USERNAME }}/badge-buddy-api:latest-beta
