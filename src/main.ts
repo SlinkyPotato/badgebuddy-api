@@ -26,7 +26,7 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setTitle('Badge Buddy API')
-    .setDescription('The Badge Buddy API description')
+    .setDescription('API for Badge Buddy to management POAP Events.')
     .setVersion('1.0')
     .build();
   const document = SwaggerModule.createDocument(app, config);

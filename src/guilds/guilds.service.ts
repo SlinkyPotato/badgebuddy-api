@@ -6,9 +6,9 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { DiscordGuild } from './schemas/discord-guild.schema';
 import { Model } from 'mongoose';
-import { PostGuildResponseDto } from './dto/post-guild.response.dto';
-import { PostGuildRequestDto } from './dto/post-guild.request.dto';
-import GetGuildResponseDto from './dto/get-guild.response.dto';
+import GetGuildResponseDto from './dto/get/guild.response.dto';
+import PostGuildRequestDto from './dto/post/guild.request.dto';
+import PostGuildResponseDto from './dto/post/guild.response.dto';
 
 @Injectable()
 export class GuildsService {

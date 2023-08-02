@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-export class PostGuildRequestDto {
+export default class PostGuildRequestDto {
   @ApiProperty({ required: true, description: 'The name of the guild' })
   guildName: string;
 

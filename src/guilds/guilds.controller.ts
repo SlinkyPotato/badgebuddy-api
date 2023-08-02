@@ -11,10 +11,10 @@ import {
   Post,
 } from '@nestjs/common';
 import { GuildsService } from './guilds.service';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
-import { PostGuildRequestDto } from './dto/post-guild.request.dto';
-import { PostGuildResponseDto } from './dto/post-guild.response.dto';
-import GetGuildResponseDto from './dto/get-guild.response.dto';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import GetGuildResponseDto from './dto/get/guild.response.dto';
+import PostGuildResponseDto from './dto/post/guild.response.dto';
+import PostGuildRequestDto from './dto/post/guild.request.dto';
 
 @ApiTags('guilds')
 @Controller('guilds')
@@ -25,6 +25,7 @@ export class GuildsController {
   ) {}
 
   @Get(':id')
+  @ApiOperation({ summary: 'Retrieve a guild by ID.' })
   @ApiResponse({
     status: HttpStatus.FOUND,
     description: 'Guild found',
@@ -39,6 +40,7 @@ export class GuildsController {
   }
 
   @Post(':id')
+  @ApiOperation({ summary: 'Register a guild by ID.' })
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: 'Guild registered',
@@ -59,6 +61,7 @@ export class GuildsController {
   }
 
   @Delete(':id')
+  @ApiOperation({ summary: 'Remove a guild by ID.' })
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiResponse({ status: HttpStatus.NO_CONTENT, description: 'Guild removed' })
   @ApiResponse({
