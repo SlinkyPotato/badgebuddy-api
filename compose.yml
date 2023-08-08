@@ -45,7 +45,9 @@ services:
       NODE_ENV: 'staging'
     volumes:
       - ./logs:/app/logs
-      - ./run/redis/redis-server-badge-buddy.sock:/app/redis/redis.sock
+      - type: bind
+        source: ./run/redis/redis-server-badge-buddy.sock
+        target: /app/redis/redis.sock
 
   badge_buddy_api_prod:
     container_name: badge_buddy_api_prod
@@ -63,7 +65,9 @@ services:
       NODE_ENV: 'production'
     volumes:
       - ./logs:/app/logs
-      - ./run/redis/redis-server-badge-buddy.sock:/app/redis/redis.sock
+      - type: bind
+        source: ./run/redis/redis-server-badge-buddy.sock
+        target: /app/redis/redis.sock
 
 networks:
   local_server:
