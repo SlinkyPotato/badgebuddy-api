@@ -9,17 +9,21 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  UseInterceptors,
 } from '@nestjs/common';
 import { GuildsService } from './guilds.service';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import GetGuildResponseDto from './dto/get/guild.response.dto';
 import PostGuildResponseDto from './dto/post/guild.response.dto';
 import PostGuildRequestDto from './dto/post/guild.request.dto';
+import { CacheInterceptor } from '@nestjs/cache-manager';
 
 @ApiTags('guilds')
 @Controller('guilds')
+@UseInterceptors(CacheInterceptor)
 export class GuildsController {
   constructor(
+    // @Inject(CACHE_MANAGER) private cacheManager: Cache,
     private readonly guildService: GuildsService,
     private readonly logger: Logger, // @Inject('APM') private readonly apm: Agent,
   ) {}
@@ -35,7 +39,12 @@ export class GuildsController {
     status: HttpStatus.NOT_FOUND,
     description: 'Guild not found',
   })
-  get(@Param('id', ParseIntPipe) id: string): Promise<GetGuildResponseDto> {
+  async get(
+    @Param('id', ParseIntPipe) id: string,
+  ): Promise<GetGuildResponseDto> {
+    // await this.cacheManager.set('test', 'test-value');
+    // const testVal = await this.cacheManager.get('test');
+    // console.log(testVal);
     return this.guildService.get(id);
   }
 

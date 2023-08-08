@@ -7,9 +7,47 @@ import {
   DiscordGuildSchema,
 } from './schemas/discord-guild.schema';
 import { ConfigModule } from '@nestjs/config';
+import { redisStore } from 'cache-manager-redis-yet';
+import { RedisClientOptions } from 'redis';
+import { CacheModule } from '@nestjs/cache-manager';
+
+let cacheConfig;
+switch (process.env.NODE_ENV) {
+  case 'production':
+    cacheConfig = {
+      store: redisStore,
+      socket: {
+        path: process.env.REDIS_PATH,
+      },
+      database: 0,
+      ttl: 1000 * 60 * 60 * 24, // 1 day
+    };
+    break;
+  case 'staging':
+    cacheConfig = {
+      store: redisStore,
+      socket: {
+        path: process.env.REDIS_PATH,
+      },
+      database: 1,
+      ttl: 1000 * 60 * 60, // 1 hour
+    };
+    break;
+  default:
+    cacheConfig = {
+      store: redisStore,
+      socket: {
+        host: process.env.REDIS_HOST ?? 'localhost',
+        port: parseInt(process.env.REDIS_PORT ?? '6379'),
+      },
+      database: 0,
+      ttl: 1000 * 60, // 1 minute
+    };
+}
 
 @Module({
   imports: [
+    CacheModule.register<RedisClientOptions>(cacheConfig),
     MongooseModule.forFeature([
       { name: DiscordGuild.name, schema: DiscordGuildSchema },
     ]),

@@ -18,6 +18,17 @@ services:
     volumes:
       - ./logs:/app/logs
 
+  redis_local:
+    container_name: redis_local
+    image: redis:latest
+    restart: always
+    ports:
+      - 6379:6379
+    networks:
+      - local_server
+    profiles:
+      - local
+
   badge_buddy_api_qa:
     container_name: badge_buddy_api_qa
     image: amaredeus/badge-buddy-api:latest-beta
