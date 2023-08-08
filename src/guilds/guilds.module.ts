@@ -9,7 +9,7 @@ import {
 import { ConfigModule } from '@nestjs/config';
 import { RedisClientOptions } from 'redis';
 import { CacheModule } from '@nestjs/cache-manager';
-import CacheConfig from '../config/redis.cache';
+import CacheConfig from '../config/redis.config';
 
 @Module({
   imports: [
