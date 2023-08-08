@@ -43,8 +43,10 @@ services:
     environment:
       DOTENV_KEY: ${DOTENV_KEY}
       NODE_ENV: 'staging'
+      REDIS_PATH: ${REDIS_PATH}
     volumes:
       - ./logs:/app/logs
+      - ${REDIS_PATH}:/app/redis/redis.sock
 
   badge_buddy_api_prod:
     container_name: badge_buddy_api_prod
@@ -60,8 +62,10 @@ services:
     environment:
       DOTENV_KEY: ${DOTENV_KEY}
       NODE_ENV: 'production'
+      REDIS_PATH: ${REDIS_PATH}
     volumes:
       - ./logs:/app/logs
+      - ${REDIS_PATH}:/app/redis/redis.sock
 
 networks:
   local_server:

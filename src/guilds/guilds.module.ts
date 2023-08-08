@@ -17,7 +17,7 @@ switch (process.env.NODE_ENV) {
     cacheConfig = {
       store: redisStore,
       socket: {
-        path: process.env.REDIS_PATH,
+        path: '/app/redis/redis.sock',
       },
       database: 0,
       ttl: 1000 * 60 * 60 * 24, // 1 day
@@ -27,7 +27,7 @@ switch (process.env.NODE_ENV) {
     cacheConfig = {
       store: redisStore,
       socket: {
-        path: process.env.REDIS_PATH,
+        path: '/app/redis/redis.sock',
       },
       database: 1,
       ttl: 1000 * 60 * 60, // 1 hour
