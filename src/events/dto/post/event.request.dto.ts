@@ -3,6 +3,12 @@ import { ApiProperty } from '@nestjs/swagger';
 export default class PostEventRequestDto {
   @ApiProperty({
     required: true,
+    description: 'The ID of the guild',
+  })
+  guildId: string;
+
+  @ApiProperty({
+    required: true,
     description: 'The name of the event',
   })
   eventName: string;

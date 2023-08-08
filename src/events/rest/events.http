@@ -20,7 +20,8 @@ Content-Type: application/json
 
 
 POST /events/:guildId (start)
-PUT /events/:guildId (stop)
+PUT /events/:guildId (stop
+POST /events/distribution/:guildId (disburse manually)
 POST /events/schedule/:guildId (start in future)
 PUT /events/schedule/:guildId (stop in future)
 

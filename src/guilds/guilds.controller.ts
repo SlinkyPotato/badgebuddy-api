@@ -10,7 +10,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { GuildsService } from './guilds.service';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import GetGuildResponseDto from './dto/get/guild.response.dto';
 import PostGuildResponseDto from './dto/post/guild.response.dto';
 import PostGuildRequestDto from './dto/post/guild.request.dto';
@@ -23,6 +23,11 @@ export class GuildsController {
   constructor(private readonly guildService: GuildsService) {}
 
   @Get(':id')
+  @ApiParam({
+    name: 'id',
+    description: 'The identifier of the guild given from discord.',
+    allowEmptyValue: false,
+  })
   @ApiOperation({ summary: 'Retrieve a guild by ID.' })
   @ApiResponse({
     status: HttpStatus.FOUND,
@@ -34,13 +39,15 @@ export class GuildsController {
     description: 'Guild not found',
   })
   async get(@Param('id') id: string): Promise<GetGuildResponseDto> {
-    // await this.cacheManager.set('test', 'test-value');
-    // const testVal = await this.cacheManager.get('test');
-    // console.log(testVal);
     return this.guildService.get(id);
   }
 
   @Post(':id')
+  @ApiParam({
+    name: 'id',
+    description: 'The identifier of the guild given from discord.',
+    allowEmptyValue: false,
+  })
   @ApiOperation({ summary: 'Register a guild by ID.' })
   @ApiResponse({
     status: HttpStatus.CREATED,
@@ -62,6 +69,11 @@ export class GuildsController {
   }
 
   @Delete(':id')
+  @ApiParam({
+    name: 'id',
+    description: 'The identifier of the guild given from discord.',
+    allowEmptyValue: false,
+  })
   @ApiOperation({ summary: 'Remove a guild by ID.' })
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiResponse({ status: HttpStatus.NO_CONTENT, description: 'Guild removed' })

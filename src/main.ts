@@ -7,7 +7,7 @@ import {
   FastifyAdapter,
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
-import { ElasticPinoLogger } from './elasticpino.logger';
+import { ElasticPinoLogger } from './config/elasticpino.logger';
 
 async function bootstrap() {
   const pinoLogger = new ElasticPinoLogger();

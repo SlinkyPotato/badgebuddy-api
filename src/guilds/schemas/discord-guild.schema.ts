@@ -1,7 +1,5 @@
-import { Prop, raw, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
-
-export type DiscordServerDocument = HydratedDocument<DiscordGuild>;
 
 @Schema({ collection: 'discordGuilds' })
 export class DiscordGuild {
@@ -17,14 +15,10 @@ export class DiscordGuild {
   @Prop({ required: false })
   newsChannelId: string;
 
-  @Prop(
-    raw({
-      poapManagerRoleId: { type: String, required: true },
-    }),
-  )
-  roles: {
-    poapManagerRoleId: string;
-  };
+  @Prop({ required: true })
+  poapManagerRoleId: string;
 }
+
+export type DiscordServerDocument = HydratedDocument<DiscordGuild>;
 
 export const DiscordGuildSchema = SchemaFactory.createForClass(DiscordGuild);

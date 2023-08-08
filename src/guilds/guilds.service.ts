@@ -38,15 +38,14 @@ export class GuildsService {
       throw new ConflictException('Guild already registered');
     }
 
-    const createdRegistration = new this.discordServerModel();
-    createdRegistration.guildId = id;
-    createdRegistration.guildName = createRegistrationDto.guildName;
-    createdRegistration.roles = {
-      poapManagerRoleId: createRegistrationDto.roleId,
-    };
-    createdRegistration.privateChannelId = createRegistrationDto.channelId;
-    createdRegistration.newsChannelId = createRegistrationDto.newsChannelId;
-    const result = await createdRegistration.save();
+    const guildRegistration = new DiscordGuild();
+    guildRegistration.guildId = id;
+    guildRegistration.guildName = createRegistrationDto.guildName;
+    guildRegistration.poapManagerRoleId = createRegistrationDto.roleId;
+    guildRegistration.privateChannelId = createRegistrationDto.channelId;
+    guildRegistration.newsChannelId = createRegistrationDto.newsChannelId;
+
+    const result = await this.discordServerModel.create(guildRegistration);
     this.logger.log('registered guild: ' + id);
     return {
       guildId: result.guildId,
@@ -54,6 +53,7 @@ export class GuildsService {
     };
   }
   async remove(id: string): Promise<any> {
+    this.logger.log('removing guild: ' + id);
     await this.discordServerModel
       .findOne({
         guildId: id,
@@ -72,6 +72,7 @@ export class GuildsService {
   }
 
   async get(id: string): Promise<GetGuildResponseDto> {
+    this.logger.log('getting guild: ' + id);
     const discordServer = await this.discordServerModel
       .findOne({ guildId: id })
       .exec();
@@ -82,9 +83,10 @@ export class GuildsService {
     getRegistrationResponseDto._id = discordServer._id.toString();
     getRegistrationResponseDto.guildId = discordServer.guildId;
     getRegistrationResponseDto.guildName = discordServer.guildName;
-    getRegistrationResponseDto.roleId = discordServer.roles.poapManagerRoleId;
+    getRegistrationResponseDto.roleId = discordServer.poapManagerRoleId;
     getRegistrationResponseDto.channelId = discordServer.privateChannelId;
     getRegistrationResponseDto.newsChannelId = discordServer.newsChannelId;
+    this.logger.log('got guild: ' + id);
     return getRegistrationResponseDto;
   }
 }
