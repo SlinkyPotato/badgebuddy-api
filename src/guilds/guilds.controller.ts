@@ -5,9 +5,7 @@ import {
   Get,
   HttpCode,
   HttpStatus,
-  Logger,
   Param,
-  ParseIntPipe,
   Post,
   UseInterceptors,
 } from '@nestjs/common';
@@ -22,11 +20,7 @@ import { CacheInterceptor } from '@nestjs/cache-manager';
 @Controller('guilds')
 @UseInterceptors(CacheInterceptor)
 export class GuildsController {
-  constructor(
-    // @Inject(CACHE_MANAGER) private cacheManager: Cache,
-    private readonly guildService: GuildsService,
-    private readonly logger: Logger, // @Inject('APM') private readonly apm: Agent,
-  ) {}
+  constructor(private readonly guildService: GuildsService) {}
 
   @Get(':id')
   @ApiOperation({ summary: 'Retrieve a guild by ID.' })
@@ -39,9 +33,7 @@ export class GuildsController {
     status: HttpStatus.NOT_FOUND,
     description: 'Guild not found',
   })
-  async get(
-    @Param('id', ParseIntPipe) id: string,
-  ): Promise<GetGuildResponseDto> {
+  async get(@Param('id') id: string): Promise<GetGuildResponseDto> {
     // await this.cacheManager.set('test', 'test-value');
     // const testVal = await this.cacheManager.get('test');
     // console.log(testVal);
@@ -60,7 +52,7 @@ export class GuildsController {
     description: 'Guild already registered',
   })
   create(
-    @Param('id', ParseIntPipe) id: string,
+    @Param('id') id: string,
     @Body() postRegistrationRequestDto: PostGuildRequestDto,
   ): Promise<PostGuildResponseDto> {
     // this.apm.startTransaction('register guild', 'controller');
@@ -77,7 +69,7 @@ export class GuildsController {
     status: HttpStatus.NOT_FOUND,
     description: 'Guild not found',
   })
-  remove(@Param('id', ParseIntPipe) id: string) {
+  remove(@Param('id') id: string) {
     return this.guildService.remove(id);
   }
 }
