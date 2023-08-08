@@ -9,11 +9,18 @@ import {
   DiscordGuild,
   DiscordGuildSchema,
 } from '../guilds/schemas/discord-guild.schema';
-import CacheConfig from '../config/redis.config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { configureCache } from '../config/redis.config';
 
 @Module({
   imports: [
-    CacheModule.register<RedisClientOptions>(CacheConfig),
+    CacheModule.registerAsync<RedisClientOptions>({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => {
+        return configureCache(configService);
+      },
+      inject: [ConfigService],
+    }),
     MongooseModule.forFeature([
       { name: PoapEvent.name, schema: PoapEventSchema },
       { name: DiscordGuild.name, schema: DiscordGuildSchema },

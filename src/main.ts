@@ -11,9 +11,6 @@ import { ElasticPinoLogger } from './config/elasticpino.logger';
 
 async function bootstrap() {
   const pinoLogger = new ElasticPinoLogger();
-  // const pinoLogger = new ElasticPinoLogger(apm);
-  // apm.logger = pinoLogger.logger;
-  // apm.startTransaction('bootstrap', 'app');
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     new FastifyAdapter({
@@ -34,8 +31,5 @@ async function bootstrap() {
 
   // accept connections to other hosts
   await app.listen(3000, '0.0.0.0');
-
-  // await app.listen(3000);
-  // apm.endTransaction();
 }
 bootstrap();

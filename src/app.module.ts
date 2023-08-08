@@ -5,15 +5,17 @@ import { EventsModule } from './events/events.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { GuildsModule } from './guilds/guilds.module';
-import discordConfig from './config/discord.config';
-import mongoConfig from './config/mongo.config';
+import DiscordConfig from './config/discord.config';
+import MongoConfig from './config/mongo.config';
+import SystemConfig from './config/system.config';
+import RedisConfig from './config/redis.config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       ignoreEnvFile: true,
       cache: true,
-      load: [mongoConfig, discordConfig],
+      load: [MongoConfig, DiscordConfig, SystemConfig, RedisConfig],
     }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
