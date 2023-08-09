@@ -34,7 +34,7 @@ RUN pnpm install --prod
 HEALTHCHECK \
   --interval=1h \
   --timeout=30s \
-  --start-period=3m \
+  --start-period=3s \
   --retries=3 \
   CMD [ "node", "./health-check.js" ]
 
