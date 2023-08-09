@@ -62,10 +62,7 @@ export class GuildsController {
     @Param('id') id: string,
     @Body() postRegistrationRequestDto: PostGuildRequestDto,
   ): Promise<PostGuildResponseDto> {
-    // this.apm.startTransaction('register guild', 'controller');
-    const res = this.guildService.create(id, postRegistrationRequestDto);
-    // this.apm.endTransaction();
-    return res;
+    return this.guildService.create(id, postRegistrationRequestDto);
   }
 
   @Delete(':id')

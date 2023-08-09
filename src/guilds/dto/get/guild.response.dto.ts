@@ -17,13 +17,13 @@ export default class GetGuildResponseDto {
     required: true,
     description: 'The ID of the authorized POAP Management role',
   })
-  roleId: string;
+  poapManagerRoleId: string;
 
   @ApiProperty({
     required: true,
     description: 'The ID of the private channel',
   })
-  channelId: string;
+  privateChannelId: string;
 
   @ApiProperty({
     required: false,

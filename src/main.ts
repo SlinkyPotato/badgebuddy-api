@@ -8,6 +8,7 @@ import {
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
 import { ElasticPinoLogger } from './config/elasticpino.logger';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const pinoLogger = new ElasticPinoLogger();
@@ -20,6 +21,8 @@ async function bootstrap() {
       logger: pinoLogger,
     },
   );
+
+  app.useGlobalPipes(new ValidationPipe());
 
   const config = new DocumentBuilder()
     .setTitle('Badge Buddy API')

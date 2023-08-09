@@ -41,8 +41,9 @@ export class GuildsService {
     const guildRegistration = new DiscordGuild();
     guildRegistration.guildId = id;
     guildRegistration.guildName = createRegistrationDto.guildName;
-    guildRegistration.poapManagerRoleId = createRegistrationDto.roleId;
-    guildRegistration.privateChannelId = createRegistrationDto.channelId;
+    guildRegistration.poapManagerRoleId =
+      createRegistrationDto.poapManagerRoleId;
+    guildRegistration.privateChannelId = createRegistrationDto.privateChannelId;
     guildRegistration.newsChannelId = createRegistrationDto.newsChannelId;
 
     const result = await this.discordServerModel.create(guildRegistration);
@@ -83,8 +84,10 @@ export class GuildsService {
     getRegistrationResponseDto._id = discordServer._id.toString();
     getRegistrationResponseDto.guildId = discordServer.guildId;
     getRegistrationResponseDto.guildName = discordServer.guildName;
-    getRegistrationResponseDto.roleId = discordServer.poapManagerRoleId;
-    getRegistrationResponseDto.channelId = discordServer.privateChannelId;
+    getRegistrationResponseDto.poapManagerRoleId =
+      discordServer.poapManagerRoleId;
+    getRegistrationResponseDto.privateChannelId =
+      discordServer.privateChannelId;
     getRegistrationResponseDto.newsChannelId = discordServer.newsChannelId;
     this.logger.log('got guild: ' + id);
     return getRegistrationResponseDto;

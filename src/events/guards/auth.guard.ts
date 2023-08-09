@@ -9,24 +9,30 @@ import { Cache } from 'cache-manager';
 import { InjectModel } from '@nestjs/mongoose';
 import { DiscordGuild } from '../../guilds/schemas/discord-guild.schema';
 import { Model } from 'mongoose';
+import { InjectDiscordClient } from '@discord-nestjs/core';
+import { Client } from 'discord.js';
+import PostEventRequestDto from '../dto/post/event.request.dto';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
     @InjectModel(DiscordGuild.name) private guildModel: Model<DiscordGuild>,
+    @InjectDiscordClient() private readonly discordClient: Client,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest();
+    const request: PostEventRequestDto = context
+      .switchToHttp()
+      .getRequest().body;
 
     let guild: DiscordGuild | undefined | null = await this.cacheManager.get(
-      '/guilds/' + request.params.guildId,
+      '/guilds/' + request.guildId,
     );
 
     if (!guild) {
       guild = await this.guildModel.findOne({
-        guildId: request.params.guildId,
+        guildId: request.guildId,
       });
     }
 
@@ -35,12 +41,12 @@ export class AuthGuard implements CanActivate {
     }
 
     if (guild.poapManagerRoleId) {
-      const member = await request.discordClient.guilds.cache
-        .get(request.params.guildId)
-        .members.fetch(request.user.id);
+      const guildMember = await (
+        await this.discordClient.guilds.fetch(guild.guildId)
+      ).members.fetch(request.organizerId);
 
-      if (member.roles.cache.has(guild.poapManagerRoleId)) {
-        return true;
+      if (!guildMember.roles.cache.has(guild.poapManagerRoleId)) {
+        return false;
       }
     }
 

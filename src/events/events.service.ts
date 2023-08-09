@@ -14,13 +14,13 @@ export class EventsService {
   ) {}
   async create(request: PostEventRequestDto): Promise<PostEventResponseDto> {
     this.logger.log(
-      `Creating poap event for guild: ${request.guildId}, channel: ${request.channelId}, organizer: ${request.organizerId}`,
+      `Creating poap event for guild: ${request.guildId}, channel: ${request.voiceChannelId}, organizer: ${request.organizerId}`,
     );
 
     const existingEvent = await this.poapEventModel.exists({
       guildId: request.guildId,
       isActive: true,
-      channelId: request.channelId,
+      voiceChannelId: request.voiceChannelId,
       organizerId: request.organizerId,
     });
 
@@ -38,7 +38,7 @@ export class EventsService {
 
     const poapEvent: PoapEvent = new PoapEvent();
     poapEvent.guildId = request.guildId;
-    poapEvent.channelId = request.channelId;
+    poapEvent.voiceChannelId = request.voiceChannelId;
     poapEvent.organizerId = request.organizerId;
     poapEvent.eventName = request.eventName;
     poapEvent.startDate = currentDate;
@@ -51,8 +51,15 @@ export class EventsService {
     if (!result._id) {
       throw new Error('Failed to create event');
     }
-    this.logger.log(`Store poap event in db _id: ${result._id}`);
+    this.logger.log(`Stored poapEvent in db _id: ${result._id}`);
 
-    return new PostEventResponseDto();
+    const response: PostEventResponseDto = new PostEventResponseDto();
+    response._id = result._id.toString();
+    response.eventType = result.eventType;
+    response.startDate = result.startDate;
+    response.endDate = result.endDate;
+
+    this.logger.log(`Returning response: ${JSON.stringify(response)}`);
+    return response;
   }
 }

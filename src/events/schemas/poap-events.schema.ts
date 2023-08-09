@@ -11,7 +11,7 @@ export class PoapEvent {
   organizerId: string;
 
   @Prop({ required: true })
-  channelId: string;
+  voiceChannelId: string;
 
   @Prop({ required: true })
   guildId: string;
@@ -28,13 +28,14 @@ export class PoapEvent {
   @Prop({ required: true, default: true })
   isActive: boolean;
 
-  @Prop(
-    raw({
-      userId: { type: String, required: true },
-      duration: { type: Number, required: true },
-      hasClaimed: { type: Boolean, default: false },
+  @Prop({
+    raw: raw({
+      userId: String,
+      duration: Number,
+      hasClaimed: Boolean,
     }),
-  )
+    required: false,
+  })
   participants: PoapEventParticipant[];
 }
 

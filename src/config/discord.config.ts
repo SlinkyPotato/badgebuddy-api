@@ -2,7 +2,7 @@ import { registerAs } from '@nestjs/config';
 import ConfigUtil, { JoiConfig } from './config.util';
 import Joi from 'joi';
 
-type DiscordEnv = {
+export type DiscordEnv = {
   token: string;
   appId: string;
   publicKey: string;

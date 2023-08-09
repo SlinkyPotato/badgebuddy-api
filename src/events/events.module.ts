@@ -11,9 +11,11 @@ import {
 } from '../guilds/schemas/discord-guild.schema';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { configureCache } from '../config/redis.config';
+import { DiscordModule } from '@discord-nestjs/core';
 
 @Module({
   imports: [
+    DiscordModule.forFeature(),
     CacheModule.registerAsync<RedisClientOptions>({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => {
