@@ -18,7 +18,7 @@ import { DiscordModule } from '@discord-nestjs/core';
     DiscordModule.forFeature(),
     CacheModule.registerAsync<RedisClientOptions>({
       imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => {
+      useFactory: (configService: ConfigService<any, true>) => {
         return configureCache(configService);
       },
       inject: [ConfigService],

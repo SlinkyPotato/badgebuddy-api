@@ -4,6 +4,8 @@ import { CacheManagerOptions } from '@nestjs/cache-manager';
 import { ConfigService, registerAs } from '@nestjs/config';
 import ConfigUtil, { JoiConfig } from './config.util';
 import Joi from 'joi';
+import NodeEnvs from './enums/node-envs.enum';
+import { SystemEnv } from './system.config';
 
 type RedisEnv = {
   host: string;
@@ -30,10 +32,10 @@ export default registerAs('redis', (): RedisEnv => {
   return ConfigUtil.validate(redisEnvs);
 });
 
-export const configureCache = (configService: ConfigService) => {
+export const configureCache = (configService: ConfigService<any, true>) => {
   let config: CacheManagerOptions & RedisClientOptions;
-  switch (configService.get<string>('system.nodeEnv')) {
-    case 'production':
+  switch (configService.get('system.nodeEnv')) {
+    case NodeEnvs.PRODUCTION.toString():
       config = {
         store: redisStore,
         socket: {
@@ -43,7 +45,7 @@ export const configureCache = (configService: ConfigService) => {
         ttl: 1000 * 60 * 60 * 24, // 1 day
       };
       break;
-    case 'staging':
+    case NodeEnvs.STAGING.toString():
       config = {
         store: redisStore,
         socket: {

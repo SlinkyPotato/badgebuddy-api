@@ -3,7 +3,7 @@ import ConfigUtil, { JoiConfig } from './config.util';
 import Joi from 'joi';
 import NodeEnvs from './enums/node-envs.enum';
 
-type SystemEnv = {
+export type SystemEnv = {
   nodeEnv: NodeEnvs;
   nodeVersion: string;
   pnpmVersion: string;

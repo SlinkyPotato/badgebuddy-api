@@ -15,7 +15,7 @@ import { configureCache } from '../config/redis.config';
   imports: [
     CacheModule.registerAsync<RedisClientOptions>({
       imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => {
+      useFactory: (configService: ConfigService<any, true>) => {
         return configureCache(configService);
       },
       inject: [ConfigService],
