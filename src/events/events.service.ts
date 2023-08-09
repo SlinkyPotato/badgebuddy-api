@@ -1,10 +1,12 @@
 import { ConflictException, Injectable, Logger } from '@nestjs/common';
-import PostEventRequestDto from './dto/post/event.request.dto';
 import { PoapEvent } from './schemas/poap-events.schema';
 import { Model } from 'mongoose';
 import { EventType } from './enums/event-type.enum';
-import PostEventResponseDto from './dto/post/event.response.dto';
 import { InjectModel } from '@nestjs/mongoose';
+import PostEventResponseDto from './dto/post/post-event.response.dto';
+import PostEventRequestDto from './dto/post/post-event.request.dto';
+import PutEventRequestDto from './dto/put/put-event.request.dto';
+import PutEventResponseDto from './dto/put/put-event.response.dto';
 
 @Injectable()
 export class EventsService {
@@ -12,7 +14,8 @@ export class EventsService {
     private readonly logger: Logger,
     @InjectModel(PoapEvent.name) private poapEventModel: Model<PoapEvent>,
   ) {}
-  async create(request: PostEventRequestDto): Promise<PostEventResponseDto> {
+
+  async start(request: PostEventRequestDto): Promise<PostEventResponseDto> {
     this.logger.log(
       `Creating poap event for guild: ${request.guildId}, channel: ${request.voiceChannelId}, organizer: ${request.organizerId}`,
     );
@@ -61,5 +64,10 @@ export class EventsService {
 
     this.logger.log(`Returning response: ${JSON.stringify(response)}`);
     return response;
+  }
+
+  async stop(request: PutEventRequestDto): Promise<PutEventResponseDto> {
+    this.logger.log('Stopping event');
+    return new PutEventResponseDto();
   }
 }

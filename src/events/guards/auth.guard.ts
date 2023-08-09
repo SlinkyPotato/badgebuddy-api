@@ -3,6 +3,7 @@ import {
   ExecutionContext,
   Inject,
   Injectable,
+  Logger,
 } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
@@ -11,7 +12,7 @@ import { DiscordGuild } from '../../guilds/schemas/discord-guild.schema';
 import { Model } from 'mongoose';
 import { InjectDiscordClient } from '@discord-nestjs/core';
 import { Client } from 'discord.js';
-import PostEventRequestDto from '../dto/post/event.request.dto';
+import CommonRequest from '../dto/common-request.interface';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -19,12 +20,13 @@ export class AuthGuard implements CanActivate {
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
     @InjectModel(DiscordGuild.name) private guildModel: Model<DiscordGuild>,
     @InjectDiscordClient() private readonly discordClient: Client,
+    private readonly logger: Logger,
   ) {}
 
-  async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request: PostEventRequestDto = context
-      .switchToHttp()
-      .getRequest().body;
+  async canActivate<T extends CommonRequest>(
+    context: ExecutionContext,
+  ): Promise<boolean> {
+    const request: T = context.switchToHttp().getRequest().body;
 
     let guild: DiscordGuild | undefined | null = await this.cacheManager.get(
       '/guilds/' + request.guildId,
@@ -41,11 +43,15 @@ export class AuthGuard implements CanActivate {
     }
 
     if (guild.poapManagerRoleId) {
-      const guildMember = await (
-        await this.discordClient.guilds.fetch(guild.guildId)
-      ).members.fetch(request.organizerId);
-
-      if (!guildMember.roles.cache.has(guild.poapManagerRoleId)) {
+      try {
+        const guildMember = await (
+          await this.discordClient.guilds.fetch(guild.guildId)
+        ).members.fetch(request.organizerId);
+        if (!guildMember.roles.cache.has(guild.poapManagerRoleId)) {
+          return false;
+        }
+      } catch (error) {
+        this.logger.log(`Failed to fetch guild member: ${error}`);
         return false;
       }
     }

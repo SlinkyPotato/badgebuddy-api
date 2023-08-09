@@ -1,9 +1,19 @@
-import { Body, Controller, HttpStatus, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpStatus,
+  Param,
+  Post,
+  Put,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { EventsService } from './events.service';
-import PostEventRequestDto from './dto/post/event.request.dto';
-import PostEventResponseDto from './dto/post/event.response.dto';
 import { AuthGuard } from './guards/auth.guard';
+import PutEventResponseDto from './dto/put/put-event.response.dto';
+import PostEventRequestDto from './dto/post/post-event.request.dto';
+import PostEventResponseDto from './dto/post/post-event.response.dto';
+import PutEventRequestDto from './dto/put/put-event.request.dto';
 
 @Controller('events')
 @ApiTags('events')
@@ -12,7 +22,7 @@ export class EventsController {
   constructor(private readonly eventsService: EventsService) {}
 
   @Post()
-  @ApiOperation({ summary: 'Start tracking a voice channel event.' })
+  @ApiOperation({ summary: 'Start tracking voice channel event.' })
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: 'Event started',
@@ -22,8 +32,27 @@ export class EventsController {
     status: HttpStatus.CONFLICT,
     description: 'Event already exists and active',
   })
-  create(@Body() request: PostEventRequestDto): Promise<PostEventResponseDto> {
-    return this.eventsService.create(request);
+  start(@Body() request: PostEventRequestDto): Promise<PostEventResponseDto> {
+    return this.eventsService.start(request);
+  }
+
+  @Put()
+  @ApiOperation({ summary: 'Stop tracking voice channel event.' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Event stopped',
+    type: PutEventResponseDto,
+  })
+  @ApiResponse({
+    status: HttpStatus.CONFLICT,
+    description: 'Event already stopped',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Active event not found',
+  })
+  stop(@Body() request: PutEventRequestDto): Promise<PutEventResponseDto> {
+    return this.eventsService.stop(request);
   }
 
   // TODO: Implement this endpoint

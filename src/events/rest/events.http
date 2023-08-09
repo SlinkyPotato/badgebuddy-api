@@ -18,7 +18,8 @@ DELETE http://localhost:3000/guilds/850840267082563596
 Accept: application/json
 Content-Type: application/json
 
-PUT /events/:guildId (stop
+## Design
+PUT /events/:eventId (stop)
 POST /events/distribution/:guildId (disburse manually)
 POST /events/schedule/:guildId (start in future)
 PUT /events/schedule/:guildId (stop in future)
