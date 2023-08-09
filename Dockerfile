@@ -31,4 +31,7 @@ RUN mv README.md ./dist/
 # Remove dev dependencies
 RUN pnpm install --prod
 
+#HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3
+#  CMD [ "curl", "http://localhost:3000/health" ]
+
 CMD ["pnpm", "start:prod"]

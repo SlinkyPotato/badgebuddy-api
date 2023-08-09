@@ -12,6 +12,8 @@ import SystemConfig from './config/system.config';
 import RedisConfig from './config/redis.config';
 import { DiscordModule, DiscordModuleOption } from '@discord-nestjs/core';
 import { GatewayIntentBits, Partials } from 'discord.js';
+import { HealthController } from './health/health.controller';
+import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
@@ -60,6 +62,7 @@ import { GatewayIntentBits, Partials } from 'discord.js';
     EventsModule,
     GuildsModule,
     DiscordEventsModule,
+    HealthModule,
   ],
   controllers: [AppController],
   providers: [Logger, AppService],

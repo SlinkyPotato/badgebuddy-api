@@ -5,7 +5,6 @@ import { ConfigService, registerAs } from '@nestjs/config';
 import ConfigUtil, { JoiConfig } from './config.util';
 import Joi from 'joi';
 import NodeEnvs from './enums/node-envs.enum';
-import { SystemEnv } from './system.config';
 
 type RedisEnv = {
   host: string;
