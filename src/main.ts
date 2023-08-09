@@ -1,5 +1,4 @@
 import 'dotenv/config'; // must be first import
-// import apm from 'elastic-apm-node/start';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
@@ -7,11 +6,11 @@ import {
   FastifyAdapter,
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
-import { ElasticPinoLogger } from './config/elasticpino.logger';
+import { LogtailPinoLogger } from './config/logtail-pino.logger';
 import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
-  const pinoLogger = new ElasticPinoLogger();
+  const pinoLogger = new LogtailPinoLogger();
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     new FastifyAdapter({

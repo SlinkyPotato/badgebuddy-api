@@ -1,18 +1,18 @@
 import { LoggerService } from '@nestjs/common';
 import pino, { LoggerOptions } from 'pino';
-import ecsFormat from '@elastic/ecs-pino-format';
 import { PinoLogger } from 'nestjs-pino';
 import NodeEnvs from './enums/node-envs.enum';
 
-export class ElasticPinoLogger extends PinoLogger implements LoggerService {
+export class LogtailPinoLogger extends PinoLogger implements LoggerService {
   constructor() {
     super({
-      pinoHttp: { logger: ElasticPinoLogger.createPino() },
+      pinoHttp: { logger: LogtailPinoLogger.createPino() },
     });
   }
 
   static createPino(): pino.Logger {
-    const { formatters, messageKey, timestamp } = ecsFormat();
+    console.log('creating pino logger');
+    // const { formatters, messageKey, timestamp } = ecsFormat();
     const targets: any = [
       {
         level: 'info', // all logs printed since info does not map
@@ -32,6 +32,12 @@ export class ElasticPinoLogger extends PinoLogger implements LoggerService {
           mkdir: true,
         },
       },
+      {
+        target: '@logtail/pino',
+        options: {
+          sourceToken: process.env.LOGTAIL_TOKEN,
+        },
+      },
     ];
     if (process.env.NODE_ENV !== NodeEnvs.PRODUCTION) {
       // https://github.com/pinojs/pino-pretty
@@ -47,12 +53,12 @@ export class ElasticPinoLogger extends PinoLogger implements LoggerService {
     return pino({
       name: 'badge-buddy-api',
       level: 'info',
-      timestamp: timestamp,
-      messageKey: messageKey,
-      formatters: {
-        ...formatters?.log,
-        ...formatters?.bindings,
-      },
+      // timestamp: timestamp,
+      // messageKey: messageKey,
+      // formatters: {
+      //   ...formatters?.log,
+      //   ...formatters?.bindings,
+      // },
       transport: {
         targets: targets,
       },

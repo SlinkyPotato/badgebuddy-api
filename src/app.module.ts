@@ -14,13 +14,20 @@ import { DiscordModule, DiscordModuleOption } from '@discord-nestjs/core';
 import { GatewayIntentBits, Partials } from 'discord.js';
 import { HealthController } from './health/health.controller';
 import { HealthModule } from './health/health.module';
+import LogtailConfig from './config/logtail.config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       ignoreEnvFile: true,
       cache: true,
-      load: [MongoConfig, DiscordConfig, SystemConfig, RedisConfig],
+      load: [
+        MongoConfig,
+        DiscordConfig,
+        SystemConfig,
+        RedisConfig,
+        LogtailConfig,
+      ],
     }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
