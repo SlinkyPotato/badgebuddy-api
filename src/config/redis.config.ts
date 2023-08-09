@@ -9,7 +9,6 @@ import NodeEnvs from './enums/node-envs.enum';
 type RedisEnv = {
   host: string;
   port: number;
-  path: string;
 };
 
 export default registerAs('redis', (): RedisEnv => {
@@ -22,48 +21,36 @@ export default registerAs('redis', (): RedisEnv => {
       value: process.env.REDIS_PORT,
       joi: Joi.number().default(6379),
     },
-    path: {
-      value: process.env.REDIS_PATH,
-      joi: Joi.string().default('/app/redis/redis.sock'),
-    },
   };
 
   return ConfigUtil.validate(redisEnvs);
 });
 
 export const configureCache = (configService: ConfigService<any, true>) => {
-  let config: CacheManagerOptions & RedisClientOptions;
+  const config: CacheManagerOptions & RedisClientOptions = {
+    store: redisStore,
+  };
   switch (configService.get('system.nodeEnv')) {
     case NodeEnvs.PRODUCTION.toString():
-      config = {
-        store: redisStore,
-        socket: {
-          path: configService.get<string>('redis.path'),
-        },
-        database: 0,
-        ttl: 1000 * 60 * 60 * 24, // 1 day
+      config.socket = {
+        path: '/app/redis/redis.sock',
       };
+      config.database = 0;
+      config.ttl = 1000 * 60 * 60 * 24; // 1 day
       break;
     case NodeEnvs.STAGING.toString():
-      config = {
-        store: redisStore,
-        socket: {
-          path: configService.get<string>('redis.path'),
-        },
-        database: 1,
-        ttl: 1000 * 60 * 60, // 1 hour
+      config.socket = {
+        path: '/app/redis/redis.sock',
       };
+      config.database = 1;
+      config.ttl = 1000 * 60 * 60; // 1 hour
       break;
     default:
-      config = {
-        store: redisStore,
-        socket: {
-          host: configService.get<string>('redis.host'),
-          port: configService.get<number>('redis.port'),
-        },
-        database: 0,
-        ttl: 1000 * 60, // 1 minute
+      config.socket = {
+        host: configService.get<string>('redis.host'),
+        port: configService.get<number>('redis.port'),
       };
+      config.ttl = 1000 * 60; // 1 minute
   }
   return config;
 };
