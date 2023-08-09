@@ -31,8 +31,7 @@ RUN mv README.md ./dist/
 # Remove dev dependencies
 RUN pnpm install --prod
 
-HEALTHCHECK \
-  --start-interval=3s \
+HEALTHCHECK --start-interval=3s \
   --start-period=3m \
   --interval=24h \
   --timeout=30s \
