@@ -1,8 +1,8 @@
 {
-  "name": "badge-buddy",
+  "name": "badge-buddy-api",
   "version": "1.0.0-beta",
   "description": "Microservices API for Badge Buddy",
-  "author": "amaredeus <patinobrian@gmail.com>",
+  "author": "SlinkyPotato <patinobrian@gmail.com>",
   "private": true,
   "license": "MIT",
   "engines": {
