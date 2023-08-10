@@ -31,13 +31,14 @@ import LogtailConfig from './config/logtail.config';
     }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
+      inject: [ConfigService],
       useFactory: async (configService: ConfigService<any, true>) => ({
         uri: configService.get('mongo.uri'),
       }),
-      inject: [ConfigService],
     }),
     DiscordModule.forRootAsync({
       imports: [ConfigModule],
+      inject: [ConfigService],
       useFactory: (
         configService: ConfigService<any, true>,
       ): Promise<DiscordModuleOption> | DiscordModuleOption => ({
@@ -64,7 +65,6 @@ import LogtailConfig from './config/logtail.config';
         },
         failOnLogin: true,
       }),
-      inject: [ConfigService],
     }),
     EventsModule,
     GuildsModule,
