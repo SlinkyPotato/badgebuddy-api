@@ -67,7 +67,34 @@ export class EventsService {
   }
 
   async stop(request: PutEventRequestDto): Promise<PutEventResponseDto> {
-    this.logger.log('Stopping event');
-    return new PutEventResponseDto();
+    this.logger.log(
+      `Stopping event for guildId: ${request.guildId}, voiceChannelId: ${request.voiceChannelId}, organizerId: ${request.organizerId}`,
+    );
+
+    const activeEvent = await this.poapEventModel.findOne({
+      guildId: request.guildId,
+      isActive: true,
+      voiceChannelId: request.voiceChannelId,
+      organizerId: request.organizerId,
+    });
+
+    if (!activeEvent) {
+      this.logger.warn('Active event not found');
+      throw new ConflictException('Active event not found');
+    }
+
+    activeEvent.isActive = false;
+
+    const result = await activeEvent.save();
+    if (!result._id) {
+      throw new Error('Failed to update event');
+    }
+
+    const response = new PutEventResponseDto();
+    response._id = result._id.toString();
+    response.isActive = result.isActive;
+
+    this.logger.log(`Returning response: ${JSON.stringify(response)}`);
+    return response;
   }
 }
