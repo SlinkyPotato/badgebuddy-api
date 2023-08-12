@@ -6,11 +6,11 @@ import {
   FastifyAdapter,
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
-import { LogtailPinoLogger } from './config/logtail-pino.logger';
 import { ValidationPipe } from '@nestjs/common';
+import { PinoServiceLogger } from './logger/pino-service.logger';
 
 async function bootstrap() {
-  const pinoLogger = new LogtailPinoLogger();
+  const pinoLogger = new PinoServiceLogger();
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     new FastifyAdapter({

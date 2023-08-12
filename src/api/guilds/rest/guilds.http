@@ -6,7 +6,7 @@ Content-Type: application/json
 {
   "guildName": "SlinkyPotato's Server",
   "roleId": "123455",
-  "channelId": "123345",
+  "privateChannelId": "123345",
   "newsChannelId": "123455"
 }
 

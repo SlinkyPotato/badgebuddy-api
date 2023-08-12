@@ -1,17 +1,17 @@
 import { LoggerService } from '@nestjs/common';
 import pino, { LoggerOptions } from 'pino';
 import { PinoLogger } from 'nestjs-pino';
-import NodeEnvs from './enums/node-envs.enum';
+import NodeEnvs from '../config/enums/node-envs.enum';
 
-export class LogtailPinoLogger extends PinoLogger implements LoggerService {
+export class PinoServiceLogger extends PinoLogger implements LoggerService {
   constructor() {
     super({
-      pinoHttp: { logger: LogtailPinoLogger.createPino() },
+      pinoHttp: { logger: PinoServiceLogger.createPino() },
     });
   }
 
   static createPino(): pino.Logger {
-    console.log('creating pino logger');
+    console.log('creating logger...');
     // const { formatters, messageKey, timestamp } = ecsFormat();
     const targets: any = [
       {
@@ -43,22 +43,12 @@ export class LogtailPinoLogger extends PinoLogger implements LoggerService {
       // https://github.com/pinojs/pino-pretty
       targets.push({
         target: 'pino/file',
-        options: {
-          // timestampKey: '@timestamp',
-          // messageKey: 'message',
-          // ignore: 'pid,hostname',
-        },
+        options: {},
       });
     }
     return pino({
       name: 'badge-buddy-api',
       level: 'info',
-      // timestamp: timestamp,
-      // messageKey: messageKey,
-      // formatters: {
-      //   ...formatters?.log,
-      //   ...formatters?.bindings,
-      // },
       transport: {
         targets: targets,
       },

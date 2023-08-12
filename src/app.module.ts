@@ -1,10 +1,8 @@
 import { Logger, Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { EventsModule } from './events/events.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { GuildsModule } from './guilds/guilds.module';
 import { DiscordEventsModule } from './discord-events/discord-events.module';
 import DiscordConfig from './config/discord.config';
 import MongoConfig from './config/mongo.config';
@@ -12,8 +10,7 @@ import SystemConfig from './config/system.config';
 import RedisConfig from './config/redis.config';
 import { DiscordModule, DiscordModuleOption } from '@discord-nestjs/core';
 import { GatewayIntentBits, Partials } from 'discord.js';
-import { HealthController } from './health/health.controller';
-import { HealthModule } from './health/health.module';
+import { ApiModule } from './api/api.module';
 import LogtailConfig from './config/logtail.config';
 
 @Module({
@@ -66,10 +63,8 @@ import LogtailConfig from './config/logtail.config';
         failOnLogin: true,
       }),
     }),
-    EventsModule,
-    GuildsModule,
     DiscordEventsModule,
-    HealthModule,
+    ApiModule,
   ],
   controllers: [AppController],
   providers: [Logger, AppService],

@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   HttpStatus,
   Param,
   Post,
@@ -54,6 +55,18 @@ export class EventsController {
   stop(@Body() request: PutEventRequestDto): Promise<PutEventResponseDto> {
     return this.eventsService.stop(request);
   }
+
+  @Get('/active')
+  @ApiOperation({ summary: 'Retrieve active events.' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Active events retrieved.',
+    type: String,
+  })
+  getActive(
+    @Param('guildId') guildId: string,
+    @Param('voiceChannelId') voiceChannelId: string,
+  ): any {}
 
   // TODO: Implement this endpoint
   @Post('/distribution')

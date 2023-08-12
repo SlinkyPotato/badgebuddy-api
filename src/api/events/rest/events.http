@@ -6,7 +6,7 @@ Content-Type: application/json
   "guildId": "850840267082563596",
   "eventName": "Test event",
   "organizerId": "159014522542096384",
-  "channelId": "850840267082563600",
+  "voiceChannelId": "850840267082563600",
   "duration": 30
 }
 
@@ -26,8 +26,8 @@ PUT /events/schedule/:guildId (stop in future)
 
 GET /events/:guildId (all events)
 GET /events/:guildId?organizerId= (all events by organizer)
-GET /events/:guildId?channelId= (all events by channel)
-GET /events/:guildId?organizerId=&channelId= (all events by organizer and channel)
+GET /events/:guildId?voiceChannelId= (all events by channel)
+GET /events/:guildId?organizerId=&voiceChannelId= (all events by organizer and channel)
 GET /events/:guildId?fromDate= (all events from date)
 GET /events/:guildId?toDate= (all events to date)
 GET /events/:guildId?fromDate=&toDate= (all events from date to date)

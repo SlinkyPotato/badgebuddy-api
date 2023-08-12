@@ -54,7 +54,7 @@
     "class-validator": "^0.14.0",
     "discord.js": "^14.12.1",
     "dotenv": "^16.3.1",
-    "dotenv-vault": "^1.23.3",
+    "dotenv-vault": "^1.25.0",
     "joi": "^17.9.2",
     "mongoose": "^7.3.1",
     "nestjs-pino": "^3.3.0",

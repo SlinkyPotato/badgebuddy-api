@@ -10,8 +10,8 @@ import {
   DiscordGuildSchema,
 } from '../guilds/schemas/discord-guild.schema';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { configureCache } from '../config/redis.config';
 import { DiscordModule } from '@discord-nestjs/core';
+import { configureCache } from '../../config/redis.config';
 
 @Module({
   imports: [

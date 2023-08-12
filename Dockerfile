@@ -1,15 +1,11 @@
-ARG NODE_VERSION
-
-FROM node:${NODE_VERSION}-alpine
-
-ARG PNPM_VERSION
+FROM node:20.3.1-alpine
 
 LABEL description="Microservices API for Badge Buddy"
 
 WORKDIR /app
 
 # Install pnpm
-RUN npm install -g pnpm@${PNPM_VERSION}
+RUN npm install -g pnpm@$8.6.10
 
 # Bundle app source
 COPY . .
