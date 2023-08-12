@@ -7,6 +7,7 @@ import {
   Post,
   Put,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { EventsService } from './events.service';
@@ -15,10 +16,13 @@ import PutEventResponseDto from './dto/put/put-event.response.dto';
 import PostEventRequestDto from './dto/post/post-event.request.dto';
 import PostEventResponseDto from './dto/post/post-event.response.dto';
 import PutEventRequestDto from './dto/put/put-event.request.dto';
+import GetActiveEventResponseDto from './dto/get/get-active-event-response.dto';
+import { CacheInterceptor } from '@nestjs/cache-manager';
 
 @Controller('events')
 @ApiTags('events')
 @UseGuards(AuthGuard)
+@UseInterceptors(CacheInterceptor)
 export class EventsController {
   constructor(private readonly eventsService: EventsService) {}
 
@@ -61,12 +65,17 @@ export class EventsController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Active events retrieved.',
-    type: String,
+    type: GetActiveEventResponseDto,
   })
   getActive(
     @Param('guildId') guildId: string,
     @Param('voiceChannelId') voiceChannelId: string,
-  ): any {}
+  ): Promise<GetActiveEventResponseDto> {
+    return this.eventsService.getActiveEventsByGuildIdAndVoiceChannel(
+      guildId,
+      voiceChannelId,
+    );
+  }
 
   // TODO: Implement this endpoint
   @Post('/distribution')

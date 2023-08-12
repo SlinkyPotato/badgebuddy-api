@@ -7,6 +7,9 @@ import PostEventResponseDto from './dto/post/post-event.response.dto';
 import PostEventRequestDto from './dto/post/post-event.request.dto';
 import PutEventRequestDto from './dto/put/put-event.request.dto';
 import PutEventResponseDto from './dto/put/put-event.response.dto';
+import GetActiveEventResponseDto, {
+  ActiveEventDto,
+} from './dto/get/get-active-event-response.dto';
 
 @Injectable()
 export class EventsService {
@@ -95,6 +98,37 @@ export class EventsService {
     response.isActive = result.isActive;
 
     this.logger.log(`Returning response: ${JSON.stringify(response)}`);
+    return response;
+  }
+
+  async getActiveEventsByGuildIdAndVoiceChannel(
+    guildId: string,
+    voiceChannelId: string,
+  ): Promise<GetActiveEventResponseDto> {
+    this.logger.log(
+      `Getting actives events for guildId: ${guildId}, voiceChannelId: ${voiceChannelId}`,
+    );
+
+    const activeEvents = await this.poapEventModel.find({
+      guildId: guildId,
+      isActive: true,
+      voiceChannelId: voiceChannelId,
+    });
+
+    const response = new GetActiveEventResponseDto();
+    for (const activeEvent of activeEvents) {
+      const event = new ActiveEventDto();
+      event._id = activeEvent._id.toString();
+      event.eventName = activeEvent.eventName;
+      event.guildId = activeEvent.guildId;
+      event.voiceChannelId = activeEvent.voiceChannelId;
+      event.organizerId = activeEvent.organizerId;
+      event.startDate = activeEvent.startDate;
+      event.endDate = activeEvent.endDate;
+      response.events.push(event);
+    }
+
+    this.logger.log(`Returning response`);
     return response;
   }
 }
