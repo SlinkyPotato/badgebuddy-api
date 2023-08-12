@@ -5,7 +5,7 @@ LABEL description="Microservices API for Badge Buddy"
 WORKDIR /app
 
 # Install pnpm
-RUN npm install -g pnpm@$8.6.10
+RUN npm install -g pnpm@8.6.10
 
 # Bundle app source
 COPY . .
