@@ -2,7 +2,6 @@ import { Logger, Module } from '@nestjs/common';
 import { EventsController } from './events.controller';
 import { EventsService } from './events.service';
 import { MongooseModule } from '@nestjs/mongoose';
-import { PoapEvent, PoapEventSchema } from './schemas/poap-events.schema';
 import { CacheModule } from '@nestjs/cache-manager';
 import { RedisClientOptions } from 'redis';
 import {
@@ -12,6 +11,10 @@ import {
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { DiscordModule } from '@discord-nestjs/core';
 import { configureCache } from '../../config/redis.config';
+import {
+  CommunityEvent,
+  CommunityEventSchema,
+} from './schemas/community-event.schema';
 
 @Module({
   imports: [
@@ -24,7 +27,7 @@ import { configureCache } from '../../config/redis.config';
       inject: [ConfigService],
     }),
     MongooseModule.forFeature([
-      { name: PoapEvent.name, schema: PoapEventSchema },
+      { name: CommunityEvent.name, schema: CommunityEventSchema },
       { name: DiscordGuild.name, schema: DiscordGuildSchema },
     ]),
   ],

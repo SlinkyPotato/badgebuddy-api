@@ -27,14 +27,16 @@ export class AuthGuard implements CanActivate {
     context: ExecutionContext,
   ): Promise<boolean> {
     const request: T = context.switchToHttp().getRequest().body;
+    const guildId = request.guildId;
+    const organizerId = request.organizerId;
 
     let guild: DiscordGuild | undefined | null = await this.cacheManager.get(
-      '/guilds/' + request.guildId,
+      '/guilds/' + guildId,
     );
 
     if (!guild) {
       guild = await this.guildModel.findOne({
-        guildId: request.guildId,
+        guildId: guildId,
       });
     }
 
@@ -46,7 +48,7 @@ export class AuthGuard implements CanActivate {
       try {
         const guildMember = await (
           await this.discordClient.guilds.fetch(guild.guildId)
-        ).members.fetch(request.organizerId);
+        ).members.fetch(organizerId);
         if (!guildMember.roles.cache.has(guild.poapManagerRoleId)) {
           return false;
         }

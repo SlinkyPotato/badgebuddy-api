@@ -1,16 +1,8 @@
-import { LoggerService } from '@nestjs/common';
-import pino, { LoggerOptions } from 'pino';
 import { PinoLogger } from 'nestjs-pino';
 import NodeEnvs from '../config/enums/node-envs.enum';
 
-export class PinoServiceLogger extends PinoLogger implements LoggerService {
+export class PinoConfigLogger extends PinoLogger {
   constructor() {
-    super({
-      pinoHttp: { logger: PinoServiceLogger.createPino() },
-    });
-  }
-
-  static createPino(): pino.Logger {
     console.log('creating logger...');
     // const { formatters, messageKey, timestamp } = ecsFormat();
     const targets: any = [
@@ -46,20 +38,14 @@ export class PinoServiceLogger extends PinoLogger implements LoggerService {
         options: {},
       });
     }
-    return pino({
-      name: 'badge-buddy-api',
-      level: 'info',
-      transport: {
-        targets: targets,
+    super({
+      pinoHttp: {
+        name: 'badge-buddy-api',
+        level: 'info',
+        transport: {
+          targets: targets,
+        },
       },
-    } as LoggerOptions);
-  }
-
-  log(message: any, ...optionalParams: any[]): any {
-    this.info({ ...optionalParams }, message);
-  }
-
-  info(mergingObj: unknown, msg?: string, ...args: any[]): void {
-    super.info(mergingObj, msg, ...args);
+    });
   }
 }

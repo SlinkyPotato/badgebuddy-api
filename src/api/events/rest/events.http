@@ -18,6 +18,11 @@ DELETE http://localhost:3000/guilds/850840267082563596
 Accept: application/json
 Content-Type: application/json
 
+### GET Request for active events
+GET http://localhost:3000/events/active
+Accept: application/json
+Content-Type: application/json
+
 ## Design
 PUT /events/:eventId (stop)
 POST /events/distribution/:guildId (disburse manually)

@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -21,12 +22,12 @@ import { CacheInterceptor } from '@nestjs/cache-manager';
 
 @Controller('events')
 @ApiTags('events')
-@UseGuards(AuthGuard)
-@UseInterceptors(CacheInterceptor)
+// @UseInterceptors(CacheInterceptor)
 export class EventsController {
   constructor(private readonly eventsService: EventsService) {}
 
   @Post()
+  @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Start tracking voice channel event.' })
   @ApiResponse({
     status: HttpStatus.CREATED,
@@ -42,6 +43,7 @@ export class EventsController {
   }
 
   @Put()
+  @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Stop tracking voice channel event.' })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -68,13 +70,10 @@ export class EventsController {
     type: GetActiveEventResponseDto,
   })
   getActive(
-    @Param('guildId') guildId: string,
-    @Param('voiceChannelId') voiceChannelId: string,
+    @Query('guildId') guildId: string,
+    @Query('organizerId') organizerId: string,
   ): Promise<GetActiveEventResponseDto> {
-    return this.eventsService.getActiveEventsByGuildIdAndVoiceChannel(
-      guildId,
-      voiceChannelId,
-    );
+    return this.eventsService.getActiveEvents(guildId, organizerId);
   }
 
   // TODO: Implement this endpoint

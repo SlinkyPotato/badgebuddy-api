@@ -55,15 +55,12 @@ export class GuildsService {
   }
   async remove(id: string): Promise<any> {
     this.logger.log('removing guild: ' + id);
-    await this.discordServerModel
-      .findOne({
+    const result = await this.discordServerModel
+      .findOneAndDelete({
         guildId: id,
       })
       .exec();
-    const result = await this.discordServerModel
-      .deleteOne({ guildId: id })
-      .exec();
-    if (result.deletedCount != 1) {
+    if (result == null) {
       throw new NotFoundException('Guild not found');
     }
     this.logger.log('removing guild from cache: ' + id);

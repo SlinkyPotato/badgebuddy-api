@@ -1,5 +1,4 @@
 import { ConflictException, Injectable, Logger } from '@nestjs/common';
-import { PoapEvent } from './schemas/poap-events.schema';
 import { Model } from 'mongoose';
 import { EventType } from './enums/event-type.enum';
 import { InjectModel } from '@nestjs/mongoose';
@@ -10,20 +9,26 @@ import PutEventResponseDto from './dto/put/put-event.response.dto';
 import GetActiveEventResponseDto, {
   ActiveEventDto,
 } from './dto/get/get-active-event-response.dto';
+import {
+  CommunityEvent,
+  CommunityEventDocument,
+} from './schemas/community-event.schema';
 
 @Injectable()
 export class EventsService {
   constructor(
     private readonly logger: Logger,
-    @InjectModel(PoapEvent.name) private poapEventModel: Model<PoapEvent>,
+    @InjectModel(CommunityEvent.name)
+    private communityEventModel: Model<CommunityEvent>,
   ) {}
 
   async start(request: PostEventRequestDto): Promise<PostEventResponseDto> {
     this.logger.log(
       `Creating poap event for guild: ${request.guildId}, channel: ${request.voiceChannelId}, organizer: ${request.organizerId}`,
     );
+    this.logger.log('test');
 
-    const existingEvent = await this.poapEventModel.exists({
+    const existingEvent = await this.communityEventModel.exists({
       guildId: request.guildId,
       isActive: true,
       voiceChannelId: request.voiceChannelId,
@@ -42,7 +47,7 @@ export class EventsService {
       `startDate: ${currentDate}, endDate: ${endDate}, guildId: ${request.guildId}`,
     );
 
-    const poapEvent: PoapEvent = new PoapEvent();
+    const poapEvent: CommunityEvent = new CommunityEvent();
     poapEvent.guildId = request.guildId;
     poapEvent.voiceChannelId = request.voiceChannelId;
     poapEvent.organizerId = request.organizerId;
@@ -53,7 +58,7 @@ export class EventsService {
     poapEvent.isActive = true;
     poapEvent.participants = [];
 
-    const result = await this.poapEventModel.create(poapEvent);
+    const result = await this.communityEventModel.create(poapEvent);
     if (!result._id) {
       throw new Error('Failed to create event');
     }
@@ -74,7 +79,7 @@ export class EventsService {
       `Stopping event for guildId: ${request.guildId}, voiceChannelId: ${request.voiceChannelId}, organizerId: ${request.organizerId}`,
     );
 
-    const activeEvent = await this.poapEventModel.findOne({
+    const activeEvent = await this.communityEventModel.findOne({
       guildId: request.guildId,
       isActive: true,
       voiceChannelId: request.voiceChannelId,
@@ -101,21 +106,33 @@ export class EventsService {
     return response;
   }
 
-  async getActiveEventsByGuildIdAndVoiceChannel(
-    guildId: string,
-    voiceChannelId: string,
+  async getActiveEvents(
+    guildId?: string,
+    organizerId?: string,
   ): Promise<GetActiveEventResponseDto> {
-    this.logger.log(
-      `Getting actives events for guildId: ${guildId}, voiceChannelId: ${voiceChannelId}`,
-    );
+    this.logger.log(`Getting actives events for guildId: ${guildId}`);
+    let activeEvents: CommunityEventDocument[] = [];
 
-    const activeEvents = await this.poapEventModel.find({
-      guildId: guildId,
-      isActive: true,
-      voiceChannelId: voiceChannelId,
-    });
+    if (guildId && organizerId) {
+      activeEvents = await this.communityEventModel.find({
+        guildId: guildId,
+        organizerId: organizerId,
+        isActive: true,
+      });
+    } else if (guildId) {
+      activeEvents = await this.communityEventModel.find({
+        guildId: guildId,
+        isActive: true,
+      });
+    } else if (organizerId) {
+      activeEvents = await this.communityEventModel.find({
+        organizerId: organizerId,
+        isActive: true,
+      });
+    }
 
     const response = new GetActiveEventResponseDto();
+    response.events = [];
     for (const activeEvent of activeEvents) {
       const event = new ActiveEventDto();
       event._id = activeEvent._id.toString();

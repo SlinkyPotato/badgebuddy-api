@@ -2,8 +2,8 @@ import { Prop, raw, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 import { EventType } from '../enums/event-type.enum';
 
-@Schema({ collection: 'poapEvents' })
-export class PoapEvent {
+@Schema({ collection: 'communityEvents' })
+export class CommunityEvent {
   @Prop({ required: true })
   eventName: string;
 
@@ -36,15 +36,16 @@ export class PoapEvent {
     }),
     required: false,
   })
-  participants: PoapEventParticipant[];
+  participants: CommunityEventParticipant[];
 }
 
-type PoapEventParticipant = {
+type CommunityEventParticipant = {
   userId: string;
   duration: number;
   hasClaimed: boolean;
 };
 
-export type PoapEventDocument = HydratedDocument<PoapEvent>;
+export type CommunityEventDocument = HydratedDocument<CommunityEvent>;
 
-export const PoapEventSchema = SchemaFactory.createForClass(PoapEvent);
+export const CommunityEventSchema =
+  SchemaFactory.createForClass(CommunityEvent);
