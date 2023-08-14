@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, Logger } from '@nestjs/common';
+import { ConflictException, Inject, Injectable, Logger } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { EventType } from './enums/event-type.enum';
 import { InjectModel } from '@nestjs/mongoose';
@@ -13,6 +13,8 @@ import {
   CommunityEvent,
   CommunityEventDocument,
 } from './schemas/community-event.schema';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 
 @Injectable()
 export class EventsService {
@@ -20,13 +22,13 @@ export class EventsService {
     private readonly logger: Logger,
     @InjectModel(CommunityEvent.name)
     private communityEventModel: Model<CommunityEvent>,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
   async start(request: PostEventRequestDto): Promise<PostEventResponseDto> {
     this.logger.log(
       `Creating poap event for guild: ${request.guildId}, channel: ${request.voiceChannelId}, organizer: ${request.organizerId}`,
     );
-    this.logger.log('test');
 
     const existingEvent = await this.communityEventModel.exists({
       guildId: request.guildId,
@@ -64,6 +66,10 @@ export class EventsService {
     }
     this.logger.log(`Stored poapEvent in db _id: ${result._id}`);
 
+    this.logger.log('Removing active events from cache');
+    await this.cacheManager.del(`/events/active?guildId=${request.guildId}`);
+    this.logger.log('Removed active event from cache');
+
     const response: PostEventResponseDto = new PostEventResponseDto();
     response._id = result._id.toString();
     response.eventType = result.eventType;
@@ -97,6 +103,10 @@ export class EventsService {
     if (!result._id) {
       throw new Error('Failed to update event');
     }
+
+    this.logger.log('Removing active event from cache');
+    await this.cacheManager.del(`/events/active?guildId=${request.guildId}`);
+    this.logger.log('Removed active event from cache');
 
     const response = new PutEventResponseDto();
     response._id = result._id.toString();
