@@ -22,7 +22,7 @@ import { CacheInterceptor } from '@nestjs/cache-manager';
 
 @Controller('events')
 @ApiTags('events')
-// @UseInterceptors(CacheInterceptor)
+@UseInterceptors(CacheInterceptor)
 export class EventsController {
   constructor(private readonly eventsService: EventsService) {}
 
