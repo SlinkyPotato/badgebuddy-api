@@ -53,7 +53,10 @@ export class AuthGuard implements CanActivate {
           return false;
         }
       } catch (error) {
-        this.logger.log(`Failed to fetch guild member: ${error}`);
+        this.logger.error(
+          `Failed to fetch guildId: ${guildId}, organizerId: ${organizerId}`,
+          error,
+        );
         return false;
       }
     }
