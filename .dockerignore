@@ -26,7 +26,6 @@ lerna-debug.log*
 *.launch
 .settings/
 *.sublime-workspace
-.run
 
 # IDE - VSCode
 .vscode/*
@@ -38,7 +37,6 @@ lerna-debug.log*
 .flaskenv*
 !.env.project
 !.env.vault
-badge-buddy-api.iml
 
 # Certs
 /certs/*
