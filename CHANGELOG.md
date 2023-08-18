@@ -2,7 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.2-0](https://github.com/solidchain-tech/badge-buddy-api/compare/v0.0.1-2...v0.0.2-0) (2023-08-18)
+
 ### [0.0.1](https://github.com/solidchain-tech/badge-buddy-api/compare/v0.0.1-1...v0.0.1) (2023-08-18)
+
+### [0.0.1](https://github.com/solidchain-tech/badge-buddy-api/compare/v0.0.1-1...v0.0.1) (2023-08-18)
+
+### [0.0.1-2](https://github.com/solidchain-tech/badge-buddy-api/compare/v0.0.1-1...v0.0.1-2) (2023-08-18)
+
+
+### Bug Fixes
+
+* workflow docker name ([46dcaf2](https://github.com/solidchain-tech/badge-buddy-api/commit/46dcaf2c3b70975ef156b96df7ac05909a36ec44))
 
 ### [0.0.1-1](https://github.com/solidchain-tech/badge-buddy-api/compare/v0.0.1-0...v0.0.1-1) (2023-08-18)
 
