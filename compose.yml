@@ -28,7 +28,7 @@ services:
 
   badge_buddy_api_qa:
     container_name: badge_buddy_api_qa
-    image: amaredeus/badge-buddy-api:latest-beta
+    image: solidchain/badge-buddy-api:next
     restart: always
     ports:
       - 3010:3000
@@ -47,7 +47,7 @@ services:
 
   badge_buddy_api_prod:
     container_name: badge_buddy_api_prod
-    image: amaredeus/badge-buddy-api:latest
+    image: solidchain/badge-buddy-api:latest
     restart: always
     ports:
       - 3002:3000
