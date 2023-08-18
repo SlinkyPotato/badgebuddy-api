@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.1-1](https://github.com/solidchain-tech/badge-buddy-api/compare/v0.0.1-0...v0.0.1-1) (2023-08-18)
+
+
+### Bug Fixes
+
+* compose.yml next reference ([7f8d60f](https://github.com/solidchain-tech/badge-buddy-api/commit/7f8d60f589d000a52cf5894c02e0f7f986f22318))
+
 ### 0.0.1-0 (2023-08-18)
 
 
