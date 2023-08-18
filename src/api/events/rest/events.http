@@ -1,0 +1,38 @@
+### POST Request to register guild
+POST http://localhost:3000/events
+Content-Type: application/json
+
+{
+  "guildId": "850840267082563596",
+  "eventName": "Test event",
+  "organizerId": "159014522542096384",
+  "voiceChannelId": "850840267082563600",
+  "duration": 30
+}
+
+### GET Request to get guild
+GET http://localhost:3000/guilds/850840267082563596
+
+### DELETE Request to delete guild
+DELETE http://localhost:3000/guilds/850840267082563596
+Accept: application/json
+Content-Type: application/json
+
+### GET Request for active events
+GET http://localhost:3000/events/active
+Accept: application/json
+Content-Type: application/json
+
+## Design
+PUT /events/:eventId (stop)
+POST /events/distribution/:guildId (disburse manually)
+POST /events/schedule/:guildId (start in future)
+PUT /events/schedule/:guildId (stop in future)
+
+GET /events/:guildId (all events)
+GET /events/:guildId?organizerId= (all events by organizer)
+GET /events/:guildId?voiceChannelId= (all events by channel)
+GET /events/:guildId?organizerId=&voiceChannelId= (all events by organizer and channel)
+GET /events/:guildId?fromDate= (all events from date)
+GET /events/:guildId?toDate= (all events to date)
+GET /events/:guildId?fromDate=&toDate= (all events from date to date)
