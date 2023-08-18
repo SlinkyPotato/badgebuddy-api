@@ -7,12 +7,15 @@ import {
   FastifyAdapter,
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
-import { PinoLoggerService } from './logger/pino-logger.service';
-import { PinoConfigLogger } from './logger/pino-config.logger';
+
+import {
+  CommonPinoLogger,
+  CommonPinoLoggerService,
+} from '@solidchain/badge-buddy-common';
 
 async function bootstrap() {
-  const pinoLogger = new PinoConfigLogger();
-  const pinoLoggerService = new PinoLoggerService(pinoLogger);
+  const pinoLogger = new CommonPinoLogger('badge-buddy-api');
+  const pinoLoggerService = new CommonPinoLoggerService(pinoLogger);
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     new FastifyAdapter({
