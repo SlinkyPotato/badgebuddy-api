@@ -38,7 +38,6 @@ services:
       - staging
     environment:
       DOTENV_KEY: ${DOTENV_KEY}
-      NODE_ENV: 'staging'
     volumes:
       - ./logs:/app/logs
       - type: bind

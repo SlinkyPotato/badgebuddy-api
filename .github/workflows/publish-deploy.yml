@@ -69,8 +69,8 @@ jobs:
           context: .
           push: true
           tags: |
-            ${{ secrets.DOCKER_USERNAME }}/badge-buddy-processor:latest
-            ${{ secrets.DOCKER_USERNAME }}/badge-buddy-processor:${{ steps.package-version.outputs.prop }}
+            solidchain/badge-buddy-api:latest
+            solidchain/badge-buddy-api:${{ steps.package-version.outputs.prop }}
           build-args: |
             NODE_VERSION=${{ needs.prepare-versions.outputs.node }}
             PNPM_VERSION=${{ needs.prepare-versions.outputs.pnpm }}
