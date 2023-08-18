@@ -15,7 +15,7 @@ import { configureCache } from '../../config/redis.config';
   imports: [
     CacheModule.registerAsync<RedisClientOptions>({
       imports: [ConfigModule],
-      useFactory: (configService: ConfigService<any, true>) => {
+      useFactory: (configService: ConfigService) => {
         return configureCache(configService);
       },
       inject: [ConfigService],
@@ -27,6 +27,5 @@ import { configureCache } from '../../config/redis.config';
   ],
   controllers: [GuildsController],
   providers: [GuildsService, Logger],
-  // providers: [GuildsService, Logger, { provide: 'APM', useValue: apm }],
 })
 export class GuildsModule {}

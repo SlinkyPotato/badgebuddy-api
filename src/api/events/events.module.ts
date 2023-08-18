@@ -21,7 +21,7 @@ import {
     DiscordModule.forFeature(),
     CacheModule.registerAsync<RedisClientOptions>({
       imports: [ConfigModule],
-      useFactory: (configService: ConfigService<any, true>) => {
+      useFactory: (configService: ConfigService) => {
         return configureCache(configService);
       },
       inject: [ConfigService],

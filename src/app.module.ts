@@ -4,42 +4,35 @@ import { AppService } from './app.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { DiscordEventsModule } from './discord-events/discord-events.module';
-import DiscordConfig from './config/discord.config';
-import MongoConfig from './config/mongo.config';
-import SystemConfig from './config/system.config';
-import RedisConfig from './config/redis.config';
 import { DiscordModule, DiscordModuleOption } from '@discord-nestjs/core';
 import { GatewayIntentBits, Partials } from 'discord.js';
 import { ApiModule } from './api/api.module';
-import LogtailConfig from './config/logtail.config';
+import EnvConfig, { validationSchema } from './config/env.config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       ignoreEnvFile: true,
       cache: true,
-      load: [
-        MongoConfig,
-        DiscordConfig,
-        SystemConfig,
-        RedisConfig,
-        LogtailConfig,
-      ],
+      load: [EnvConfig],
+      validationSchema: validationSchema(),
     }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: async (configService: ConfigService<any, true>) => ({
-        uri: configService.get('mongo.uri'),
+      useFactory: async (
+        configService: ConfigService<{ MONGODB_URI: string }, true>,
+      ) => ({
+        uri: configService.get('MONGODB_URI', { infer: true }),
       }),
     }),
     DiscordModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (
-        configService: ConfigService<any, true>,
+        configService: ConfigService<{ DISCORD_BOT_TOKEN: string }, true>,
       ): Promise<DiscordModuleOption> | DiscordModuleOption => ({
-        token: configService.get('discord.token'),
+        token: configService.get('DISCORD_BOT_TOKEN', { infer: true }),
         discordClientOptions: {
           // TODO: Reduce and compact the intents
           intents: [
