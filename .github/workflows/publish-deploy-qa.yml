@@ -71,6 +71,11 @@ jobs:
             NODE_VERSION=${{ needs.prepare-versions.outputs.node }}
             PNPM_VERSION=${{ needs.prepare-versions.outputs.pnpm }}
       - run: git push --follow-tags
+      - run: gh pr close release/dev | exit 0
+      - run: gh pr create --base main --fill --title "deploy v${{ needs.build-deploy-docker.outputs.package }} to production"
+      - run: git checkout dev
+      - run: git merge --no-ff release/dev -m "sync branch release/dev v${{ needs.build-deploy-docker.outputs.package }} into dev" | exit 0
+      - run: git push
   deploy-qa:
     needs:
       - prepare-versions
@@ -107,25 +112,3 @@ jobs:
             docker compose --profile staging pull
             docker compose --profile staging stop
             docker compose --profile staging up --build -d
-  create-pr:
-    needs:
-      - build-deploy-docker
-      - deploy-qa
-    runs-on: ubuntu-latest
-    permissions:
-      pull-requests: write
-      contents: write
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-      - run: git fetch
-      - run: git pull --tags
-      - run: git config user.name "github-action[bot]"
-      - run: git config user.email "<>"
-      - run: gh pr close release/dev | exit 0
-      - run: gh pr create --base main --fill --title "deploy v${{ needs.build-deploy-docker.outputs.package }} to production"
-      - run: git checkout dev
-      - run: git merge --no-ff release/dev -m "sync branch release/dev v${{ needs.build-deploy-docker.outputs.package }} into dev" | exit 0
-      - run: git push
-

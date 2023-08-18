@@ -76,6 +76,9 @@ jobs:
             PNPM_VERSION=${{ needs.prepare-versions.outputs.pnpm }}
       - run: git push --follow-tags
       - run: gh release create --generate-notes --verify-tag v${{ steps.package-version.outputs.prop }} dist.zip
+      - run: git checkout dev
+      - run: git merge --no-ff main -m "sync branch main v${{ needs.build-deploy-docker.outputs.package }} into dev" | exit 0
+      - run: git push
   deploy-production:
     needs:
       - prepare-versions
@@ -112,22 +115,3 @@ jobs:
             docker compose --profile production pull
             docker compose --profile production stop
             docker compose --profile production up --build -d
-  create-pr:
-    needs:
-      - build-deploy-docker
-      - deploy-production
-    runs-on: ubuntu-latest
-    permissions:
-      pull-requests: write
-      contents: write
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-      - run: git fetch
-      - run: git pull --tags
-      - run: git config user.name "github-action[bot]"
-      - run: git config user.email "<>"
-      - run: git checkout dev
-      - run: git merge --no-ff main -m "sync branch main v${{ needs.build-deploy-docker.outputs.package }} into dev" | exit 0
-      - run: git push
