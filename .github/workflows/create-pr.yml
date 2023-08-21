@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-22.04
     outputs:
       pnpm: ${{ steps.pnpm-version.outputs.prop }}
-      package: ${{ steps.package-version.outputs.prop }}git add
+      package: ${{ steps.package-version.outputs.prop }}
       node: ${{ steps.node-version.outputs.prop }}
     steps:
       - uses: actions/checkout@v3
