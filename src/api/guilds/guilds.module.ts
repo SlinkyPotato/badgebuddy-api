@@ -9,7 +9,7 @@ import {
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { RedisClientOptions } from 'redis';
 import { CacheModule } from '@nestjs/cache-manager';
-import { configureCache } from '../../config/redis.config';
+import { configureCache } from '@solidchain/badge-buddy-common';
 
 @Module({
   imports: [

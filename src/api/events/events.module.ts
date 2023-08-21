@@ -10,11 +10,11 @@ import {
 } from '../guilds/schemas/discord-guild.schema';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { DiscordModule } from '@discord-nestjs/core';
-import { configureCache } from '../../config/redis.config';
 import {
   CommunityEvent,
   CommunityEventSchema,
 } from './schemas/community-event.schema';
+import { configureCache } from '@solidchain/badge-buddy-common';
 
 @Module({
   imports: [
