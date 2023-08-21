@@ -7,45 +7,19 @@ on:
 env:
   GH_TOKEN: ${{ github.token }}
 jobs:
-  prepare-versions:
-    outputs:
-      pnpm: ${{ steps.pnpm-version.outputs.prop }}
-      node: ${{ steps.node-version.outputs.prop }}
+  deploy-staging:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Retrieve node version
-        id: node-version
-        uses: notiz-dev/github-action-json-property@v0.2.0
-        with:
-          path: 'package.json'
-          prop_path: 'engines.node'
-      - name: Retrieve pnpm version
-        id: pnpm-version
-        uses: notiz-dev/github-action-json-property@v0.2.0
-        with:
-          path: 'package.json'
-          prop_path: 'engines.pnpm'
-  build-deploy-docker:
-    needs: prepare-versions
     environment: staging
-    runs-on: ubuntu-latest
     permissions:
       contents: write
-    outputs:
-      package: ${{ steps.package-version.outputs.prop }}
     steps:
       - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
       - uses: actions/setup-node@v3
         with:
-          node-version: ${{ needs.prepare-versions.outputs.node }}
+          node-version-file: 'package.json'
       - run: git config user.name "github-action[bot]"
       - run: git config user.email "<>"
-      - run: npm install -g pnpm@${{ needs.prepare-versions.outputs.pnpm }}
-      - run: pnpm install
-      - run: npx standard-version --prerelease
+      - run: pnpm dlx standard-version --prerelease
       - run: pnpm build
       - run: pnpm test
       - name: Retrieve package version
