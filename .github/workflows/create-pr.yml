@@ -17,6 +17,7 @@ jobs:
         with:
           node-version: 20.3.1
           cache: 'pnpm'
+      - run: npm install -g pnpm@8.6.10
       - run: pnpm install
       - run: pnpm build
       - run: pnpm test
