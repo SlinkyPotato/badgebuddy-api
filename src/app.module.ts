@@ -7,7 +7,7 @@ import { DiscordEventsModule } from './discord-events/discord-events.module';
 import { DiscordModule, DiscordModuleOption } from '@discord-nestjs/core';
 import { GatewayIntentBits, Partials } from 'discord.js';
 import { ApiModule } from './api/api.module';
-import EnvConfig, { validationSchema } from './config/env.config';
+import { EnvConfig, validationSchema } from '@solidchain/badge-buddy-common';
 
 @Module({
   imports: [
