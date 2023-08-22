@@ -75,11 +75,10 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           envs: DOTENV_KEY
           script: |
-            export DOTENV_KEY=$DOTENV_KEY
             cd ${{ secrets.APP_PATH_PRODUCTION }}
             docker compose --profile production pull
             docker compose --profile production stop
-            docker compose --profile production up -d
+            DOTENV_KEY=$DOTENV_KEY docker compose --profile production up -d
       - run: git pull --tags
       - run: git push --follow-tags
       - run: gh release create -F parsed.md -t "v${{ steps.package-version.outputs.prop } Release"--verify-tag v${{ steps.package-version.outputs.prop }} dist.zip
