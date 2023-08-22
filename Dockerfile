@@ -5,7 +5,7 @@ RUN corepack enable
 
 WORKDIR /app
 
-COPY dist /app/dist
+COPY ./dist /app/dist
 COPY CHANGELOG.md /app/dist/
 COPY LICENSE.md /app/dist/
 COPY README.md /app/dist/
