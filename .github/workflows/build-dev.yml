@@ -34,7 +34,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/badge-buddy-api:dev
+          tags: solidchain/badge-buddy-api:dev
           cache-from: type=registry,ref=user/app:buildcache
           cache-to: type=registry,ref=user/app:buildcache,mode=max
       - run: git config user.name "github-action[bot]"
