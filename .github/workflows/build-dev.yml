@@ -33,6 +33,8 @@ jobs:
         with:
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/badge-buddy-api:dev
+          cache-from: type=registry,ref=user/app:buildcache
+          cache-to: type=registry,ref=user/app:buildcache,mode=max
       - run: git config user.name "github-action[bot]"
       - run: git config user.email "<>"
       - run: gh pr close dev | exit 0

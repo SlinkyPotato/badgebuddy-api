@@ -43,6 +43,8 @@ jobs:
           push: false
           tags: |
             solidchain/badge-buddy-api:next
+          cache-from: type=registry,ref=user/app:buildcache
+          cache-to: type=registry,ref=user/app:buildcache,mode=max
       - name: Push Docker Hub
         uses: docker/build-push-action@v4
         with:
@@ -51,6 +53,8 @@ jobs:
           tags: |
             solidchain/badge-buddy-api:next
             solidchain/badge-buddy-api:${{ steps.package-version.outputs.prop }}
+          cache-from: type=registry,ref=user/app:buildcache
+          cache-to: type=registry,ref=user/app:buildcache,mode=max
       - name: Transfer compose.yml
         uses: appleboy/scp-action@v0.1.4
         with:
