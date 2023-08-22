@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.3-9](https://github.com/solidchain-tech/badge-buddy-api/compare/v0.0.3-8...v0.0.3-9) (2023-08-22)
+
+
+### Bug Fixes
+
+* include zip step ([4f1c779](https://github.com/solidchain-tech/badge-buddy-api/commit/4f1c779df60e23f5ca9288aee607040a88e60372))
+
+
+### Performance
+
+* only install @solidchain/badge-buddy-common ([6118329](https://github.com/solidchain-tech/badge-buddy-api/commit/61183291920ca53f38b863461d9f8154ac045b02))
+
 ### [0.0.3-8](https://github.com/solidchain-tech/badge-buddy-api/compare/v0.0.3-7...v0.0.3-8) (2023-08-22)
 
 
