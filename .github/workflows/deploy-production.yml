@@ -23,7 +23,7 @@ jobs:
           node-version-file: 'package.json'
           cache: 'pnpm'
           cache-dependency-path: 'pnpm-lock.yaml'
-      - run: pnpm install --prod --frozen-lockfile
+      - run: pnpm install @solidchain/badge-buddy-common@latest --frozen-lockfile
       - run: git config user.name "github-action[bot]"
       - run: git config user.email "<>"
       - name: Retrieve Package Version
@@ -61,6 +61,10 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
       - run: docker cp $(docker run -d --rm solidchain/badge-buddy-api:latest):/app/dist ./dist
+      - uses: vimtor/action-zip@v1
+        with:
+          files: dist/ CHANGELOG.md LICENSE.md README.md package.json
+          dest: dist.zip
       - name: Push Docker Hub
         uses: docker/build-push-action@v4
         with:
