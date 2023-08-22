@@ -2,6 +2,64 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.3](https://github.com/solidchain-tech/badge-buddy-api/compare/v0.0.2...v0.0.3) (2023-08-22)
+
+
+### Bug Fixes
+
+* add mising deps ([9b12687](https://github.com/solidchain-tech/badge-buddy-api/commit/9b12687ca05ee65116c4cb36a8dbea475075acba))
+* add missing curly brace } ([bbd7c24](https://github.com/solidchain-tech/badge-buddy-api/commit/bbd7c24a9538c0d9d2d85a5bcd60965c3cd9829b))
+* add missing git pull --tags ([329f003](https://github.com/solidchain-tech/badge-buddy-api/commit/329f003f3e21b03bfc1c83db6669648a8cd2d2f7))
+* add missing parseChangesFile step ([b291161](https://github.com/solidchain-tech/badge-buddy-api/commit/b2911612f793f80fd6cc4fd8df6990091cd3b2d1))
+* add pnpm exec ([98a5c68](https://github.com/solidchain-tech/badge-buddy-api/commit/98a5c68b3a6af97e88fc7a2151dbc05077dd036f))
+* dockerignore certs folder ([8fbd418](https://github.com/solidchain-tech/badge-buddy-api/commit/8fbd4186e0a0d95ea8dbcb3ec1d1c13c6e6f1b91))
+* enhance prod workflow ([3856947](https://github.com/solidchain-tech/badge-buddy-api/commit/3856947e697a01bea665b153ea1a6bdbfd66f898))
+* enhance staging workflow ([2463d1f](https://github.com/solidchain-tech/badge-buddy-api/commit/2463d1fd6b6834b3821a37f4bbe377a8d0379b93))
+* enhance workflow ([616ebc3](https://github.com/solidchain-tech/badge-buddy-api/commit/616ebc31d4ea81481539e02048ecdc0ed1ae076a))
+* enhance workflow speed ([82bb513](https://github.com/solidchain-tech/badge-buddy-api/commit/82bb513e8586b738d112974a3025ce709fc54303))
+* exclude dist in dockerignore ([e09cb9d](https://github.com/solidchain-tech/badge-buddy-api/commit/e09cb9d277dc0d3f0edaa0a30ee49bab596427f0))
+* export DOTENV_KEY ([24a46e6](https://github.com/solidchain-tech/badge-buddy-api/commit/24a46e687183ad4e8f6ec7d3a5874826269ff645))
+* include docker build step ([f07f913](https://github.com/solidchain-tech/badge-buddy-api/commit/f07f913bda3a19d44bd2cf60272af428e8f35063))
+* include zip step ([4f1c779](https://github.com/solidchain-tech/badge-buddy-api/commit/4f1c779df60e23f5ca9288aee607040a88e60372))
+* load before push in workflows ([4738199](https://github.com/solidchain-tech/badge-buddy-api/commit/4738199150cd4086d590ae9379fef62cc186e3ac))
+* pull only package version for build-dev ([2fb1560](https://github.com/solidchain-tech/badge-buddy-api/commit/2fb156015ecc0e7c58943469319976253e547450))
+* reduce dev workflow build ([3ae1634](https://github.com/solidchain-tech/badge-buddy-api/commit/3ae16346cec20e1635e11a2b414f82b934837adb))
+* remove double quotes ([4b1cbde](https://github.com/solidchain-tech/badge-buddy-api/commit/4b1cbde847c990d0001f715e309c8db77de6a284))
+* set release text ([c16f385](https://github.com/solidchain-tech/badge-buddy-api/commit/c16f385a79583ad29c093a740192960abd91f996))
+* simplify workflow ([1abf2f2](https://github.com/solidchain-tech/badge-buddy-api/commit/1abf2f2c297c63063ef237f1a2fbf1071c62d4a6))
+* sync deps to common ([525f1db](https://github.com/solidchain-tech/badge-buddy-api/commit/525f1db65b7b6c3a67a3a3aa89775d054a866f39))
+* test workflow ([4e8ae71](https://github.com/solidchain-tech/badge-buddy-api/commit/4e8ae71907a743c343c4ba62f739134dcf08233c))
+* try caching docker pnpm pull ([fed9bdf](https://github.com/solidchain-tech/badge-buddy-api/commit/fed9bdfa341d3d50f2062be7530917e0a53d401f))
+* try pnpm cache ([4fbb553](https://github.com/solidchain-tech/badge-buddy-api/commit/4fbb553c3fa210525afc67322568fe23be79d75d))
+* type in release.md ([a996140](https://github.com/solidchain-tech/badge-buddy-api/commit/a996140a82e6ea1736e7d30b62eeeec983a5a91d))
+* update to latest common ([efc9305](https://github.com/solidchain-tech/badge-buddy-api/commit/efc930577c1b7cedcc8868583c2ea7473530205f))
+* use correct @solidchain/badge-buddy-common ([69bd98a](https://github.com/solidchain-tech/badge-buddy-api/commit/69bd98aa7533749f141346e734891f4598c9cbb5))
+
+
+### Tests
+
+* remove console ([5bc1df4](https://github.com/solidchain-tech/badge-buddy-api/commit/5bc1df42d9a0b8571acbd490c8e7bd24aa19cd30))
+* run remove test ([c3c086f](https://github.com/solidchain-tech/badge-buddy-api/commit/c3c086f8dd8dc38fcaed943f49b28430d3d4216a))
+* run test ([c555455](https://github.com/solidchain-tech/badge-buddy-api/commit/c555455e691d86f4739bec7198ec30a9ac28cc10))
+
+
+### Docs
+
+* rename build-dev ([ea284ce](https://github.com/solidchain-tech/badge-buddy-api/commit/ea284ceba1e4450886649adee11d453d4d3b69aa))
+
+
+### Performance
+
+* enhance prod workflow to use pnpm cache ([5db881a](https://github.com/solidchain-tech/badge-buddy-api/commit/5db881acf2da717a631b7a6c97bbc69696c2095f))
+* enhance staging and production workflows ([f3530b3](https://github.com/solidchain-tech/badge-buddy-api/commit/f3530b307e732d626d8a895da46278de28b2b1d1))
+* ignore .github foler ([f1dd012](https://github.com/solidchain-tech/badge-buddy-api/commit/f1dd01273009a2b3e7dd9e73f059ac24858b69bf))
+* only copy dist folder during docker build ([056f683](https://github.com/solidchain-tech/badge-buddy-api/commit/056f683d629fa10cac2ff11c53d8f6d98dc671da))
+* only install @solidchain/badge-buddy-common ([6118329](https://github.com/solidchain-tech/badge-buddy-api/commit/61183291920ca53f38b863461d9f8154ac045b02))
+* reduce docker build time ([dba1866](https://github.com/solidchain-tech/badge-buddy-api/commit/dba18666a4340b5a1bfd487252333cb829b7b4f5))
+* remove package.json step for build-dev ([4a2b274](https://github.com/solidchain-tech/badge-buddy-api/commit/4a2b274db57e1299963aaf2d17c1723a4141cab0))
+* remove uneeded git pull tag step ([a0fa939](https://github.com/solidchain-tech/badge-buddy-api/commit/a0fa93929b24fd8ba728939f8b4af45ae2969cfb))
+* use caching in docker builds ([6174d55](https://github.com/solidchain-tech/badge-buddy-api/commit/6174d5528ffd8bcc65033ca8d2e363598dcd764d))
+
 ### [0.0.3-13](https://github.com/solidchain-tech/badge-buddy-api/compare/v0.0.3-12...v0.0.3-13) (2023-08-22)
 
 
