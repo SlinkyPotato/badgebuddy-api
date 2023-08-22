@@ -1,5 +1,5 @@
 #file: noinspection YAMLSchemaValidation
-name: Create PR for dev
+name: Build dev
 on:
   push:
     branches:
