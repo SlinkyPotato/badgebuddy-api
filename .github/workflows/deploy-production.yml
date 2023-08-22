@@ -23,6 +23,7 @@ jobs:
           node-version-file: 'package.json'
           cache: 'pnpm'
           cache-dependency-path: 'pnpm-lock.yaml'
+      - run: pnpm install --prod --frozen-lockfile
       - run: git config user.name "github-action[bot]"
       - run: git config user.email "<>"
       - name: Retrieve Package Version
@@ -41,6 +42,7 @@ jobs:
         with:
           path: 'package.json'
           prop_path: 'version'
+      - run: node -e "require('@solidchain/common')['parseChangesFile']();"
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       - name: Login to Docker Hub
