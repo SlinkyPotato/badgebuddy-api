@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.3-3](https://github.com/solidchain-tech/badge-buddy-api/compare/v0.0.3-2...v0.0.3-3) (2023-08-22)
+
+
+### Bug Fixes
+
+* export DOTENV_KEY ([24a46e6](https://github.com/solidchain-tech/badge-buddy-api/commit/24a46e687183ad4e8f6ec7d3a5874826269ff645))
+
 ### [0.0.3-2](https://github.com/solidchain-tech/badge-buddy-api/compare/v0.0.3-1...v0.0.3-2) (2023-08-22)
 
 
