@@ -41,7 +41,7 @@ jobs:
           push: false
           tags: |
             solidchain/badge-buddy-api:next
-      - run: docker cp (docker run -d --rm solidchain/badge-buddy-api:next):/app/dist ./dist
+      - run: docker cp $(docker run -d --rm solidchain/badge-buddy-api:next):/app/dist ./dist
       - name: Push Docker Hub
         uses: docker/build-push-action@v4
         with:
