@@ -17,10 +17,13 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
+      - uses: pnpm/action-setup@v2
       - uses: actions/setup-node@v3
         with:
           node-version-file: 'package.json'
-      - uses: pnpm/action-setup@v2
+          cache: 'pnpm'
+          cache-dependency-path: 'pnpm-lock.yaml'
+      - run: pnpm install --prod --frozen-lockfile
       - run: git config user.name "github-action[bot]"
       - run: git config user.email "<>"
       - name: Retrieve Package Version
@@ -39,6 +42,7 @@ jobs:
         with:
           path: 'package.json'
           prop_path: 'version'
+      - run: node -e "require('@solidchain/badge-buddy-common')['parseChangesFile']();"
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       - name: Login to Docker Hub
@@ -95,7 +99,7 @@ jobs:
             DOTENV_KEY=$DOTENV_KEY docker compose --profile production up -d
       - run: git pull --tags
       - run: git push --follow-tags
-      - run: gh release create -F parsed.md -t "v${{ steps.package-version.outputs.prop } Release" --verify-tag v${{ steps.package-version.outputs.prop }} dist.zip
+      - run: gh release create -F parsed.md -t "v${{ steps.package-version.outputs.prop }} Release" --verify-tag v${{ steps.package-version.outputs.prop }} dist.zip
       - run: git checkout dev
       - run: git merge --no-ff main -m "sync branch main v${{ steps.package-version.outputs.prop }} into dev" | exit 0
       - run: git push
