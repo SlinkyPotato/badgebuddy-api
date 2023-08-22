@@ -1,3 +1,6 @@
+# compiled output
+/dist
+
 # Packages
 /node_modules
 
@@ -16,6 +19,7 @@ lerna-debug.log*
 # Tests
 /coverage
 /.nyc_output
+test
 
 # IDEs and editors
 /.idea
@@ -36,12 +40,10 @@ lerna-debug.log*
 .flaskenv*
 !.env.project
 !.env.vault
+.run
 
 # Certs
 /certs
 
 # Github
 .github
-
-# Build
-!dist
