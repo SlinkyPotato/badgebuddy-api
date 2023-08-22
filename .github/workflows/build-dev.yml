@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - dev
+env:
+  GH_TOKEN: ${{ github.token }}
 jobs:
   build-dev:
     runs-on: ubuntu-latest

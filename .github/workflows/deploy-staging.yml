@@ -37,10 +37,12 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
+          load: true
           push: true
           tags: |
             solidchain/badge-buddy-api:next
             solidchain/badge-buddy-api:${{ steps.package-version.outputs.prop }}
+      - run: docker cp (docker run -d --rm solidchain/badge-buddy-api:next):/app/dist ./dist
       - name: Transfer compose.yml
         uses: appleboy/scp-action@v0.1.4
         with:
@@ -66,7 +68,7 @@ jobs:
             cd ${{ secrets.APP_PATH_STAGING }}
             docker compose --profile staging pull
             docker compose --profile staging stop
-            docker compose --profile staging up --build -d
+            docker compose --profile staging up -d
       - run: git push --follow-tags
       - run: gh pr close release/dev | exit 0
       - run: gh pr create --base main --fill --title "deploy v${{ steps.package-version.outputs.prop }} to production"

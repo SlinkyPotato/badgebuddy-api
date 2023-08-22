@@ -38,25 +38,11 @@ jobs:
         with:
           context: .
           push: true
+          load: true
           tags: |
             solidchain/badge-buddy-api:latest
             solidchain/badge-buddy-api:${{ steps.package-version.outputs.prop }}
-          build-args: |
-            NODE_VERSION=${{ needs.prepare-versions.outputs.node }}
-            PNPM_VERSION=${{ needs.prepare-versions.outputs.pnpm }}
-      - run: git push --follow-tags
-      - run: gh release create --generate-notes --verify-tag v${{ steps.package-version.outputs.prop }} dist.zip
-      - run: git checkout dev
-      - run: git merge --no-ff main -m "sync branch main v${{ needs.build-deploy-docker.outputs.package }} into dev" | exit 0
-      - run: git push
-  deploy-production:
-    needs:
-      - prepare-versions
-      - build-deploy-docker
-    environment: production
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
+      - run: docker cp (docker run -d --rm solidchain/badge-buddy-api:latest):/app/dist ./dist
       - name: Transfer compose.yml
         uses: appleboy/scp-action@v0.1.4
         with:
@@ -84,4 +70,9 @@ jobs:
             cd ${{ secrets.APP_PATH_PRODUCTION }}
             docker compose --profile production pull
             docker compose --profile production stop
-            docker compose --profile production up --build -d
+            docker compose --profile production up -d
+      - run: git push --follow-tags
+      - run: gh release create --generate-notes --verify-tag v${{ steps.package-version.outputs.prop }} dist.zip
+      - run: git checkout dev
+      - run: git merge --no-ff main -m "sync branch main v${{ needs.build-deploy-docker.outputs.package }} into dev" | exit 0
+      - run: git push
