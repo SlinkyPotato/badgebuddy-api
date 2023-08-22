@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.3-8](https://github.com/solidchain-tech/badge-buddy-api/compare/v0.0.3-7...v0.0.3-8) (2023-08-22)
+
+
+### Bug Fixes
+
+* add missing parseChangesFile step ([b291161](https://github.com/solidchain-tech/badge-buddy-api/commit/b2911612f793f80fd6cc4fd8df6990091cd3b2d1))
+* use correct @solidchain/badge-buddy-common ([69bd98a](https://github.com/solidchain-tech/badge-buddy-api/commit/69bd98aa7533749f141346e734891f4598c9cbb5))
+
+
+### Docs
+
+* rename build-dev ([ea284ce](https://github.com/solidchain-tech/badge-buddy-api/commit/ea284ceba1e4450886649adee11d453d4d3b69aa))
+
+
+### Performance
+
+* enhance prod workflow to use pnpm cache ([5db881a](https://github.com/solidchain-tech/badge-buddy-api/commit/5db881acf2da717a631b7a6c97bbc69696c2095f))
+* remove uneeded git pull tag step ([a0fa939](https://github.com/solidchain-tech/badge-buddy-api/commit/a0fa93929b24fd8ba728939f8b4af45ae2969cfb))
+
 ### [0.0.3-7](https://github.com/solidchain-tech/badge-buddy-api/compare/v0.0.3-6...v0.0.3-7) (2023-08-22)
 
 
