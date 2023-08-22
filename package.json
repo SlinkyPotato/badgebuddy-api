@@ -106,28 +106,28 @@
         "section": "Features"
       },
       {
-        "type": "fix",
-        "section": "Bug Fixes"
-      },
-      {
-        "type": "chore",
-        "hidden": true
+        "type": "perf",
+        "section": "Performance"
       },
       {
         "type": "docs",
         "section": "Docs"
       },
       {
-        "type": "style",
-        "hidden": true
+        "type": "fix",
+        "section": "Bug Fixes"
       },
       {
         "type": "refactor",
         "section": "Refactor"
       },
       {
-        "type": "perf",
-        "section": "Performance"
+        "type": "chore",
+        "hidden": true
+      },
+      {
+        "type": "style",
+        "hidden": true
       },
       {
         "type": "test",
