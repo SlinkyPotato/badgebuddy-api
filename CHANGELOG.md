@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.3-13](https://github.com/solidchain-tech/badge-buddy-api/compare/v0.0.3-12...v0.0.3-13) (2023-08-22)
+
+
+### Bug Fixes
+
+* type in release.md ([a996140](https://github.com/solidchain-tech/badge-buddy-api/commit/a996140a82e6ea1736e7d30b62eeeec983a5a91d))
+
 ### [0.0.3-12](https://github.com/solidchain-tech/badge-buddy-api/compare/v0.0.3-11...v0.0.3-12) (2023-08-22)
 
 ### [0.0.3-11](https://github.com/solidchain-tech/badge-buddy-api/compare/v0.0.3-10...v0.0.3-11) (2023-08-22)
