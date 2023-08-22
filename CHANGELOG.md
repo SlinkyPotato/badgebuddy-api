@@ -2,6 +2,33 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.3-6](https://github.com/solidchain-tech/badge-buddy-api/compare/v0.0.3-5...v0.0.3-6) (2023-08-22)
+
+
+### Bug Fixes
+
+* dockerignore certs folder ([8fbd418](https://github.com/solidchain-tech/badge-buddy-api/commit/8fbd4186e0a0d95ea8dbcb3ec1d1c13c6e6f1b91))
+* exclude dist in dockerignore ([e09cb9d](https://github.com/solidchain-tech/badge-buddy-api/commit/e09cb9d277dc0d3f0edaa0a30ee49bab596427f0))
+* include docker build step ([f07f913](https://github.com/solidchain-tech/badge-buddy-api/commit/f07f913bda3a19d44bd2cf60272af428e8f35063))
+* test workflow ([4e8ae71](https://github.com/solidchain-tech/badge-buddy-api/commit/4e8ae71907a743c343c4ba62f739134dcf08233c))
+* try caching docker pnpm pull ([fed9bdf](https://github.com/solidchain-tech/badge-buddy-api/commit/fed9bdfa341d3d50f2062be7530917e0a53d401f))
+
+
+### Tests
+
+* remove console ([5bc1df4](https://github.com/solidchain-tech/badge-buddy-api/commit/5bc1df42d9a0b8571acbd490c8e7bd24aa19cd30))
+* run remove test ([c3c086f](https://github.com/solidchain-tech/badge-buddy-api/commit/c3c086f8dd8dc38fcaed943f49b28430d3d4216a))
+* run test ([c555455](https://github.com/solidchain-tech/badge-buddy-api/commit/c555455e691d86f4739bec7198ec30a9ac28cc10))
+
+
+### Performance
+
+* enhance staging and production workflows ([f3530b3](https://github.com/solidchain-tech/badge-buddy-api/commit/f3530b307e732d626d8a895da46278de28b2b1d1))
+* ignore .github foler ([f1dd012](https://github.com/solidchain-tech/badge-buddy-api/commit/f1dd01273009a2b3e7dd9e73f059ac24858b69bf))
+* only copy dist folder during docker build ([056f683](https://github.com/solidchain-tech/badge-buddy-api/commit/056f683d629fa10cac2ff11c53d8f6d98dc671da))
+* reduce docker build time ([dba1866](https://github.com/solidchain-tech/badge-buddy-api/commit/dba18666a4340b5a1bfd487252333cb829b7b4f5))
+* use caching in docker builds ([6174d55](https://github.com/solidchain-tech/badge-buddy-api/commit/6174d5528ffd8bcc65033ca8d2e363598dcd764d))
+
 ### [0.0.3-5](https://github.com/solidchain-tech/badge-buddy-api/compare/v0.0.3-4...v0.0.3-5) (2023-08-22)
 
 ### [0.0.3-4](https://github.com/solidchain-tech/badge-buddy-api/compare/v0.0.3-3...v0.0.3-4) (2023-08-22)
