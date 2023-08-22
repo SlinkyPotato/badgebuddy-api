@@ -43,7 +43,6 @@ jobs:
           push: false
           tags: |
             solidchain/badge-buddy-api:next
-      - run: docker cp $(docker run -d --rm solidchain/badge-buddy-api:next):/app/dist ./dist
       - name: Push Docker Hub
         uses: docker/build-push-action@v4
         with:
@@ -65,7 +64,7 @@ jobs:
       - name: Deploy to server
         uses: appleboy/ssh-action@v1.0.0
         env:
-          DOTENV_KEY: "${{ secrets.DOTENV_KEY_STAGING }}"
+          DOTENV_KEY: ${{ secrets.DOTENV_KEY_STAGING }}
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}

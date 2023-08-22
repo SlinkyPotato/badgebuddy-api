@@ -66,7 +66,7 @@ jobs:
       - name: Deploy to server
         uses: appleboy/ssh-action@v1.0.0
         env:
-          DOTENV_KEY: "${{ secrets.DOTENV_KEY_PRODUCTION }}"
+          DOTENV_KEY: ${{ secrets.DOTENV_KEY_PRODUCTION }}
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
