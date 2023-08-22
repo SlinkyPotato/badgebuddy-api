@@ -41,3 +41,6 @@ lerna-debug.log*
 # Certs
 /certs/*
 !/certs/.gitkeep
+
+# Github
+.github
