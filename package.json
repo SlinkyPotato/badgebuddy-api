@@ -45,7 +45,7 @@
     "@nestjs/platform-fastify": "^10.0.4",
     "@nestjs/swagger": "^7.0.6",
     "@nestjs/terminus": "^10.0.1",
-    "@solidchain/badge-buddy-common": "^0.0.6-2",
+    "@solidchain/badge-buddy-common": "0.1.0",
     "axios": "^1.4.0",
     "cache-manager": "^5.2.3",
     "cache-manager-redis-yet": "^4.1.2",
@@ -98,5 +98,41 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
+  },
+  "standard-version": {
+    "types": [
+      {
+        "type": "feat",
+        "section": "Features"
+      },
+      {
+        "type": "fix",
+        "section": "Bug Fixes"
+      },
+      {
+        "type": "chore",
+        "hidden": true
+      },
+      {
+        "type": "docs",
+        "section": "Docs"
+      },
+      {
+        "type": "style",
+        "hidden": true
+      },
+      {
+        "type": "refactor",
+        "section": "Refactor"
+      },
+      {
+        "type": "perf",
+        "section": "Performance"
+      },
+      {
+        "type": "test",
+        "section": "Tests"
+      }
+    ]
   }
 }

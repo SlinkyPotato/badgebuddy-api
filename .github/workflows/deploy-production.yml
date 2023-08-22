@@ -23,8 +23,16 @@ jobs:
       - uses: pnpm/action-setup@v2
       - run: git config user.name "github-action[bot]"
       - run: git config user.email "<>"
-      - run: npx standard-version > changes.md
-      - run: node parse-changes.js
+      - name: Retrieve Package Version
+        id: prerelease-version
+        uses: notiz-dev/github-action-json-property@v0.2.0
+        with:
+          path: 'package.json'
+          prop_path: 'version'
+      - name: Remove prerelease tags
+        run: git tag -d $(git tag -l "v$(node -e "console.log('${{steps.prerelease-version.outputs.prop}}'.split('-')[0]);")-*")
+      - name: Tag release
+        run: npx standard-version > changes.md
       - name: Retrieve package version
         id: package-version
         uses: notiz-dev/github-action-json-property@v0.2.0
@@ -81,7 +89,7 @@ jobs:
             DOTENV_KEY=$DOTENV_KEY docker compose --profile production up -d
       - run: git pull --tags
       - run: git push --follow-tags
-      - run: gh release create -F parsed.md -t "v${{ steps.package-version.outputs.prop } Release"--verify-tag v${{ steps.package-version.outputs.prop }} dist.zip
+      - run: gh release create -F parsed.md -t "v${{ steps.package-version.outputs.prop } Release" --verify-tag v${{ steps.package-version.outputs.prop }} dist.zip
       - run: git checkout dev
-      - run: git merge --no-ff main -m "sync branch main v${{ needs.build-deploy-docker.outputs.package }} into dev" | exit 0
+      - run: git merge --no-ff main -m "sync branch main v${{ steps.package-version.outputs.prop }} into dev" | exit 0
       - run: git push
