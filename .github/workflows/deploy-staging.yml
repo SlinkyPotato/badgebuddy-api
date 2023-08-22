@@ -73,11 +73,10 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           envs: DOTENV_KEY
           script: |
-            export DOTENV_KEY=$DOTENV_KEY
             cd ${{ secrets.APP_PATH_STAGING }}
             docker compose --profile staging pull
             docker compose --profile staging stop
-            docker compose --profile staging up -d
+            DOTENV_KEY=$DOTENV_KEY docker compose --profile staging up -d
       - run: git pull --tags
       - run: git push --follow-tags
       - run: gh pr close release/dev | exit 0
