@@ -43,3 +43,6 @@ badge-buddy-api.iml
 # Certs
 /certs/*
 !/certs/.gitkeep
+
+parsed.md
+changes.md

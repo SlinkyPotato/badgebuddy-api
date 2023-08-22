@@ -21,7 +21,8 @@ jobs:
       - uses: pnpm/action-setup@v2
       - run: git config user.name "github-action[bot]"
       - run: git config user.email "<>"
-      - run: npx standard-version
+      - run: npx standard-version > changes.md
+      - run: node parse-changes.js
       - name: Retrieve package version
         id: package-version
         uses: notiz-dev/github-action-json-property@v0.2.0
@@ -72,7 +73,7 @@ jobs:
             docker compose --profile production stop
             docker compose --profile production up -d
       - run: git push --follow-tags
-      - run: gh release create --generate-notes --verify-tag v${{ steps.package-version.outputs.prop }} dist.zip
+      - run: gh release create -F parsed.md -t "v${{ steps.package-version.outputs.prop } Release"--verify-tag v${{ steps.package-version.outputs.prop }} dist.zip
       - run: git checkout dev
       - run: git merge --no-ff main -m "sync branch main v${{ needs.build-deploy-docker.outputs.package }} into dev" | exit 0
       - run: git push
