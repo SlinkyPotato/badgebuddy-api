@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.4-0](https://github.com/solidchain-tech/badge-buddy-api/compare/v0.0.3...v0.0.4-0) (2023-08-23)
+
+
+### Bug Fixes
+
+* add pnpm steps to dev ([a480936](https://github.com/solidchain-tech/badge-buddy-api/commit/a48093602fa7bde597c3a0cc9eb38b80fa95e842))
+* add projects read permission ([1eed21b](https://github.com/solidchain-tech/badge-buddy-api/commit/1eed21bfa1bbef0925d335980a7cbf39bd5d3466))
+* add projects write permission ([d588b3e](https://github.com/solidchain-tech/badge-buddy-api/commit/d588b3e0a856f88e23ea43e3577d809ff594899b))
+* attempt prod workflow ([2988a01](https://github.com/solidchain-tech/badge-buddy-api/commit/2988a01033c6a0250c1f654b47f5900714172f11))
+* enable repository-projects read across workflows ([ab393bd](https://github.com/solidchain-tech/badge-buddy-api/commit/ab393bdcf2779368533e65a5528ecfe37c02c7b1))
+* pass -F flag instead of -b ([a9edd91](https://github.com/solidchain-tech/badge-buddy-api/commit/a9edd9147fd8bd4b5f14107e339eeddb1bcf9c55))
+* pnpm exec of standard-version ([fd49e4e](https://github.com/solidchain-tech/badge-buddy-api/commit/fd49e4e9bdb6ef44f933fa973179ba5320211ab9))
+* print changes on prs ([51390eb](https://github.com/solidchain-tech/badge-buddy-api/commit/51390eb4b593f104c471145b706c03b0686f879a))
+
+
+### Performance
+
+* set release.md in prs ([51c62a9](https://github.com/solidchain-tech/badge-buddy-api/commit/51c62a9532b78a40cebba973b243d2d51c322fa2))
+
 ### [0.0.3](https://github.com/solidchain-tech/badge-buddy-api/compare/v0.0.2...v0.0.3) (2023-08-22)
 
 
