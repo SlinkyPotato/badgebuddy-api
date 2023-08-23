@@ -33,5 +33,7 @@ jobs:
           cache-to: type=gha,mode=max
       - run: git config user.name "github-action[bot]"
       - run: git config user.email "<>"
-      - run: gh pr close dev | exit 0
-      - run: gh pr create --base release/dev --fill --title "deploy dev -> release/dev" | exit 0
+      - run: pnpm standard-version --dry-run > changes.md | exit 0
+      - run: node -e "require('@solidchain/badge-buddy-common')['parseChangesFile']();"
+      - run: gh pr edit -b release.md | exit 0
+      - run: gh pr create --base release/dev --title "deploy dev -> release/dev" -F release.md | exit 0
