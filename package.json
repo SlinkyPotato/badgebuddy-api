@@ -1,6 +1,6 @@
 {
   "name": "badge-buddy-api",
-  "version": "0.0.3",
+  "version": "0.0.4-3",
   "description": "Microservices API for Badge Buddy",
   "author": "SlinkyPotato <patinobrian@gmail.com>",
   "private": true,
@@ -58,7 +58,8 @@
     "mongoose": "^7.3.1",
     "redis": "^4.6.7",
     "reflect-metadata": "^0.1.13",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "standard-version": "^9.5.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.5",
@@ -106,28 +107,28 @@
         "section": "Features"
       },
       {
-        "type": "fix",
-        "section": "Bug Fixes"
-      },
-      {
-        "type": "chore",
-        "hidden": true
+        "type": "perf",
+        "section": "Performance"
       },
       {
         "type": "docs",
         "section": "Docs"
       },
       {
-        "type": "style",
-        "hidden": true
+        "type": "fix",
+        "section": "Bug Fixes"
       },
       {
         "type": "refactor",
         "section": "Refactor"
       },
       {
-        "type": "perf",
-        "section": "Performance"
+        "type": "chore",
+        "hidden": true
+      },
+      {
+        "type": "style",
+        "hidden": true
       },
       {
         "type": "test",
