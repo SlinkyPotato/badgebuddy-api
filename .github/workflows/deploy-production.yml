@@ -34,8 +34,8 @@ jobs:
           prop_path: 'version'
       - name: Remove prerelease tags
         run: git tag -d $(git tag -l "v$(node -e "console.log('${{steps.prerelease-version.outputs.prop}}'.split('-')[0]);")-*")
-      - name: Tag release
-        run: npx standard-version > changes.md
+      - run: pnpm standard-version --dry-run > changes.md | exit 0
+      - run: pnpm standard-version
       - name: Retrieve package version
         id: package-version
         uses: notiz-dev/github-action-json-property@v0.2.0
