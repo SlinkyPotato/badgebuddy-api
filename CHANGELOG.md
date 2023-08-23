@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.4-2](https://github.com/solidchain-tech/badge-buddy-api/compare/v0.0.4-1...v0.0.4-2) (2023-08-23)
+
+
+### Bug Fixes
+
+* properly set pr title for staging ([318b2af](https://github.com/solidchain-tech/badge-buddy-api/commit/318b2af5553a901a5df38089539f3d4d4724fd2e))
+
 ### [0.0.4-1](https://github.com/solidchain-tech/badge-buddy-api/compare/v0.0.4-0...v0.0.4-1) (2023-08-23)
 
 
