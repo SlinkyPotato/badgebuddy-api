@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.4-1](https://github.com/solidchain-tech/badge-buddy-api/compare/v0.0.4-0...v0.0.4-1) (2023-08-23)
+
+
+### Bug Fixes
+
+* run -p in dryrun in build-dev ([86b0b08](https://github.com/solidchain-tech/badge-buddy-api/commit/86b0b08b94d638f1d08a3876fe6e95714c90df1f))
+* set -F flag ([b16fa90](https://github.com/solidchain-tech/badge-buddy-api/commit/b16fa90b4dccb9dab703eadea6e648d64a46b73e))
+
 ### [0.0.4-0](https://github.com/solidchain-tech/badge-buddy-api/compare/v0.0.3...v0.0.4-0) (2023-08-23)
 
 
