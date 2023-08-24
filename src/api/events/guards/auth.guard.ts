@@ -8,11 +8,11 @@ import {
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { InjectModel } from '@nestjs/mongoose';
-import { DiscordGuild } from '../../guilds/schemas/discord-guild.schema';
 import { Model } from 'mongoose';
 import { InjectDiscordClient } from '@discord-nestjs/core';
 import { Client } from 'discord.js';
 import CommonRequest from '../dto/common-request.interface';
+import { DiscordGuild } from '@solidchain/badge-buddy-common';
 
 @Injectable()
 export class AuthGuard implements CanActivate {

@@ -2,11 +2,11 @@ import { Logger, Module } from '@nestjs/common';
 import { GuildsService } from './guilds.service';
 import { GuildsController } from './guilds.controller';
 import { MongooseModule } from '@nestjs/mongoose';
+import { ConfigModule } from '@nestjs/config';
 import {
   DiscordGuild,
   DiscordGuildSchema,
-} from './schemas/discord-guild.schema';
-import { ConfigModule } from '@nestjs/config';
+} from '@solidchain/badge-buddy-common';
 
 @Module({
   imports: [

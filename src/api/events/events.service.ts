@@ -1,6 +1,5 @@
 import { ConflictException, Inject, Injectable, Logger } from '@nestjs/common';
 import { Model } from 'mongoose';
-import { EventType } from './enums/event-type.enum';
 import { InjectModel } from '@nestjs/mongoose';
 import PostEventResponseDto from './dto/post/post-event.response.dto';
 import PostEventRequestDto from './dto/post/post-event.request.dto';
@@ -9,14 +8,14 @@ import PutEventResponseDto from './dto/put/put-event.response.dto';
 import GetActiveEventResponseDto, {
   ActiveEventDto,
 } from './dto/get/get-active-event-response.dto';
-import {
-  CommunityEvent,
-  CommunityEventDocument,
-} from './schemas/community-event.schema';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
+import {
+  CommunityEvent,
+  CommunityEventDocument,
+} from '@solidchain/badge-buddy-common';
 
 @Injectable()
 export class EventsService {
@@ -59,7 +58,6 @@ export class EventsService {
     communityEvent.eventName = request.eventName;
     communityEvent.startDate = currentDate;
     communityEvent.endDate = endDate;
-    communityEvent.eventType = EventType.BY_ATTENDANCE;
     communityEvent.isActive = true;
     communityEvent.participants = [];
 
@@ -81,7 +79,6 @@ export class EventsService {
 
     const response: PostEventResponseDto = new PostEventResponseDto();
     response._id = result._id.toString();
-    response.eventType = result.eventType;
     response.startDate = result.startDate;
     response.endDate = result.endDate;
 

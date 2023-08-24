@@ -2,16 +2,14 @@ import { Logger, Module } from '@nestjs/common';
 import { EventsController } from './events.controller';
 import { EventsService } from './events.service';
 import { MongooseModule } from '@nestjs/mongoose';
-import {
-  DiscordGuild,
-  DiscordGuildSchema,
-} from '../guilds/schemas/discord-guild.schema';
 import { DiscordModule } from '@discord-nestjs/core';
+import { BullModule } from '@nestjs/bull';
 import {
   CommunityEvent,
   CommunityEventSchema,
-} from './schemas/community-event.schema';
-import { BullModule } from '@nestjs/bull';
+  DiscordGuild,
+  DiscordGuildSchema,
+} from '@solidchain/badge-buddy-common';
 
 @Module({
   imports: [
