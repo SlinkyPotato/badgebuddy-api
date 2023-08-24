@@ -73,7 +73,7 @@ export class EventsService {
     await this.cacheManager.del(`/events/active?guildId=${request.guildId}`);
     this.logger.log('Removed active event from cache');
 
-    this.logger.log(`Adding event to queue, eventId: ${result._id}`);
+    this.logger.log(`Adding event to start queue, eventId: ${result._id}`);
     await this.eventsQueue.add('start', {
       eventId: result._id.toString(),
     });
@@ -116,6 +116,12 @@ export class EventsService {
     this.logger.log('Removing active event from cache');
     await this.cacheManager.del(`/events/active?guildId=${request.guildId}`);
     this.logger.log('Removed active event from cache');
+
+    this.logger.log(`Adding event to end queue, eventId: ${result._id}`);
+    await this.eventsQueue.add('end', {
+      eventId: result._id.toString(),
+    });
+    this.logger.log('Added event to queue');
 
     const response = new PutEventResponseDto();
     response._id = result._id.toString();
