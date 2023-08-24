@@ -6,20 +6,10 @@ import {
   DiscordGuild,
   DiscordGuildSchema,
 } from './schemas/discord-guild.schema';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { RedisClientOptions } from 'redis';
-import { CacheModule } from '@nestjs/cache-manager';
-import { configureCache } from '@solidchain/badge-buddy-common';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
-    CacheModule.registerAsync<RedisClientOptions>({
-      imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => {
-        return configureCache(configService);
-      },
-      inject: [ConfigService],
-    }),
     MongooseModule.forFeature([
       { name: DiscordGuild.name, schema: DiscordGuildSchema },
     ]),

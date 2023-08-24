@@ -15,6 +15,8 @@ import {
 } from './schemas/community-event.schema';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
+import { InjectQueue } from '@nestjs/bull';
+import { Queue } from 'bull';
 
 @Injectable()
 export class EventsService {
@@ -23,11 +25,12 @@ export class EventsService {
     @InjectModel(CommunityEvent.name)
     private communityEventModel: Model<CommunityEvent>,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    @InjectQueue('events') private eventsQueue: Queue,
   ) {}
 
   async start(request: PostEventRequestDto): Promise<PostEventResponseDto> {
     this.logger.log(
-      `Creating poap event for guild: ${request.guildId}, channel: ${request.voiceChannelId}, organizer: ${request.organizerId}`,
+      `Starting community event for guild: ${request.guildId}, channel: ${request.voiceChannelId}, organizer: ${request.organizerId}`,
     );
 
     const existingEvent = await this.communityEventModel.exists({
@@ -49,26 +52,32 @@ export class EventsService {
       `startDate: ${currentDate}, endDate: ${endDate}, guildId: ${request.guildId}`,
     );
 
-    const poapEvent: CommunityEvent = new CommunityEvent();
-    poapEvent.guildId = request.guildId;
-    poapEvent.voiceChannelId = request.voiceChannelId;
-    poapEvent.organizerId = request.organizerId;
-    poapEvent.eventName = request.eventName;
-    poapEvent.startDate = currentDate;
-    poapEvent.endDate = endDate;
-    poapEvent.eventType = EventType.BY_ATTENDANCE;
-    poapEvent.isActive = true;
-    poapEvent.participants = [];
+    const communityEvent: CommunityEvent = new CommunityEvent();
+    communityEvent.guildId = request.guildId;
+    communityEvent.voiceChannelId = request.voiceChannelId;
+    communityEvent.organizerId = request.organizerId;
+    communityEvent.eventName = request.eventName;
+    communityEvent.startDate = currentDate;
+    communityEvent.endDate = endDate;
+    communityEvent.eventType = EventType.BY_ATTENDANCE;
+    communityEvent.isActive = true;
+    communityEvent.participants = [];
 
-    const result = await this.communityEventModel.create(poapEvent);
+    const result = await this.communityEventModel.create(communityEvent);
     if (!result._id) {
       throw new Error('Failed to create event');
     }
-    this.logger.log(`Stored poapEvent in db _id: ${result._id}`);
+    this.logger.log(`Stored communityEvent in db _id: ${result._id}`);
 
     this.logger.log('Removing active events from cache');
     await this.cacheManager.del(`/events/active?guildId=${request.guildId}`);
     this.logger.log('Removed active event from cache');
+
+    this.logger.log(`Adding event to queue, eventId: ${result._id}`);
+    await this.eventsQueue.add('start', {
+      eventId: result._id.toString(),
+    });
+    this.logger.log('Added event to queue');
 
     const response: PostEventResponseDto = new PostEventResponseDto();
     response._id = result._id.toString();

@@ -29,7 +29,9 @@ export class AuthGuard implements CanActivate {
     const request: T = context.switchToHttp().getRequest().body;
     const guildId = request.guildId;
     const organizerId = request.organizerId;
-
+    this.logger.log(
+      `Checking auth request for guildId: ${guildId} and organizerId: ${organizerId}`,
+    );
     let guild: DiscordGuild | undefined | null = await this.cacheManager.get(
       '/guilds/' + guildId,
     );
@@ -41,6 +43,9 @@ export class AuthGuard implements CanActivate {
     }
 
     if (!guild) {
+      this.logger.error(
+        `Auth request rejected. Guild not found for guildId: ${guildId}`,
+      );
       return false;
     }
 
@@ -50,6 +55,9 @@ export class AuthGuard implements CanActivate {
           await this.discordClient.guilds.fetch(guild.guildId)
         ).members.fetch(organizerId);
         if (!guildMember.roles.cache.has(guild.poapManagerRoleId)) {
+          this.logger.error(
+            `Auth request rejected. User is not a POAP manager for organizerId: ${organizerId}`,
+          );
           return false;
         }
       } catch (error) {
@@ -60,7 +68,9 @@ export class AuthGuard implements CanActivate {
         return false;
       }
     }
-
+    this.logger.log(
+      `Auth request accepted for guildId: ${guildId} and organizerId: ${organizerId}`,
+    );
     return true;
   }
 }
