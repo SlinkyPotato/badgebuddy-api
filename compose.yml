@@ -8,6 +8,8 @@ services:
       context: .
       tags:
         - solidchain/badge-buddy-api:dev
+      args:
+        NODE_VERSION: ${NODE_VERSION}
     environment:
       DOTENV_KEY: ${DOTENV_KEY}
       REDIS_HOST: redis_local

@@ -1,5 +1,4 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { EventType } from '../../enums/event-type.enum';
 
 export default class PostEventResponseDto {
   @ApiProperty({
@@ -19,10 +18,4 @@ export default class PostEventResponseDto {
     description: 'The end date of the event',
   })
   endDate: Date;
-
-  @ApiProperty({
-    required: true,
-    description: 'The enum type of the event',
-  })
-  eventType: EventType;
 }

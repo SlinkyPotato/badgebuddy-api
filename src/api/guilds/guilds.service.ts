@@ -6,13 +6,13 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { DiscordGuild } from './schemas/discord-guild.schema';
 import { Model } from 'mongoose';
 import GetGuildResponseDto from './dto/get/guild.response.dto';
 import PostGuildRequestDto from './dto/post/guild.request.dto';
 import PostGuildResponseDto from './dto/post/guild.response.dto';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
+import { DiscordGuild } from '@solidchain/badge-buddy-common';
 
 @Injectable()
 export class GuildsService {

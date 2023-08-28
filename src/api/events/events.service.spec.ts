@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { EventsService } from './events.service';
-import { CommunityEvent } from './schemas/community-event.schema';
 import { getModelToken } from '@nestjs/mongoose';
 import { Logger } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { CommunityEvent } from '@solidchain/badge-buddy-common';
 
 describe('EventsService', () => {
   let service: EventsService;
@@ -19,6 +19,10 @@ describe('EventsService', () => {
     del: jest.fn().mockReturnThis(),
   };
 
+  const mockBullQueue = {
+    add: jest.fn().mockReturnThis(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -26,6 +30,7 @@ describe('EventsService', () => {
         { provide: getModelToken(CommunityEvent.name), useValue: mockModel },
         Logger,
         { provide: CACHE_MANAGER, useValue: mockCacheManager },
+        { provide: 'BullQueue_events', useValue: mockBullQueue },
       ],
     }).compile();
 

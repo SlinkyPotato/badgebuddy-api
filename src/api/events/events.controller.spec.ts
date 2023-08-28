@@ -3,8 +3,8 @@ import { EventsController } from './events.controller';
 import { EventsService } from './events.service';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { getModelToken } from '@nestjs/mongoose';
-import { DiscordGuild } from '../guilds/schemas/discord-guild.schema';
 import { Logger } from '@nestjs/common';
+import { DiscordGuild } from '@solidchain/badge-buddy-common';
 
 describe('EventsController', () => {
   let controller: EventsController;
