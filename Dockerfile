@@ -1,4 +1,6 @@
-FROM node:20.3.1-alpine
+ARG NODE_VERSION
+
+FROM node:${NODE_VERSION}-alpine
 LABEL description="Microservices API for Badge Buddy"
 
 RUN corepack enable
