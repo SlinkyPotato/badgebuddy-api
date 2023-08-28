@@ -32,12 +32,14 @@ export class EventsService {
       `Starting community event for guild: ${request.guildId}, channel: ${request.voiceChannelId}, organizer: ${request.organizerId}`,
     );
 
-    const existingEvent = await this.communityEventModel.exists({
-      guildId: request.guildId,
-      isActive: true,
-      voiceChannelId: request.voiceChannelId,
-      organizerId: request.organizerId,
-    });
+    const existingEvent = await this.communityEventModel
+      .exists({
+        guildId: request.guildId,
+        isActive: true,
+        voiceChannelId: request.voiceChannelId,
+        organizerId: request.organizerId,
+      })
+      .exec();
 
     if (existingEvent) {
       throw new ConflictException('Event already exists and active');
@@ -91,12 +93,14 @@ export class EventsService {
       `Stopping event for guildId: ${request.guildId}, voiceChannelId: ${request.voiceChannelId}, organizerId: ${request.organizerId}`,
     );
 
-    const activeEvent = await this.communityEventModel.findOne({
-      guildId: request.guildId,
-      isActive: true,
-      voiceChannelId: request.voiceChannelId,
-      organizerId: request.organizerId,
-    });
+    const activeEvent = await this.communityEventModel
+      .findOne({
+        guildId: request.guildId,
+        isActive: true,
+        voiceChannelId: request.voiceChannelId,
+        organizerId: request.organizerId,
+      })
+      .exec();
 
     if (!activeEvent) {
       this.logger.warn('Active event not found');
@@ -136,21 +140,27 @@ export class EventsService {
     let activeEvents: CommunityEventDocument[] = [];
 
     if (guildId && organizerId) {
-      activeEvents = await this.communityEventModel.find({
-        guildId: guildId,
-        organizerId: organizerId,
-        isActive: true,
-      });
+      activeEvents = await this.communityEventModel
+        .find<CommunityEventDocument>({
+          guildId: guildId,
+          organizerId: organizerId,
+          isActive: true,
+        })
+        .exec();
     } else if (guildId) {
-      activeEvents = await this.communityEventModel.find({
-        guildId: guildId,
-        isActive: true,
-      });
+      activeEvents = await this.communityEventModel
+        .find<CommunityEventDocument>({
+          guildId: guildId,
+          isActive: true,
+        })
+        .exec();
     } else if (organizerId) {
-      activeEvents = await this.communityEventModel.find({
-        organizerId: organizerId,
-        isActive: true,
-      });
+      activeEvents = await this.communityEventModel
+        .find<CommunityEventDocument>({
+          organizerId: organizerId,
+          isActive: true,
+        })
+        .exec();
     }
 
     const response = new GetActiveEventResponseDto();
