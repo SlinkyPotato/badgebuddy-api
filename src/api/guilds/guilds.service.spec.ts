@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { GuildsService } from './guilds.service';
 import { getModelToken } from '@nestjs/mongoose';
-import { DiscordGuild } from './schemas/discord-guild.schema';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Logger } from '@nestjs/common';
+import { DiscordGuild } from '@solidchain/badge-buddy-common';
 
 describe('RegistrationService', () => {
   let service: GuildsService;
