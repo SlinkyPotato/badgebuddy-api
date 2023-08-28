@@ -1,16 +1,16 @@
 {
   "name": "badge-buddy-api",
-  "version": "0.0.4-3",
+  "version": "0.0.4",
   "description": "Microservices API for Badge Buddy",
   "author": "SlinkyPotato <patinobrian@gmail.com>",
   "private": true,
   "license": "MIT",
   "engines": {
-    "node": "20.3.1",
-    "pnpm": "8.6.10"
+    "node": "20.5.1",
+    "pnpm": "8.7.0"
   },
   "engineStrict": true,
-  "packageManager": "pnpm@8.6.10",
+  "packageManager": "pnpm@8.7.0",
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
@@ -37,6 +37,7 @@
     "@discord-nestjs/core": "^5.3.8",
     "@fastify/static": "^6.10.2",
     "@nestjs/axios": "^3.0.0",
+    "@nestjs/bull": "^10.0.1",
     "@nestjs/cache-manager": "^2.1.0",
     "@nestjs/common": "^10.0.3",
     "@nestjs/config": "^3.0.0",
@@ -45,8 +46,9 @@
     "@nestjs/platform-fastify": "^10.0.4",
     "@nestjs/swagger": "^7.0.6",
     "@nestjs/terminus": "^10.0.1",
-    "@solidchain/badge-buddy-common": "0.1.0",
+    "@solidchain/badge-buddy-common": "0.1.2",
     "axios": "^1.4.0",
+    "bull": "^4.11.3",
     "cache-manager": "^5.2.3",
     "cache-manager-redis-yet": "^4.1.2",
     "class-transformer": "^0.5.1",

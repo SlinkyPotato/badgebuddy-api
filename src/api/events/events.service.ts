@@ -1,6 +1,5 @@
 import { ConflictException, Inject, Injectable, Logger } from '@nestjs/common';
 import { Model } from 'mongoose';
-import { EventType } from './enums/event-type.enum';
 import { InjectModel } from '@nestjs/mongoose';
 import PostEventResponseDto from './dto/post/post-event.response.dto';
 import PostEventRequestDto from './dto/post/post-event.request.dto';
@@ -9,12 +8,14 @@ import PutEventResponseDto from './dto/put/put-event.response.dto';
 import GetActiveEventResponseDto, {
   ActiveEventDto,
 } from './dto/get/get-active-event-response.dto';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
+import { InjectQueue } from '@nestjs/bull';
+import { Queue } from 'bull';
 import {
   CommunityEvent,
   CommunityEventDocument,
-} from './schemas/community-event.schema';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Cache } from 'cache-manager';
+} from '@solidchain/badge-buddy-common';
 
 @Injectable()
 export class EventsService {
@@ -23,19 +24,22 @@ export class EventsService {
     @InjectModel(CommunityEvent.name)
     private communityEventModel: Model<CommunityEvent>,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    @InjectQueue('events') private eventsQueue: Queue,
   ) {}
 
   async start(request: PostEventRequestDto): Promise<PostEventResponseDto> {
     this.logger.log(
-      `Creating poap event for guild: ${request.guildId}, channel: ${request.voiceChannelId}, organizer: ${request.organizerId}`,
+      `Starting community event for guild: ${request.guildId}, channel: ${request.voiceChannelId}, organizer: ${request.organizerId}`,
     );
 
-    const existingEvent = await this.communityEventModel.exists({
-      guildId: request.guildId,
-      isActive: true,
-      voiceChannelId: request.voiceChannelId,
-      organizerId: request.organizerId,
-    });
+    const existingEvent = await this.communityEventModel
+      .exists({
+        guildId: request.guildId,
+        isActive: true,
+        voiceChannelId: request.voiceChannelId,
+        organizerId: request.organizerId,
+      })
+      .exec();
 
     if (existingEvent) {
       throw new ConflictException('Event already exists and active');
@@ -49,30 +53,34 @@ export class EventsService {
       `startDate: ${currentDate}, endDate: ${endDate}, guildId: ${request.guildId}`,
     );
 
-    const poapEvent: CommunityEvent = new CommunityEvent();
-    poapEvent.guildId = request.guildId;
-    poapEvent.voiceChannelId = request.voiceChannelId;
-    poapEvent.organizerId = request.organizerId;
-    poapEvent.eventName = request.eventName;
-    poapEvent.startDate = currentDate;
-    poapEvent.endDate = endDate;
-    poapEvent.eventType = EventType.BY_ATTENDANCE;
-    poapEvent.isActive = true;
-    poapEvent.participants = [];
+    const communityEvent: CommunityEvent = new CommunityEvent();
+    communityEvent.guildId = request.guildId;
+    communityEvent.voiceChannelId = request.voiceChannelId;
+    communityEvent.organizerId = request.organizerId;
+    communityEvent.eventName = request.eventName;
+    communityEvent.startDate = currentDate;
+    communityEvent.endDate = endDate;
+    communityEvent.isActive = true;
+    communityEvent.participants = [];
 
-    const result = await this.communityEventModel.create(poapEvent);
+    const result = await this.communityEventModel.create(communityEvent);
     if (!result._id) {
       throw new Error('Failed to create event');
     }
-    this.logger.log(`Stored poapEvent in db _id: ${result._id}`);
+    this.logger.log(`Stored communityEvent in db _id: ${result._id}`);
 
     this.logger.log('Removing active events from cache');
     await this.cacheManager.del(`/events/active?guildId=${request.guildId}`);
     this.logger.log('Removed active event from cache');
 
+    this.logger.log(`Adding event to start queue, eventId: ${result._id}`);
+    await this.eventsQueue.add('start', {
+      eventId: result._id.toString(),
+    });
+    this.logger.log('Added event to queue');
+
     const response: PostEventResponseDto = new PostEventResponseDto();
     response._id = result._id.toString();
-    response.eventType = result.eventType;
     response.startDate = result.startDate;
     response.endDate = result.endDate;
 
@@ -85,12 +93,14 @@ export class EventsService {
       `Stopping event for guildId: ${request.guildId}, voiceChannelId: ${request.voiceChannelId}, organizerId: ${request.organizerId}`,
     );
 
-    const activeEvent = await this.communityEventModel.findOne({
-      guildId: request.guildId,
-      isActive: true,
-      voiceChannelId: request.voiceChannelId,
-      organizerId: request.organizerId,
-    });
+    const activeEvent = await this.communityEventModel
+      .findOne({
+        guildId: request.guildId,
+        isActive: true,
+        voiceChannelId: request.voiceChannelId,
+        organizerId: request.organizerId,
+      })
+      .exec();
 
     if (!activeEvent) {
       this.logger.warn('Active event not found');
@@ -108,6 +118,12 @@ export class EventsService {
     await this.cacheManager.del(`/events/active?guildId=${request.guildId}`);
     this.logger.log('Removed active event from cache');
 
+    this.logger.log(`Adding event to end queue, eventId: ${result._id}`);
+    await this.eventsQueue.add('end', {
+      eventId: result._id.toString(),
+    });
+    this.logger.log('Added event to queue');
+
     const response = new PutEventResponseDto();
     response._id = result._id.toString();
     response.isActive = result.isActive;
@@ -124,21 +140,27 @@ export class EventsService {
     let activeEvents: CommunityEventDocument[] = [];
 
     if (guildId && organizerId) {
-      activeEvents = await this.communityEventModel.find({
-        guildId: guildId,
-        organizerId: organizerId,
-        isActive: true,
-      });
+      activeEvents = await this.communityEventModel
+        .find<CommunityEventDocument>({
+          guildId: guildId,
+          organizerId: organizerId,
+          isActive: true,
+        })
+        .exec();
     } else if (guildId) {
-      activeEvents = await this.communityEventModel.find({
-        guildId: guildId,
-        isActive: true,
-      });
+      activeEvents = await this.communityEventModel
+        .find<CommunityEventDocument>({
+          guildId: guildId,
+          isActive: true,
+        })
+        .exec();
     } else if (organizerId) {
-      activeEvents = await this.communityEventModel.find({
-        organizerId: organizerId,
-        isActive: true,
-      });
+      activeEvents = await this.communityEventModel
+        .find<CommunityEventDocument>({
+          organizerId: organizerId,
+          isActive: true,
+        })
+        .exec();
     }
 
     const response = new GetActiveEventResponseDto();

@@ -1,6 +1,9 @@
 # compiled output
 /dist
 /node_modules
+parsed.md
+changes.md
+release.md
 
 # Logs
 logs
@@ -43,7 +46,3 @@ badge-buddy-api.iml
 # Certs
 /certs/*
 !/certs/.gitkeep
-
-parsed.md
-changes.md
-release.md
