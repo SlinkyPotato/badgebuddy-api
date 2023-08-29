@@ -25,7 +25,8 @@ jobs:
           node-version-file: 'package.json'
           cache: 'pnpm'
           cache-dependency-path: 'pnpm-lock.yaml'
-      - run: echo NODE_VERSION=$(node -e "console.log(require('./package.json').engines.node)") >> "$GITHUB_ENV"
+      - id: package
+        run: echo NODE_VERSION=$(node -e "console.log(require('./package.json').engines.node)") >> "$GITHUB_OUTPUT"
       - run: echo $NODE_VERSION
       - run: pnpm install --frozen-lockfile --prod
       - name: Set up Docker Buildx
@@ -43,7 +44,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: |
-            NODE_VERSION=$NODE_VERSION
+            NODE_VERSION=${{ steps.package.outputs.NODE_VERSION }}
       - run: git config user.name "github-action[bot]"
       - run: git config user.email "<>"
       - run: pnpm standard-version --prerelease --dry-run > changes.md | exit 0
