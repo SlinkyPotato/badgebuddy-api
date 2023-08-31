@@ -10,6 +10,7 @@ import {
   DiscordGuild,
   DiscordGuildSchema,
 } from '@solidchain/badge-buddy-common';
+import { GetActiveEventsValidationPipe } from './pipes/get-active-events-validation.pipe';
 
 @Module({
   imports: [
@@ -23,6 +24,6 @@ import {
     }),
   ],
   controllers: [EventsController],
-  providers: [Logger, EventsService],
+  providers: [Logger, EventsService, GetActiveEventsValidationPipe],
 })
 export class EventsModule {}

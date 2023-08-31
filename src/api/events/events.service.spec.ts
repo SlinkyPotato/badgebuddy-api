@@ -4,6 +4,7 @@ import { getModelToken } from '@nestjs/mongoose';
 import { Logger } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { CommunityEvent } from '@solidchain/badge-buddy-common';
+import { describe, beforeEach, it, expect, jest } from '@jest/globals';
 
 describe('EventsService', () => {
   let service: EventsService;

@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { GuildsController } from './guilds.controller';
 import { GuildsService } from './guilds.service';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { describe, beforeEach, it, expect, jest } from '@jest/globals';
 
 describe('RegistrationController', () => {
   let controller: GuildsController;

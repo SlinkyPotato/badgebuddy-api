@@ -5,6 +5,7 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { getModelToken } from '@nestjs/mongoose';
 import { Logger } from '@nestjs/common';
 import { DiscordGuild } from '@solidchain/badge-buddy-common';
+import { describe, beforeEach, it, expect, jest } from '@jest/globals';
 
 describe('EventsController', () => {
   let controller: EventsController;

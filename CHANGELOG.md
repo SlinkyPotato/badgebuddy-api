@@ -2,6 +2,31 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.5](https://github.com/solidchain-tech/badge-buddy-api/compare/v0.0.4...v0.0.5) (2023-08-28)
+
+
+### Features
+
+* add end event queue to end event endpoint ([1f92b90](https://github.com/solidchain-tech/badge-buddy-api/commit/1f92b9052928b43190055122f6c0db3ce14f3801))
+* add producer queue to events module ([2628f70](https://github.com/solidchain-tech/badge-buddy-api/commit/2628f706541dd0af9da132e523fe0952f32e8782))
+
+
+### Bug Fixes
+
+* add exec() to events.service.ts ([f28d898](https://github.com/solidchain-tech/badge-buddy-api/commit/f28d898d37a4505bfff7910f79ea02731ba912ae))
+* discord keys ([eb9f7e4](https://github.com/solidchain-tech/badge-buddy-api/commit/eb9f7e4043465eb558d585fb2e4bb018af9f1137))
+* test cases for bull queue ([b3d29ec](https://github.com/solidchain-tech/badge-buddy-api/commit/b3d29ecc3637f037368dd57f510ee82486b7a022))
+
+
+### Refactor
+
+* migrate schema to common ([6e50004](https://github.com/solidchain-tech/badge-buddy-api/commit/6e50004470085591fc1f1c4fd30edae8ce6bd822))
+
+
+### Performance
+
+* upgrade node + pnpm version, enhance workflow staging notes ([9507528](https://github.com/solidchain-tech/badge-buddy-api/commit/95075286c602bd315b7cd5fc2541ce337314f678))
+
 ### [0.0.5-0](https://github.com/solidchain-tech/badge-buddy-api/compare/v0.0.4...v0.0.5-0) (2023-08-28)
 
 

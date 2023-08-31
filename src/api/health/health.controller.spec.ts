@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { HealthController } from './health.controller';
 import { TerminusModule } from '@nestjs/terminus';
 import { HttpModule } from '@nestjs/axios';
+import { describe, beforeEach, it, expect } from '@jest/globals';
 
 describe('HealthController', () => {
   let controller: HealthController;

@@ -5,9 +5,9 @@ import PostEventResponseDto from './dto/post/post-event.response.dto';
 import PostEventRequestDto from './dto/post/post-event.request.dto';
 import PutEventRequestDto from './dto/put/put-event.request.dto';
 import PutEventResponseDto from './dto/put/put-event.response.dto';
-import GetActiveEventResponseDto, {
+import GetActiveEventsResponseDto, {
   ActiveEventDto,
-} from './dto/get/get-active-event-response.dto';
+} from './dto/get/get-active-events.response.dto';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { InjectQueue } from '@nestjs/bull';
@@ -16,6 +16,7 @@ import {
   CommunityEvent,
   CommunityEventDocument,
 } from '@solidchain/badge-buddy-common';
+import GetActiveEventsRequestDto from './dto/get/get-active-events.request.dto';
 
 @Injectable()
 export class EventsService {
@@ -69,9 +70,11 @@ export class EventsService {
     }
     this.logger.log(`Stored communityEvent in db _id: ${result._id}`);
 
-    this.logger.log('Removing active events from cache');
-    await this.cacheManager.del(`/events/active?guildId=${request.guildId}`);
-    this.logger.log('Removed active event from cache');
+    await this.removeActiveEventsFromCache(
+      result.guildId,
+      result.voiceChannelId,
+      result.organizerId,
+    );
 
     this.logger.log(`Adding event to start queue, eventId: ${result._id}`);
     await this.eventsQueue.add('start', {
@@ -83,6 +86,14 @@ export class EventsService {
     response._id = result._id.toString();
     response.startDate = result.startDate;
     response.endDate = result.endDate;
+
+    this.logger.log(
+      `Adding active event to cache by voiceChannelId: ${result.voiceChannelId}`,
+    );
+    await this.cacheManager.set(
+      `tracking:events:active:voiceChannelId:${result.voiceChannelId}`,
+      result,
+    );
 
     this.logger.log(`Returning response: ${JSON.stringify(response)}`);
     return response;
@@ -114,9 +125,11 @@ export class EventsService {
       throw new Error('Failed to update event');
     }
 
-    this.logger.log('Removing active event from cache');
-    await this.cacheManager.del(`/events/active?guildId=${request.guildId}`);
-    this.logger.log('Removed active event from cache');
+    await this.removeActiveEventsFromCache(
+      result.guildId,
+      result.voiceChannelId,
+      result.organizerId,
+    );
 
     this.logger.log(`Adding event to end queue, eventId: ${result._id}`);
     await this.eventsQueue.add('end', {
@@ -128,42 +141,80 @@ export class EventsService {
     response._id = result._id.toString();
     response.isActive = result.isActive;
 
+    this.logger.log(
+      `Removing active event from cache by voiceChannelId: ${result.voiceChannelId}`,
+    );
+    await this.cacheManager.del(
+      `tracking:events:active:voiceChannelId:${result.voiceChannelId}`,
+    );
+
     this.logger.log(`Returning response: ${JSON.stringify(response)}`);
     return response;
   }
 
   async getActiveEvents(
-    guildId?: string,
-    organizerId?: string,
-  ): Promise<GetActiveEventResponseDto> {
-    this.logger.log(`Getting actives events for guildId: ${guildId}`);
+    query: GetActiveEventsRequestDto,
+  ): Promise<GetActiveEventsResponseDto> {
+    this.logger.log(`Getting actives events for guildId: ${query.guildId}`);
     let activeEvents: CommunityEventDocument[] = [];
 
-    if (guildId && organizerId) {
+    if (query.eventId) {
+      this.logger.log(`Getting active event for eventId: ${query.eventId}`);
       activeEvents = await this.communityEventModel
         .find<CommunityEventDocument>({
-          guildId: guildId,
-          organizerId: organizerId,
+          _id: query.eventId,
           isActive: true,
         })
         .exec();
-    } else if (guildId) {
+    } else if (query.organizerId) {
+      this.logger.log(
+        `Getting active event for organizerId: ${query.organizerId}`,
+      );
       activeEvents = await this.communityEventModel
         .find<CommunityEventDocument>({
-          guildId: guildId,
+          organizerId: query.organizerId,
           isActive: true,
         })
         .exec();
-    } else if (organizerId) {
+    } else if (query.organizerId && query.guildId) {
+      this.logger.log(
+        `Getting active event for organizerId: ${query.organizerId}, guildId: ${query.guildId}`,
+      );
       activeEvents = await this.communityEventModel
         .find<CommunityEventDocument>({
-          organizerId: organizerId,
+          guildId: query.guildId,
+          organizerId: query.organizerId,
+          isActive: true,
+        })
+        .exec();
+    } else if (query.guildId) {
+      this.logger.log(`Getting active event for guildId: ${query.guildId}`);
+      activeEvents = await this.communityEventModel
+        .find<CommunityEventDocument>({
+          guildId: query.guildId,
+          isActive: true,
+        })
+        .exec();
+    } else if (query.voiceChannelId) {
+      this.logger.log(
+        `Getting active event for voiceChannelId: ${query.guildId}`,
+      );
+      activeEvents = await this.communityEventModel
+        .find<CommunityEventDocument>({
+          voiceChannelId: query.voiceChannelId,
+          isActive: true,
+        })
+        .exec();
+    } else {
+      this.logger.log(`Getting all active events`);
+      activeEvents = await this.communityEventModel
+        .find<CommunityEventDocument>({
           isActive: true,
         })
         .exec();
     }
 
-    const response = new GetActiveEventResponseDto();
+    const response = new GetActiveEventsResponseDto();
     response.events = [];
     for (const activeEvent of activeEvents) {
       const event = new ActiveEventDto();
@@ -179,5 +230,25 @@ export class EventsService {
 
     this.logger.log(`Returning response`);
     return response;
+  }
+
+  private async removeActiveEventsFromCache(
+    guildId?: string,
+    voiceChannelId?: string,
+    organizerId?: string,
+    eventId?: string,
+  ) {
+    this.logger.log('Removing active events from cache');
+    await this.cacheManager.del(`/events/active`);
+    await this.cacheManager.del(`/events/active?eventId=${eventId}`);
+    await this.cacheManager.del(`/events/active?guildId=${guildId}`);
+    await this.cacheManager.del(
+      `/events/active?voiceChannelId=${voiceChannelId}`,
+    );
+    await this.cacheManager.del(`/events/active?organizerId=${organizerId}`);
+    await this.cacheManager.del(
+      `/events/active?organizerId=${organizerId}&guildId=${guildId}`,
+    );
+    this.logger.log('Removed active event from cache');
   }
 }

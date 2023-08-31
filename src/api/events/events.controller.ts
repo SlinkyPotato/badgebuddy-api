@@ -16,8 +16,10 @@ import PutEventResponseDto from './dto/put/put-event.response.dto';
 import PostEventRequestDto from './dto/post/post-event.request.dto';
 import PostEventResponseDto from './dto/post/post-event.response.dto';
 import PutEventRequestDto from './dto/put/put-event.request.dto';
-import GetActiveEventResponseDto from './dto/get/get-active-event-response.dto';
+import GetActiveEventsResponseDto from './dto/get/get-active-events.response.dto';
 import { CacheInterceptor } from '@nestjs/cache-manager';
+import GetActiveEventsRequestDto from './dto/get/get-active-events.request.dto';
+import { GetActiveEventsValidationPipe } from './pipes/get-active-events-validation.pipe';
 
 @Controller('events')
 @ApiTags('events')
@@ -66,13 +68,13 @@ export class EventsController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Active events retrieved.',
-    type: GetActiveEventResponseDto,
+    type: GetActiveEventsResponseDto,
   })
   getActive(
-    @Query('guildId') guildId: string,
-    @Query('organizerId') organizerId: string,
-  ): Promise<GetActiveEventResponseDto> {
-    return this.eventsService.getActiveEvents(guildId, organizerId);
+    @Query(new GetActiveEventsValidationPipe())
+    query: GetActiveEventsRequestDto,
+  ): Promise<GetActiveEventsResponseDto> {
+    return this.eventsService.getActiveEvents(query);
   }
 
   // TODO: Implement this endpoint
