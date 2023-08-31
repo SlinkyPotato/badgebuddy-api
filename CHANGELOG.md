@@ -2,6 +2,31 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.6-0](https://github.com/solidchain-tech/badge-buddy-api/compare/v0.0.5...v0.0.6-0) (2023-08-31)
+
+
+### Features
+
+* track active event in cache ([03e78d0](https://github.com/solidchain-tech/badge-buddy-api/commit/03e78d0841de1d11cc41fd5c04b5e8c87af633bb))
+
+
+### Bug Fixes
+
+* add validation to get active events and allow eventId retrieval ([2128e13](https://github.com/solidchain-tech/badge-buddy-api/commit/2128e13bb8d88a6a4f7d78f8075114895a068482))
+* bump @solidchain/badge-buddy-common -> 0.1.3-3 ([d69d9d5](https://github.com/solidchain-tech/badge-buddy-api/commit/d69d9d541dd914b5add245694e51e612b91b8360))
+
+
+### Performance
+
+* remove github action package.json retrieval dep ([4cb3f25](https://github.com/solidchain-tech/badge-buddy-api/commit/4cb3f25e69e7b5a39e48b1e2666976199f209ec3))
+* upgrade @solidchain/badge-buddy-common ([b094587](https://github.com/solidchain-tech/badge-buddy-api/commit/b094587499c91473ca4401d48d57e6b93e9cc4d7))
+
+
+### Refactor
+
+* bump dep versions and add @jest/globals ([7348108](https://github.com/solidchain-tech/badge-buddy-api/commit/73481088289973d42ed3e4d8c4806d64c0bc6e91))
+* remove github action dep for package.json ([1fb0949](https://github.com/solidchain-tech/badge-buddy-api/commit/1fb09490cffb7f617b5c01e5adaf91c6e3494d0c))
+
 ### [0.0.5](https://github.com/solidchain-tech/badge-buddy-api/compare/v0.0.4...v0.0.5) (2023-08-28)
 
 
