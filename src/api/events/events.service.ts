@@ -87,6 +87,14 @@ export class EventsService {
     response.startDate = result.startDate;
     response.endDate = result.endDate;
 
+    this.logger.log(
+      `Adding active event to cache by voiceChannelId: ${result.voiceChannelId}`,
+    );
+    await this.cacheManager.set(
+      `tracking:events:active:voiceChannelId:${result.voiceChannelId}`,
+      result,
+    );
+
     this.logger.log(`Returning response: ${JSON.stringify(response)}`);
     return response;
   }
@@ -132,6 +140,13 @@ export class EventsService {
     const response = new PutEventResponseDto();
     response._id = result._id.toString();
     response.isActive = result.isActive;
+
+    this.logger.log(
+      `Removing active event from cache by voiceChannelId: ${result.voiceChannelId}`,
+    );
+    await this.cacheManager.del(
+      `tracking:events:active:voiceChannelId:${result.voiceChannelId}`,
+    );
 
     this.logger.log(`Returning response: ${JSON.stringify(response)}`);
     return response;
