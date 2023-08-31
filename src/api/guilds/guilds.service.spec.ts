@@ -4,6 +4,7 @@ import { getModelToken } from '@nestjs/mongoose';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Logger } from '@nestjs/common';
 import { DiscordGuild } from '@solidchain/badge-buddy-common';
+import { describe, beforeEach, it, expect, jest } from '@jest/globals';
 
 describe('RegistrationService', () => {
   let service: GuildsService;
