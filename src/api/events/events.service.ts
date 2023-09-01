@@ -15,6 +15,7 @@ import { Queue } from 'bull';
 import {
   CommunityEvent,
   CommunityEventDocument,
+  CommunityEventDto,
 } from '@solidchain/badge-buddy-common';
 import GetActiveEventsRequestDto from './dto/get/get-active-events.request.dto';
 
@@ -87,13 +88,7 @@ export class EventsService {
     response.startDate = result.startDate;
     response.endDate = result.endDate;
 
-    this.logger.log(
-      `Adding active event to cache by voiceChannelId: ${result.voiceChannelId}`,
-    );
-    await this.cacheManager.set(
-      `tracking:events:active:voiceChannelId:${result.voiceChannelId}`,
-      result,
-    );
+    await this.addActiveEventToCache(result);
 
     this.logger.log(`Returning response: ${JSON.stringify(response)}`);
     return response;
@@ -141,12 +136,7 @@ export class EventsService {
     response._id = result._id.toString();
     response.isActive = result.isActive;
 
-    this.logger.log(
-      `Removing active event from cache by voiceChannelId: ${result.voiceChannelId}`,
-    );
-    await this.cacheManager.del(
-      `tracking:events:active:voiceChannelId:${result.voiceChannelId}`,
-    );
+    await this.removeActiveEventFromCache(result);
 
     this.logger.log(`Returning response: ${JSON.stringify(response)}`);
     return response;
@@ -250,5 +240,36 @@ export class EventsService {
       `/events/active?organizerId=${organizerId}&guildId=${guildId}`,
     );
     this.logger.log('Removed active event from cache');
+  }
+
+  private async addActiveEventToCache(event: CommunityEventDocument) {
+    this.logger.log(
+      `Adding active event to cache by voiceChannelId: ${event.voiceChannelId}`,
+    );
+    const cacheEvent = new CommunityEventDto();
+    cacheEvent.eventId = event._id.toString();
+    cacheEvent.eventName = event.eventName;
+    cacheEvent.guildId = event.guildId;
+    cacheEvent.voiceChannelId = event.voiceChannelId;
+    cacheEvent.organizerId = event.organizerId;
+    cacheEvent.startDate = event.startDate;
+    cacheEvent.endDate = event.endDate;
+
+    await this.cacheManager.set(
+      `tracking:events:active:voiceChannelId:${event.voiceChannelId}`,
+      cacheEvent,
+    );
+  }
+
+  private async removeActiveEventFromCache(event: CommunityEventDocument) {
+    this.logger.log(
+      `Removing active event from cache by voiceChannelId: ${event.voiceChannelId}`,
+    );
+    await this.cacheManager.del(
+      `tracking:events:active:voiceChannelId:${event.voiceChannelId}`,
+    );
+    this.logger.log(
+      `Removed active event from cache, eventId: ${event._id}, voiceChannelId: ${event.voiceChannelId}`,
+    );
   }
 }
