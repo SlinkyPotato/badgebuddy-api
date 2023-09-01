@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.6-1](https://github.com/solidchain-tech/badge-buddy-api/compare/v0.0.6-0...v0.0.6-1) (2023-09-01)
+
+
+### Bug Fixes
+
+* use next @solidchain/badge-buddy-common ([9e733d0](https://github.com/solidchain-tech/badge-buddy-api/commit/9e733d0e350d13fcfeb1ab6b4190c7d54448ebc7))
+
+
+### Performance
+
+* update deps and use common dto for event ([d9f6253](https://github.com/solidchain-tech/badge-buddy-api/commit/d9f6253191159f8aff286e0730dde904ec05c3cd))
+
 ### [0.0.6-0](https://github.com/solidchain-tech/badge-buddy-api/compare/v0.0.5...v0.0.6-0) (2023-08-31)
 
 
