@@ -247,7 +247,7 @@ export class EventsService {
       `Adding active event to cache by voiceChannelId: ${event.voiceChannelId}`,
     );
     const cacheEvent = new CommunityEventDto();
-    cacheEvent.eventId = event._id.toString();
+    cacheEvent.eventId = event._id;
     cacheEvent.eventName = event.eventName;
     cacheEvent.guildId = event.guildId;
     cacheEvent.voiceChannelId = event.voiceChannelId;
