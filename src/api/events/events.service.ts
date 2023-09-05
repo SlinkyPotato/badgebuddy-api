@@ -271,7 +271,9 @@ export class EventsService {
     await this.cacheManager.set(
       `tracking:events:active:voiceChannelId:${event.voiceChannelId}`,
       cacheEvent,
+      0,
     );
+    this.logger.log(`Added active event to cache, eventId: ${event._id}`);
   }
 
   /**
