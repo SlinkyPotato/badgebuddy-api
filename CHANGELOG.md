@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.6-2](https://github.com/solidchain-tech/badge-buddy-api/compare/v0.0.6-1...v0.0.6-2) (2023-09-06)
+
+
+### Bug Fixes
+
+* remove ttl for processor event cache ([cdc9afc](https://github.com/solidchain-tech/badge-buddy-api/commit/cdc9afcf29c8051c590434fedc1f9371dc7b8442))
+
+
+### Docs
+
+* add some jsdocs ([50c5dc3](https://github.com/solidchain-tech/badge-buddy-api/commit/50c5dc332d22fd8f90755c706b633321cd22d21d))
+
+
+### Refactor
+
+* bump common -> 0.1.3-6 ([c60c449](https://github.com/solidchain-tech/badge-buddy-api/commit/c60c44909277f0f4ff6bbc7b59537988614683c0))
+* bump common version ([e5be773](https://github.com/solidchain-tech/badge-buddy-api/commit/e5be7730da59e30f45af6f10061c5a29dd8a56ca))
+
 ### [0.0.6-1](https://github.com/solidchain-tech/badge-buddy-api/compare/v0.0.6-0...v0.0.6-1) (2023-09-01)
 
 
