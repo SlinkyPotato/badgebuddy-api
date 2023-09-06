@@ -260,13 +260,13 @@ export class EventsService {
       `Adding active event to cache by voiceChannelId: ${event.voiceChannelId}`,
     );
     const cacheEvent = new CommunityEventDto();
-    cacheEvent.eventId = event._id;
+    cacheEvent.eventId = event._id.toString();
     cacheEvent.eventName = event.eventName;
     cacheEvent.guildId = event.guildId;
     cacheEvent.voiceChannelId = event.voiceChannelId;
     cacheEvent.organizerId = event.organizerId;
-    cacheEvent.startDate = event.startDate;
-    cacheEvent.endDate = event.endDate;
+    cacheEvent.startDate = event.startDate.toISOString();
+    cacheEvent.endDate = event.endDate.toISOString();
 
     await this.cacheManager.set(
       `tracking:events:active:voiceChannelId:${event.voiceChannelId}`,
