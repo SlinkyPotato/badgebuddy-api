@@ -71,7 +71,7 @@ export class EventsService {
     }
     this.logger.log(`Stored communityEvent in db _id: ${result._id}`);
 
-    await this.removeActiveEventsFromCache(
+    await this.removeEventsFromCacheInterceptor(
       result.guildId,
       result.voiceChannelId,
       result.organizerId,
@@ -120,7 +120,7 @@ export class EventsService {
       throw new Error('Failed to update event');
     }
 
-    await this.removeActiveEventsFromCache(
+    await this.removeEventsFromCacheInterceptor(
       result.guildId,
       result.voiceChannelId,
       result.organizerId,
@@ -222,7 +222,15 @@ export class EventsService {
     return response;
   }
 
-  private async removeActiveEventsFromCache(
+  /**
+   * Removes the active events from cache interceptor
+   * @param guildId
+   * @param voiceChannelId
+   * @param organizerId
+   * @param eventId
+   * @private
+   */
+  private async removeEventsFromCacheInterceptor(
     guildId?: string,
     voiceChannelId?: string,
     organizerId?: string,
@@ -242,6 +250,11 @@ export class EventsService {
     this.logger.log('Removed active event from cache');
   }
 
+  /**
+   * Adds the active event to the cache used in the processor
+   * @param event
+   * @private
+   */
   private async addActiveEventToCache(event: CommunityEventDocument) {
     this.logger.log(
       `Adding active event to cache by voiceChannelId: ${event.voiceChannelId}`,
@@ -252,15 +265,22 @@ export class EventsService {
     cacheEvent.guildId = event.guildId;
     cacheEvent.voiceChannelId = event.voiceChannelId;
     cacheEvent.organizerId = event.organizerId;
-    cacheEvent.startDate = event.startDate;
-    cacheEvent.endDate = event.endDate;
+    cacheEvent.startDate = event.startDate.toISOString();
+    cacheEvent.endDate = event.endDate.toISOString();
 
     await this.cacheManager.set(
       `tracking:events:active:voiceChannelId:${event.voiceChannelId}`,
       cacheEvent,
+      0,
     );
+    this.logger.log(`Added active event to cache, eventId: ${event._id}`);
   }
 
+  /**
+   * Removes the active event from the cache used in the processor
+   * @param event
+   * @private
+   */
   private async removeActiveEventFromCache(event: CommunityEventDocument) {
     this.logger.log(
       `Removing active event from cache by voiceChannelId: ${event.voiceChannelId}`,
