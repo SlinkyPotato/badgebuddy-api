@@ -63,7 +63,6 @@ export class EventsService {
     communityEvent.startDate = currentDate;
     communityEvent.endDate = endDate;
     communityEvent.isActive = true;
-    communityEvent.participants = [];
 
     const result = await this.communityEventModel.create(communityEvent);
     if (!result._id) {
