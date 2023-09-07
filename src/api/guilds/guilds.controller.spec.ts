@@ -14,12 +14,17 @@ describe('GuildsController', () => {
     remove: jest.fn().mockReturnThis(),
   };
 
+  const mockCacheManager = {
+    get: jest.fn().mockReturnThis(),
+    set: jest.fn().mockReturnThis(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [GuildsController],
       providers: [
         { provide: GuildsService, useValue: mockService },
-        { provide: CACHE_MANAGER, useValue: {} },
+        { provide: CACHE_MANAGER, useValue: mockCacheManager },
       ],
     }).compile();
 
@@ -31,8 +36,8 @@ describe('GuildsController', () => {
   });
 
   it('should call get', async () => {
-    await controller.get('id');
-    expect(mockService.get).toBeCalledWith('id');
+    await controller.get('850840267082563596');
+    expect(mockService.get).toBeCalledWith('850840267082563596');
   });
 
   it('should call create', async () => {
@@ -43,7 +48,10 @@ describe('GuildsController', () => {
       newsChannelId: '1130525131937161286',
     };
     await controller.create('850840267082563596', postGuildRequestDto);
-    expect(mockService.create).toBeCalledWith('id', postGuildRequestDto);
+    expect(mockService.create).toBeCalledWith(
+      '850840267082563596',
+      postGuildRequestDto,
+    );
   });
 
   it('should call create without newsChannelId', async () => {
@@ -53,6 +61,14 @@ describe('GuildsController', () => {
       privateChannelId: '1100470846490951790',
     };
     await controller.create('850840267082563596', postGuildRequestDto);
-    expect(mockService.create).toBeCalledWith('id', postGuildRequestDto);
+    expect(mockService.create).toBeCalledWith(
+      '850840267082563596',
+      postGuildRequestDto,
+    );
+  });
+
+  it('should call remove', async () => {
+    await controller.remove('850840267082563596');
+    expect(mockService.remove).toBeCalledWith('850840267082563596');
   });
 });
