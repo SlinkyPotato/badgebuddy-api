@@ -1,42 +1,39 @@
 import { Logger, Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { DiscordEventsModule } from './discord-events/discord-events.module';
 import { DiscordModule, DiscordModuleOption } from '@discord-nestjs/core';
 import { GatewayIntentBits, Partials } from 'discord.js';
 import { ApiModule } from './api/api.module';
-import {
-  configureBull,
-  configureCache,
-  EnvConfig,
-  validationSchema,
-} from '@solidchain/badge-buddy-common';
 import { BullModule } from '@nestjs/bull';
 import { CacheModule } from '@nestjs/cache-manager';
 import { RedisClientOptions } from 'redis';
+import {
+  configureBullOptions,
+  configureCacheOptions,
+  joiValidationConfig,
+} from '@solidchain/badge-buddy-common';
+import { TestController } from './test/test.controller';
+import { TestModule } from './test/test.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       ignoreEnvFile: true,
       cache: true,
-      load: [EnvConfig],
-      validationSchema: validationSchema(),
+      validationSchema: joiValidationConfig,
     }),
     BullModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) =>
-        configureBull(configService),
+        configureBullOptions(configService),
     }),
     CacheModule.registerAsync<RedisClientOptions>({
       imports: [ConfigModule],
       inject: [ConfigService],
       isGlobal: true,
       useFactory: (configService: ConfigService) =>
-        configureCache(configService),
+        configureCacheOptions(configService),
     }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
@@ -77,10 +74,9 @@ import { RedisClientOptions } from 'redis';
         failOnLogin: true,
       }),
     }),
-    DiscordEventsModule,
     ApiModule,
+    TestModule,
   ],
-  controllers: [AppController],
-  providers: [Logger, AppService],
+  providers: [Logger],
 })
 export class AppModule {}

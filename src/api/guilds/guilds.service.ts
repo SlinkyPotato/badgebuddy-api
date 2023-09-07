@@ -13,6 +13,7 @@ import PostGuildResponseDto from './dto/post/guild.response.dto';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { DiscordGuild } from '@solidchain/badge-buddy-common';
+import { redisHttpKeys } from '../redis-keys.constant';
 
 @Injectable()
 export class GuildsService {
@@ -38,7 +39,7 @@ export class GuildsService {
       throw new ConflictException('Guild already registered');
     }
 
-    const guildRegistration = new DiscordGuild();
+    const guildRegistration: DiscordGuild = new DiscordGuild();
     guildRegistration.guildId = id;
     guildRegistration.guildName = createRegistrationDto.guildName;
     guildRegistration.poapManagerRoleId =
@@ -53,19 +54,19 @@ export class GuildsService {
       _id: result._id.toString(),
     };
   }
-  async remove(id: string): Promise<any> {
-    this.logger.log('removing guild: ' + id);
+  async remove(guildId: string): Promise<any> {
+    this.logger.log(`removing guild: ${guildId}`);
     const result = await this.discordServerModel
       .findOneAndDelete({
-        guildId: id,
+        guildId: guildId,
       })
       .exec();
     if (result == null) {
       throw new NotFoundException('Guild not found');
     }
-    this.logger.log('removing guild from cache: ' + id);
-    await this.cacheManager.del('/guilds/' + id);
-    this.logger.log('removed guild from cache: ' + id);
+    this.logger.log(`removing guild from cache: ${guildId}`);
+    await this.cacheManager.del(redisHttpKeys.GUILDS(guildId));
+    this.logger.log(`removed guild from cache: ${guildId}`);
     return;
   }
 

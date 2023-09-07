@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNumberString } from 'class-validator';
 
-export default class CommonRequest {
+export default class CommonRequestDto {
   @ApiProperty({
     required: true,
     description: 'The ID of the guild',

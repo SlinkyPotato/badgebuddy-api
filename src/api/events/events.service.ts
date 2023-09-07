@@ -18,6 +18,7 @@ import {
   CommunityEventDto,
 } from '@solidchain/badge-buddy-common';
 import GetActiveEventsRequestDto from './dto/get/get-active-events.request.dto';
+import { redisHttpKeys, redisProcessorKeys } from '../redis-keys.constant';
 
 @Injectable()
 export class EventsService {
@@ -74,6 +75,7 @@ export class EventsService {
       result.guildId,
       result.voiceChannelId,
       result.organizerId,
+      result._id.toString(),
     );
 
     this.logger.log(`Adding event to start queue, eventId: ${result._id}`);
@@ -123,6 +125,7 @@ export class EventsService {
       result.guildId,
       result.voiceChannelId,
       result.organizerId,
+      result._id.toString(),
     );
 
     this.logger.log(`Adding event to end queue, eventId: ${result._id}`);
@@ -230,21 +233,23 @@ export class EventsService {
    * @private
    */
   private async removeEventsFromCacheInterceptor(
-    guildId?: string,
-    voiceChannelId?: string,
-    organizerId?: string,
-    eventId?: string,
+    guildId: string,
+    voiceChannelId: string,
+    organizerId: string,
+    eventId: string,
   ) {
     this.logger.log('Removing active events from cache');
-    await this.cacheManager.del(`/events/active`);
-    await this.cacheManager.del(`/events/active?eventId=${eventId}`);
-    await this.cacheManager.del(`/events/active?guildId=${guildId}`);
+    await this.cacheManager.del(redisHttpKeys.EVENTS_ACTIVE);
+    await this.cacheManager.del(redisHttpKeys.EVENTS_ACTIVE_ID(eventId));
+    await this.cacheManager.del(redisHttpKeys.EVENTS_ACTIVE_GUILD(guildId));
     await this.cacheManager.del(
-      `/events/active?voiceChannelId=${voiceChannelId}`,
+      redisHttpKeys.EVENTS_ACTIVE_VOICE_CHANNEL(voiceChannelId),
     );
-    await this.cacheManager.del(`/events/active?organizerId=${organizerId}`);
     await this.cacheManager.del(
-      `/events/active?organizerId=${organizerId}&guildId=${guildId}`,
+      redisHttpKeys.EVENTS_ACTIVE_ORGANIZER(organizerId),
+    );
+    await this.cacheManager.del(
+      redisHttpKeys.EVENTS_ACTIVE_GUILD_ORGANIZER({ organizerId, guildId }),
     );
     this.logger.log('Removed active event from cache');
   }
@@ -268,7 +273,9 @@ export class EventsService {
     cacheEvent.endDate = event.endDate.toISOString();
 
     await this.cacheManager.set(
-      `tracking:events:active:voiceChannelId:${event.voiceChannelId}`,
+      redisProcessorKeys.TRACKING_EVENTS_ACTIVE_VOICE_CHANNEL(
+        event.voiceChannelId,
+      ),
       cacheEvent,
       0,
     );
@@ -285,7 +292,9 @@ export class EventsService {
       `Removing active event from cache by voiceChannelId: ${event.voiceChannelId}`,
     );
     await this.cacheManager.del(
-      `tracking:events:active:voiceChannelId:${event.voiceChannelId}`,
+      redisProcessorKeys.TRACKING_EVENTS_ACTIVE_VOICE_CHANNEL(
+        event.voiceChannelId,
+      ),
     );
     this.logger.log(
       `Removed active event from cache, eventId: ${event._id}, voiceChannelId: ${event.voiceChannelId}`,
