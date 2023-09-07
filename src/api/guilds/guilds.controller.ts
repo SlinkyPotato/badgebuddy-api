@@ -60,9 +60,9 @@ export class GuildsController {
   })
   create(
     @Param('id') id: string,
-    @Body() postRegistrationRequestDto: PostGuildRequestDto,
+    @Body() postGuildRequestDto: PostGuildRequestDto,
   ): Promise<PostGuildResponseDto> {
-    return this.guildService.create(id, postRegistrationRequestDto);
+    return this.guildService.create(id, postGuildRequestDto);
   }
 
   @Delete(':id')
