@@ -1,8 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNumberString, IsOptional } from 'class-validator';
-import CommonRequest from '../common-request.interface';
+import CommonRequestDto from '../common-request.dto';
 
-export default class PutEventRequestDto extends CommonRequest {
+export default class PutEventRequestDto extends CommonRequestDto {
   @ApiProperty({
     required: false,
     description: 'The ID of the event',

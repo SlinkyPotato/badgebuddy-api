@@ -1,4 +1,4 @@
-import { IsNumberString, IsString } from 'class-validator';
+import { IsNumberString, IsOptional, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export default class PostGuildRequestDto {
@@ -25,5 +25,6 @@ export default class PostGuildRequestDto {
     description: 'The ID of the announcement channel',
   })
   @IsNumberString()
-  newsChannelId: string;
+  @IsOptional()
+  newsChannelId?: string;
 }

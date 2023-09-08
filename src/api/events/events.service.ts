@@ -18,6 +18,7 @@ import {
   CommunityEventDto,
 } from '@solidchain/badge-buddy-common';
 import GetActiveEventsRequestDto from './dto/get/get-active-events.request.dto';
+import { redisHttpKeys, redisProcessorKeys } from '../redis-keys.constant';
 
 @Injectable()
 export class EventsService {
@@ -44,7 +45,7 @@ export class EventsService {
       .exec();
 
     if (existingEvent) {
-      throw new ConflictException('Event already exists and active');
+      throw new ConflictException('Event in this channel is already active');
     }
 
     const currentDate = new Date();
@@ -63,7 +64,6 @@ export class EventsService {
     communityEvent.startDate = currentDate;
     communityEvent.endDate = endDate;
     communityEvent.isActive = true;
-    communityEvent.participants = [];
 
     const result = await this.communityEventModel.create(communityEvent);
     if (!result._id) {
@@ -75,6 +75,7 @@ export class EventsService {
       result.guildId,
       result.voiceChannelId,
       result.organizerId,
+      result._id.toString(),
     );
 
     this.logger.log(`Adding event to start queue, eventId: ${result._id}`);
@@ -109,7 +110,6 @@ export class EventsService {
       .exec();
 
     if (!activeEvent) {
-      this.logger.warn('Active event not found');
       throw new ConflictException('Active event not found');
     }
 
@@ -124,6 +124,7 @@ export class EventsService {
       result.guildId,
       result.voiceChannelId,
       result.organizerId,
+      result._id.toString(),
     );
 
     this.logger.log(`Adding event to end queue, eventId: ${result._id}`);
@@ -147,54 +148,61 @@ export class EventsService {
   ): Promise<GetActiveEventsResponseDto> {
     this.logger.log(`Getting actives events for guildId: ${query.guildId}`);
     let activeEvents: CommunityEventDocument[] = [];
+    const numOfParams = Object.keys(query).length;
 
-    if (query.eventId) {
-      this.logger.log(`Getting active event for eventId: ${query.eventId}`);
-      activeEvents = await this.communityEventModel
-        .find<CommunityEventDocument>({
-          _id: query.eventId,
-          isActive: true,
-        })
-        .exec();
-    } else if (query.organizerId) {
-      this.logger.log(
-        `Getting active event for organizerId: ${query.organizerId}`,
-      );
-      activeEvents = await this.communityEventModel
-        .find<CommunityEventDocument>({
-          organizerId: query.organizerId,
-          isActive: true,
-        })
-        .exec();
-    } else if (query.organizerId && query.guildId) {
-      this.logger.log(
-        `Getting active event for organizerId: ${query.organizerId}, guildId: ${query.guildId}`,
-      );
-      activeEvents = await this.communityEventModel
-        .find<CommunityEventDocument>({
-          guildId: query.guildId,
-          organizerId: query.organizerId,
-          isActive: true,
-        })
-        .exec();
-    } else if (query.guildId) {
-      this.logger.log(`Getting active event for guildId: ${query.guildId}`);
-      activeEvents = await this.communityEventModel
-        .find<CommunityEventDocument>({
-          guildId: query.guildId,
-          isActive: true,
-        })
-        .exec();
-    } else if (query.voiceChannelId) {
-      this.logger.log(
-        `Getting active event for voiceChannelId: ${query.guildId}`,
-      );
-      activeEvents = await this.communityEventModel
-        .find<CommunityEventDocument>({
-          voiceChannelId: query.voiceChannelId,
-          isActive: true,
-        })
-        .exec();
+    if (numOfParams === 1) {
+      if (query.eventId) {
+        this.logger.log(`Getting active event for eventId: ${query.eventId}`);
+        activeEvents = await this.communityEventModel
+          .find<CommunityEventDocument>({
+            _id: query.eventId,
+            isActive: true,
+          })
+          .exec();
+      } else if (query.organizerId) {
+        this.logger.log(
+          `Getting active event for organizerId: ${query.organizerId}`,
+        );
+        activeEvents = await this.communityEventModel
+          .find<CommunityEventDocument>({
+            organizerId: query.organizerId,
+            isActive: true,
+          })
+          .exec();
+      } else if (query.guildId) {
+        this.logger.log(`Getting active event for guildId: ${query.guildId}`);
+        activeEvents = await this.communityEventModel
+          .find<CommunityEventDocument>({
+            guildId: query.guildId,
+            isActive: true,
+          })
+          .exec();
+      } else if (query.voiceChannelId) {
+        this.logger.log(
+          `Getting active event for voiceChannelId: ${query.guildId}`,
+        );
+        activeEvents = await this.communityEventModel
+          .find<CommunityEventDocument>({
+            voiceChannelId: query.voiceChannelId,
+            isActive: true,
+          })
+          .exec();
+      }
+    } else if (numOfParams === 2) {
+      if (query.organizerId && query.guildId) {
+        this.logger.log(
+          `Getting active event for organizerId: ${query.organizerId}, guildId: ${query.guildId}`,
+        );
+        activeEvents = await this.communityEventModel
+          .find<CommunityEventDocument>({
+            guildId: query.guildId,
+            organizerId: query.organizerId,
+            isActive: true,
+          })
+          .exec();
+      }
+    } else if (numOfParams > 2) {
+      throw new Error('Too many query parameters');
     } else {
       this.logger.log(`Getting all active events`);
       activeEvents = await this.communityEventModel
@@ -231,21 +239,23 @@ export class EventsService {
    * @private
    */
   private async removeEventsFromCacheInterceptor(
-    guildId?: string,
-    voiceChannelId?: string,
-    organizerId?: string,
-    eventId?: string,
+    guildId: string,
+    voiceChannelId: string,
+    organizerId: string,
+    eventId: string,
   ) {
     this.logger.log('Removing active events from cache');
-    await this.cacheManager.del(`/events/active`);
-    await this.cacheManager.del(`/events/active?eventId=${eventId}`);
-    await this.cacheManager.del(`/events/active?guildId=${guildId}`);
+    await this.cacheManager.del(redisHttpKeys.EVENTS_ACTIVE);
+    await this.cacheManager.del(redisHttpKeys.EVENTS_ACTIVE_ID(eventId));
+    await this.cacheManager.del(redisHttpKeys.EVENTS_ACTIVE_GUILD(guildId));
     await this.cacheManager.del(
-      `/events/active?voiceChannelId=${voiceChannelId}`,
+      redisHttpKeys.EVENTS_ACTIVE_VOICE_CHANNEL(voiceChannelId),
     );
-    await this.cacheManager.del(`/events/active?organizerId=${organizerId}`);
     await this.cacheManager.del(
-      `/events/active?organizerId=${organizerId}&guildId=${guildId}`,
+      redisHttpKeys.EVENTS_ACTIVE_ORGANIZER(organizerId),
+    );
+    await this.cacheManager.del(
+      redisHttpKeys.EVENTS_ACTIVE_GUILD_ORGANIZER({ organizerId, guildId }),
     );
     this.logger.log('Removed active event from cache');
   }
@@ -269,7 +279,9 @@ export class EventsService {
     cacheEvent.endDate = event.endDate.toISOString();
 
     await this.cacheManager.set(
-      `tracking:events:active:voiceChannelId:${event.voiceChannelId}`,
+      redisProcessorKeys.TRACKING_EVENTS_ACTIVE_VOICE_CHANNEL(
+        event.voiceChannelId,
+      ),
       cacheEvent,
       0,
     );
@@ -286,7 +298,9 @@ export class EventsService {
       `Removing active event from cache by voiceChannelId: ${event.voiceChannelId}`,
     );
     await this.cacheManager.del(
-      `tracking:events:active:voiceChannelId:${event.voiceChannelId}`,
+      redisProcessorKeys.TRACKING_EVENTS_ACTIVE_VOICE_CHANNEL(
+        event.voiceChannelId,
+      ),
     );
     this.logger.log(
       `Removed active event from cache, eventId: ${event._id}, voiceChannelId: ${event.voiceChannelId}`,

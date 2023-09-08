@@ -8,6 +8,7 @@ import {
   Param,
   Post,
   UseInterceptors,
+  ValidationPipe,
 } from '@nestjs/common';
 import { GuildsService } from './guilds.service';
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -60,9 +61,9 @@ export class GuildsController {
   })
   create(
     @Param('id') id: string,
-    @Body() postRegistrationRequestDto: PostGuildRequestDto,
+    @Body(ValidationPipe) postGuildRequestDto: PostGuildRequestDto,
   ): Promise<PostGuildResponseDto> {
-    return this.guildService.create(id, postRegistrationRequestDto);
+    return this.guildService.create(id, postGuildRequestDto);
   }
 
   @Delete(':id')

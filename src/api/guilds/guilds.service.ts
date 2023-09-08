@@ -13,6 +13,7 @@ import PostGuildResponseDto from './dto/post/guild.response.dto';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { DiscordGuild } from '@solidchain/badge-buddy-common';
+import { redisHttpKeys } from '../redis-keys.constant';
 
 @Injectable()
 export class GuildsService {
@@ -25,7 +26,7 @@ export class GuildsService {
 
   async create(
     id: string,
-    createRegistrationDto: PostGuildRequestDto,
+    postGuildRequestDto: PostGuildRequestDto,
   ): Promise<PostGuildResponseDto> {
     this.logger.log('registering guild: ' + id);
     const retrievedDiscordServer = await this.discordServerModel
@@ -38,34 +39,33 @@ export class GuildsService {
       throw new ConflictException('Guild already registered');
     }
 
-    const guildRegistration = new DiscordGuild();
-    guildRegistration.guildId = id;
-    guildRegistration.guildName = createRegistrationDto.guildName;
-    guildRegistration.poapManagerRoleId =
-      createRegistrationDto.poapManagerRoleId;
-    guildRegistration.privateChannelId = createRegistrationDto.privateChannelId;
-    guildRegistration.newsChannelId = createRegistrationDto.newsChannelId;
+    const discordGuild: DiscordGuild = new DiscordGuild();
+    discordGuild.guildId = id;
+    discordGuild.guildName = postGuildRequestDto.guildName;
+    discordGuild.poapManagerRoleId = postGuildRequestDto.poapManagerRoleId;
+    discordGuild.privateChannelId = postGuildRequestDto.privateChannelId;
+    discordGuild.newsChannelId = postGuildRequestDto.newsChannelId;
 
-    const result = await this.discordServerModel.create(guildRegistration);
-    this.logger.log('registered guild: ' + id);
+    const result = await this.discordServerModel.create(discordGuild);
+    this.logger.log(`registered guild: ${id}`);
     return {
       guildId: result.guildId,
       _id: result._id.toString(),
     };
   }
-  async remove(id: string): Promise<any> {
-    this.logger.log('removing guild: ' + id);
+  async remove(guildId: string): Promise<any> {
+    this.logger.log(`removing guild: ${guildId}`);
     const result = await this.discordServerModel
       .findOneAndDelete({
-        guildId: id,
+        guildId: guildId,
       })
       .exec();
     if (result == null) {
       throw new NotFoundException('Guild not found');
     }
-    this.logger.log('removing guild from cache: ' + id);
-    await this.cacheManager.del('/guilds/' + id);
-    this.logger.log('removed guild from cache: ' + id);
+    this.logger.log(`removing guild from cache: ${guildId}`);
+    await this.cacheManager.del(redisHttpKeys.GUILDS(guildId));
+    this.logger.log(`removed guild from cache: ${guildId}`);
     return;
   }
 
@@ -77,16 +77,14 @@ export class GuildsService {
     if (!discordServer) {
       throw new NotFoundException('Guild not found');
     }
-    const getRegistrationResponseDto = new GetGuildResponseDto();
-    getRegistrationResponseDto._id = discordServer._id.toString();
-    getRegistrationResponseDto.guildId = discordServer.guildId;
-    getRegistrationResponseDto.guildName = discordServer.guildName;
-    getRegistrationResponseDto.poapManagerRoleId =
-      discordServer.poapManagerRoleId;
-    getRegistrationResponseDto.privateChannelId =
-      discordServer.privateChannelId;
-    getRegistrationResponseDto.newsChannelId = discordServer.newsChannelId;
+    const getGuildResponseDto = new GetGuildResponseDto();
+    getGuildResponseDto._id = discordServer._id.toString();
+    getGuildResponseDto.guildId = discordServer.guildId;
+    getGuildResponseDto.guildName = discordServer.guildName;
+    getGuildResponseDto.poapManagerRoleId = discordServer.poapManagerRoleId;
+    getGuildResponseDto.privateChannelId = discordServer.privateChannelId;
+    getGuildResponseDto.newsChannelId = discordServer.newsChannelId;
     this.logger.log('got guild: ' + id);
-    return getRegistrationResponseDto;
+    return getGuildResponseDto;
   }
 }

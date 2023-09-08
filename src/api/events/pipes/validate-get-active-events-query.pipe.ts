@@ -7,7 +7,7 @@ import { ValidationError, ValidatorOptions } from 'class-validator';
 import GetActiveEventsRequestDto from '../dto/get/get-active-events.request.dto';
 
 @Injectable()
-export class GetActiveEventsValidationPipe extends ValidationPipe {
+export class ValidateGetActiveEventsQueryPipe extends ValidationPipe {
   protected validate(
     query: GetActiveEventsRequestDto,
     validatorOptions?: ValidatorOptions,

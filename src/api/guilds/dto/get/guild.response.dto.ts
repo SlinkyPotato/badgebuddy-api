@@ -29,5 +29,5 @@ export default class GetGuildResponseDto {
     required: false,
     description: 'The ID of the announcement channel',
   })
-  newsChannelId: string;
+  newsChannelId?: string;
 }

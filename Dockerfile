@@ -13,7 +13,6 @@ COPY . /app/
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --offline --frozen-lockfile
 
 RUN pnpm build
-RUN pnpm test
 
 COPY CHANGELOG.md /app/dist/
 COPY LICENSE.md /app/dist/

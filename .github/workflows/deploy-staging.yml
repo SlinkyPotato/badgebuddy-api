@@ -24,7 +24,8 @@ jobs:
           node-version-file: 'package.json'
           cache: 'pnpm'
           cache-dependency-path: './pnpm-lock.yaml'
-      - run: pnpm install --frozen-lockfile --prod
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm test
       - run: git config user.name "github-action[bot]"
       - run: git config user.email "<>"
       - run: pnpm standard-version --prerelease
@@ -82,7 +83,7 @@ jobs:
       - name: Remove prerelease tags
         run: git tag -d $(git tag -l "v$(node -e "console.log('${{ steps.package.outputs.PACKAGE_VERSION }}'.split('-')[0]);")-*")
       - run: pnpm standard-version --dry-run > changes.md | exit 0
-      - run: node -e "require('@solidchain/badge-buddy-common')['parseChangesFile']();"
+      - run: node -e "require('@solidchain/badge-buddy-common')['parseReleaseUtil']();"
       - run: gh pr edit -F release.md | exit 0
       - run: gh pr create --base main -F release.md --title "deploy release/dev to production" | exit 0
       - run: git checkout dev
