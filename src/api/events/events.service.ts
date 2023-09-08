@@ -45,7 +45,7 @@ export class EventsService {
       .exec();
 
     if (existingEvent) {
-      throw new ConflictException('Event already exists and active');
+      throw new ConflictException('Event in this channel is already active');
     }
 
     const currentDate = new Date();
@@ -110,7 +110,6 @@ export class EventsService {
       .exec();
 
     if (!activeEvent) {
-      this.logger.warn('Active event not found');
       throw new ConflictException('Active event not found');
     }
 
@@ -149,54 +148,61 @@ export class EventsService {
   ): Promise<GetActiveEventsResponseDto> {
     this.logger.log(`Getting actives events for guildId: ${query.guildId}`);
     let activeEvents: CommunityEventDocument[] = [];
+    const numOfParams = Object.keys(query).length;
 
-    if (query.eventId) {
-      this.logger.log(`Getting active event for eventId: ${query.eventId}`);
-      activeEvents = await this.communityEventModel
-        .find<CommunityEventDocument>({
-          _id: query.eventId,
-          isActive: true,
-        })
-        .exec();
-    } else if (query.organizerId) {
-      this.logger.log(
-        `Getting active event for organizerId: ${query.organizerId}`,
-      );
-      activeEvents = await this.communityEventModel
-        .find<CommunityEventDocument>({
-          organizerId: query.organizerId,
-          isActive: true,
-        })
-        .exec();
-    } else if (query.organizerId && query.guildId) {
-      this.logger.log(
-        `Getting active event for organizerId: ${query.organizerId}, guildId: ${query.guildId}`,
-      );
-      activeEvents = await this.communityEventModel
-        .find<CommunityEventDocument>({
-          guildId: query.guildId,
-          organizerId: query.organizerId,
-          isActive: true,
-        })
-        .exec();
-    } else if (query.guildId) {
-      this.logger.log(`Getting active event for guildId: ${query.guildId}`);
-      activeEvents = await this.communityEventModel
-        .find<CommunityEventDocument>({
-          guildId: query.guildId,
-          isActive: true,
-        })
-        .exec();
-    } else if (query.voiceChannelId) {
-      this.logger.log(
-        `Getting active event for voiceChannelId: ${query.guildId}`,
-      );
-      activeEvents = await this.communityEventModel
-        .find<CommunityEventDocument>({
-          voiceChannelId: query.voiceChannelId,
-          isActive: true,
-        })
-        .exec();
+    if (numOfParams === 1) {
+      if (query.eventId) {
+        this.logger.log(`Getting active event for eventId: ${query.eventId}`);
+        activeEvents = await this.communityEventModel
+          .find<CommunityEventDocument>({
+            _id: query.eventId,
+            isActive: true,
+          })
+          .exec();
+      } else if (query.organizerId) {
+        this.logger.log(
+          `Getting active event for organizerId: ${query.organizerId}`,
+        );
+        activeEvents = await this.communityEventModel
+          .find<CommunityEventDocument>({
+            organizerId: query.organizerId,
+            isActive: true,
+          })
+          .exec();
+      } else if (query.guildId) {
+        this.logger.log(`Getting active event for guildId: ${query.guildId}`);
+        activeEvents = await this.communityEventModel
+          .find<CommunityEventDocument>({
+            guildId: query.guildId,
+            isActive: true,
+          })
+          .exec();
+      } else if (query.voiceChannelId) {
+        this.logger.log(
+          `Getting active event for voiceChannelId: ${query.guildId}`,
+        );
+        activeEvents = await this.communityEventModel
+          .find<CommunityEventDocument>({
+            voiceChannelId: query.voiceChannelId,
+            isActive: true,
+          })
+          .exec();
+      }
+    } else if (numOfParams === 2) {
+      if (query.organizerId && query.guildId) {
+        this.logger.log(
+          `Getting active event for organizerId: ${query.organizerId}, guildId: ${query.guildId}`,
+        );
+        activeEvents = await this.communityEventModel
+          .find<CommunityEventDocument>({
+            guildId: query.guildId,
+            organizerId: query.organizerId,
+            isActive: true,
+          })
+          .exec();
+      }
+    } else if (numOfParams > 2) {
+      throw new Error('Too many query parameters');
     } else {
       this.logger.log(`Getting all active events`);
       activeEvents = await this.communityEventModel

@@ -40,7 +40,7 @@ export class EventsController {
   })
   @ApiResponse({
     status: HttpStatus.CONFLICT,
-    description: 'Event already exists and active',
+    description: 'Event in this channel is already active',
   })
   start(@Body() request: PostEventRequestDto): Promise<PostEventResponseDto> {
     return this.eventsService.start(request);
