@@ -1,12 +1,4 @@
 import { describe, it, expect, jest } from '@jest/globals';
-import bootstrap from './bootstrap';
-import {
-  CommonPinoLogger,
-  CommonPinoLoggerService,
-} from '@solidchain/badge-buddy-common';
-import { NestFactory } from '@nestjs/core';
-import { FastifyAdapter } from '@nestjs/platform-fastify';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 jest.mock('@solidchain/badge-buddy-common', () => {
   const actual = jest.requireActual('@solidchain/badge-buddy-common') as object;
@@ -79,6 +71,15 @@ jest.mock('@nestjs/swagger', () => {
     },
   };
 });
+
+import bootstrap from './bootstrap';
+import {
+  CommonPinoLogger,
+  CommonPinoLoggerService,
+} from '@solidchain/badge-buddy-common';
+import { NestFactory } from '@nestjs/core';
+import { FastifyAdapter } from '@nestjs/platform-fastify';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 describe('Bootstrap', () => {
   it('should be defined', () => {
