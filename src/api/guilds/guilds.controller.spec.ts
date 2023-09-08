@@ -1,9 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { GuildsController } from './guilds.controller';
 import { GuildsService } from './guilds.service';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { describe, beforeEach, it, expect, jest } from '@jest/globals';
 import PostGuildRequestDto from './dto/post/guild.request.dto';
+
+jest.mock('@nestjs/cache-manager', () => ({
+  CacheInterceptor: jest.fn().mockImplementation(() => ({})),
+}));
 
 describe('GuildsController', () => {
   let controller: GuildsController;
@@ -14,18 +17,10 @@ describe('GuildsController', () => {
     remove: jest.fn().mockReturnThis(),
   };
 
-  const mockCacheManager = {
-    get: jest.fn().mockReturnThis(),
-    set: jest.fn().mockReturnThis(),
-  };
-
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [GuildsController],
-      providers: [
-        { provide: GuildsService, useValue: mockService },
-        { provide: CACHE_MANAGER, useValue: mockCacheManager },
-      ],
+      providers: [{ provide: GuildsService, useValue: mockService }],
     }).compile();
 
     controller = module.get<GuildsController>(GuildsController);

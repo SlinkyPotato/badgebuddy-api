@@ -12,7 +12,6 @@ import {
   configureCacheOptions,
   joiValidationConfig,
 } from '@solidchain/badge-buddy-common';
-import { TestController } from './test/test.controller';
 import { TestModule } from './test/test.module';
 
 @Module({

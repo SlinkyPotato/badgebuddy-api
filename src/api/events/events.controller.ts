@@ -8,6 +8,8 @@ import {
   Query,
   UseGuards,
   UseInterceptors,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { EventsService } from './events.service';
@@ -19,11 +21,12 @@ import PutEventRequestDto from './dto/put/put-event.request.dto';
 import GetActiveEventsResponseDto from './dto/get/get-active-events.response.dto';
 import { CacheInterceptor } from '@nestjs/cache-manager';
 import GetActiveEventsRequestDto from './dto/get/get-active-events.request.dto';
-import { GetActiveEventsValidationPipe } from './pipes/get-active-events-validation.pipe';
+import { ValidateGetActiveEventsQueryPipe } from './pipes/validate-get-active-events-query.pipe';
 
 @Controller('events')
 @ApiTags('events')
 @UseInterceptors(CacheInterceptor)
+@UsePipes(ValidationPipe)
 export class EventsController {
   constructor(private readonly eventsService: EventsService) {}
 
@@ -71,7 +74,7 @@ export class EventsController {
     type: GetActiveEventsResponseDto,
   })
   getActive(
-    @Query(new GetActiveEventsValidationPipe())
+    @Query(ValidateGetActiveEventsQueryPipe)
     query: GetActiveEventsRequestDto,
   ): Promise<GetActiveEventsResponseDto> {
     return this.eventsService.getActiveEvents(query);
