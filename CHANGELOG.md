@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.6-3](https://github.com/solidchain-tech/badge-buddy-api/compare/v0.0.6-2...v0.0.6-3) (2023-09-08)
+
+
+### Bug Fixes
+
+* disable bootstarp test unit until partial mocks work in github action ([e3c6265](https://github.com/solidchain-tech/badge-buddy-api/commit/e3c62651ff9107615e564b0fb41553c5e50bd7e3))
+
+
+### Tests
+
+* add coverage for events.service.ts ([71c95ab](https://github.com/solidchain-tech/badge-buddy-api/commit/71c95abd585b9eddd82752cd457156469f0d93b5))
+* add coverage for guilds.service.ts ([3115ab4](https://github.com/solidchain-tech/badge-buddy-api/commit/3115ab4c5fd14e035ae7bdbba8bb9d0f919ff664))
+* add coverage for health check ([640a306](https://github.com/solidchain-tech/badge-buddy-api/commit/640a30688ea47bf61e9bf05cb94ae8ff5c838b3f))
+* add guilds api coverage ([859b090](https://github.com/solidchain-tech/badge-buddy-api/commit/859b09021a8a58f53d658c9c5f82813cab6f46e4))
+* add unit test for auth guard ([7f84907](https://github.com/solidchain-tech/badge-buddy-api/commit/7f8490794744a5e099b0a6ed0c12cb5b282bdcf7))
+* multiple suites ([4240379](https://github.com/solidchain-tech/badge-buddy-api/commit/424037997563c0a1bad389fad08c3590f51f355f))
+
 ### [0.0.6-2](https://github.com/solidchain-tech/badge-buddy-api/compare/v0.0.6-1...v0.0.6-2) (2023-09-06)
 
 
