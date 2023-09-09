@@ -10,6 +10,7 @@ export default class PutEventResponseDto {
   @ApiProperty({
     required: true,
     description: 'The status of the event.',
+    default: false,
   })
   isActive: boolean;
 }
