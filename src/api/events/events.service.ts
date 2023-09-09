@@ -5,9 +5,6 @@ import PostEventResponseDto from './dto/post/post-event.response.dto';
 import PostEventRequestDto from './dto/post/post-event.request.dto';
 import PutEventRequestDto from './dto/put/put-event.request.dto';
 import PutEventResponseDto from './dto/put/put-event.response.dto';
-import GetActiveEventsResponseDto, {
-  ActiveEventDto,
-} from './dto/get/get-active-events.response.dto';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { InjectQueue } from '@nestjs/bull';
@@ -19,6 +16,7 @@ import {
 } from '@solidchain/badge-buddy-common';
 import GetActiveEventsRequestDto from './dto/get/get-active-events.request.dto';
 import { redisHttpKeys, redisProcessorKeys } from '../redis-keys.constant';
+import GetActiveEventsResponseDto from './dto/get/get-active-events.response.dto';
 
 @Injectable()
 export class EventsService {
@@ -215,15 +213,15 @@ export class EventsService {
     const response = new GetActiveEventsResponseDto();
     response.events = [];
     for (const activeEvent of activeEvents) {
-      const event = new ActiveEventDto();
-      event._id = activeEvent._id.toString();
-      event.eventName = activeEvent.eventName;
-      event.guildId = activeEvent.guildId;
-      event.voiceChannelId = activeEvent.voiceChannelId;
-      event.organizerId = activeEvent.organizerId;
-      event.startDate = activeEvent.startDate;
-      event.endDate = activeEvent.endDate;
-      response.events.push(event);
+      response.events.push({
+        _id: activeEvent._id.toString(),
+        eventName: activeEvent.eventName,
+        guildId: activeEvent.guildId,
+        voiceChannelId: activeEvent.voiceChannelId,
+        organizerId: activeEvent.organizerId,
+        startDate: activeEvent.startDate,
+        endDate: activeEvent.endDate,
+      });
     }
 
     this.logger.log(`Returning response`);
