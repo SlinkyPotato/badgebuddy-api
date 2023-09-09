@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.6-4](https://github.com/solidchain-tech/badge-buddy-api/compare/v0.0.6-3...v0.0.6-4) (2023-09-09)
+
+
+### Bug Fixes
+
+* docker build ([0f30707](https://github.com/solidchain-tech/badge-buddy-api/commit/0f3070721b16bf6ca9be64d9c466ab3a6b45e920))
+
 ### [0.0.6-3](https://github.com/solidchain-tech/badge-buddy-api/compare/v0.0.6-2...v0.0.6-3) (2023-09-08)
 
 
