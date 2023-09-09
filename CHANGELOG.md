@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.6-6](https://github.com/solidchain-tech/badge-buddy-api/compare/v0.0.6-5...v0.0.6-6) (2023-09-09)
+
+
+### Refactor
+
+* move standard-version stanza and jest config ([fc791a3](https://github.com/solidchain-tech/badge-buddy-api/commit/fc791a30a15ed6d8393d54b4825ce794f506518c))
+
 ### [0.0.6-5](https://github.com/solidchain-tech/badge-buddy-api/compare/v0.0.6-4...v0.0.6-5) (2023-09-09)
 
 
