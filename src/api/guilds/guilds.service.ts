@@ -49,7 +49,6 @@ export class GuildsService {
     const result = await this.discordServerModel.create(discordGuild);
     this.logger.log(`registered guild: ${id}`);
     return {
-      guildId: result.guildId,
       _id: result._id.toString(),
     };
   }

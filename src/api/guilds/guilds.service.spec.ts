@@ -7,10 +7,12 @@ import { DiscordGuild } from '@solidchain/badge-buddy-common';
 import { describe, beforeEach, it, expect, jest } from '@jest/globals';
 import { MongooseError } from 'mongoose';
 import PostGuildRequestDto from './dto/post/guild.request.dto';
+import * as mongoose from 'mongoose';
+import GetGuildResponseDto from './dto/get/guild.response.dto';
+import PostGuildResponseDto from './dto/post/guild.response.dto';
 
 describe('GuildService', () => {
   let service: GuildsService;
-  let spyDiscordGuildModelFindOne: jest.Spied<any>;
 
   const mockModel = {
     create: jest.fn().mockReturnThis(),
@@ -34,15 +36,6 @@ describe('GuildService', () => {
     error: jest.fn().mockReturnThis(),
   };
 
-  const getMockGuild = (): DiscordGuild | any => ({
-    _id: '850840267082563596',
-    guildId: '1234567890',
-    guildName: 'Test Guild',
-    privateChannelId: '850840267082563600',
-    poapManagerRoleId: '1130525129131167786',
-    newsChannelId: '1130525131937161286',
-  });
-
   beforeEach(async () => {
     // https://docs.nestjs.com/techniques/mongodb#testing
     const module: TestingModule = await Test.createTestingModule({
@@ -65,22 +58,10 @@ describe('GuildService', () => {
   });
 
   describe('create', () => {
-    let mockPostGuildRequestDto: PostGuildRequestDto;
     let spyDiscordGuildModelCreate: jest.Spied<any>;
     let spyDiscordGuildModelFindOne: jest.Spied<any>;
-    let mockGuild: DiscordGuild;
-
-    const getMockPostGuildRequestDto = (): PostGuildRequestDto => ({
-      guildName: 'Test Guild',
-      poapManagerRoleId: '1130525129131167786',
-      privateChannelId: '850840267082563600',
-      newsChannelId: '1130525131937161286',
-    });
 
     beforeEach(() => {
-      mockGuild = getMockGuild();
-      mockPostGuildRequestDto = getMockPostGuildRequestDto();
-
       spyDiscordGuildModelFindOne = jest.spyOn(
         mockModel.findOne() as any,
         'exec',
@@ -90,6 +71,12 @@ describe('GuildService', () => {
     });
 
     it('should throw for failing to pull discord build', async () => {
+      const mockPostGuildRequestDto: PostGuildRequestDto = {
+        guildName: 'Test Guild',
+        poapManagerRoleId: '1130525129131167786',
+        privateChannelId: '850840267082563600',
+        newsChannelId: '1130525131937161286',
+      };
       const mockError = new MongooseError('test');
       spyDiscordGuildModelFindOne.mockReturnValue(Promise.reject(mockError));
 
@@ -101,6 +88,20 @@ describe('GuildService', () => {
     });
 
     it('should throw for discord guild already registered', async () => {
+      const mockPostGuildRequestDto: PostGuildRequestDto = {
+        guildName: 'Test Guild',
+        poapManagerRoleId: '1130525129131167786',
+        privateChannelId: '850840267082563600',
+        newsChannelId: '1130525131937161286',
+      };
+      const mockGuild: DiscordGuild & { _id: mongoose.Types.ObjectId } = {
+        _id: new mongoose.Types.ObjectId('64e76ac997f0abc13a431902'),
+        guildId: '850840267082563596',
+        guildName: 'Test Guild',
+        privateChannelId: '1100470846490951790',
+        poapManagerRoleId: '1130525129131167786',
+        newsChannelId: '1130525131937161286',
+      };
       spyDiscordGuildModelFindOne.mockReturnValue(Promise.resolve(mockGuild));
 
       try {
@@ -112,6 +113,23 @@ describe('GuildService', () => {
     });
 
     it('should create a new guild', async () => {
+      const mockPostGuildRequestDto: PostGuildRequestDto = {
+        guildName: 'Test Guild',
+        poapManagerRoleId: '1130525129131167786',
+        privateChannelId: '850840267082563600',
+        newsChannelId: '1130525131937161286',
+      };
+      const mockGuild: DiscordGuild & { _id: mongoose.Types.ObjectId } = {
+        _id: new mongoose.Types.ObjectId('64e76ac997f0abc13a431902'),
+        guildId: '850840267082563596',
+        guildName: 'Test Guild',
+        privateChannelId: '1100470846490951790',
+        poapManagerRoleId: '1130525129131167786',
+        newsChannelId: '1130525131937161286',
+      };
+      const mockPostGuildResponseDto: PostGuildResponseDto = {
+        _id: '64e76ac997f0abc13a431902',
+      };
       spyDiscordGuildModelFindOne.mockReturnValue(Promise.resolve(null));
       spyDiscordGuildModelCreate.mockReturnValue(Promise.resolve(mockGuild));
 
@@ -119,12 +137,16 @@ describe('GuildService', () => {
         '850840267082563596',
         mockPostGuildRequestDto,
       );
-
-      expect(result).toHaveProperty('guildId', mockGuild.guildId);
-      expect(result).toHaveProperty('_id', '850840267082563596');
+      expect(result).toEqual(mockPostGuildResponseDto);
     });
 
     it('should throw for failing to create a new guild', async () => {
+      const mockPostGuildRequestDto: PostGuildRequestDto = {
+        guildName: 'Test Guild',
+        poapManagerRoleId: '1130525129131167786',
+        privateChannelId: '850840267082563600',
+        newsChannelId: '1130525131937161286',
+      };
       const mockError = new MongooseError('test');
       spyDiscordGuildModelFindOne.mockReturnValue(Promise.resolve(null));
       spyDiscordGuildModelCreate.mockReturnValue(Promise.reject(mockError));
@@ -140,10 +162,8 @@ describe('GuildService', () => {
   describe('remove', () => {
     let spyCacheDel: jest.Spied<any>;
     let spyDiscordGuildModelFindOneAndDelete: jest.Spied<any>;
-    let mockGuild: DiscordGuild;
 
     beforeEach(() => {
-      mockGuild = getMockGuild();
       spyDiscordGuildModelFindOneAndDelete = jest.spyOn(
         mockModel.findOneAndDelete() as any,
         'exec',
@@ -176,6 +196,14 @@ describe('GuildService', () => {
     });
 
     it('should remove a guild', async () => {
+      const mockGuild: DiscordGuild & { _id: mongoose.Types.ObjectId } = {
+        _id: new mongoose.Types.ObjectId('64e76ac997f0abc13a431902'),
+        guildId: '850840267082563596',
+        guildName: 'Test Guild',
+        privateChannelId: '1100470846490951790',
+        poapManagerRoleId: '1130525129131167786',
+        newsChannelId: '1130525131937161286',
+      };
       spyDiscordGuildModelFindOneAndDelete.mockReturnValue(
         Promise.resolve(mockGuild),
       );
@@ -186,10 +214,8 @@ describe('GuildService', () => {
 
   describe('get', () => {
     let spyDiscordGuildModelFindOne: jest.Spied<any>;
-    let mockGuild: DiscordGuild;
 
     beforeEach(() => {
-      mockGuild = getMockGuild();
       spyDiscordGuildModelFindOne = jest.spyOn(
         mockModel.findOne() as any,
         'exec',
@@ -217,10 +243,26 @@ describe('GuildService', () => {
     });
 
     it('should get a guild', async () => {
+      const mockGuild: DiscordGuild & { _id: mongoose.Types.ObjectId } = {
+        _id: new mongoose.Types.ObjectId('64e76ac997f0abc13a431902'),
+        guildId: '850840267082563596',
+        guildName: 'Test Guild',
+        privateChannelId: '1100470846490951790',
+        poapManagerRoleId: '1130525129131167786',
+        newsChannelId: '1130525131937161286',
+      };
+      const mockResponse: GetGuildResponseDto = {
+        _id: '64e76ac997f0abc13a431902',
+        guildId: '850840267082563596',
+        guildName: 'Test Guild',
+        privateChannelId: '1100470846490951790',
+        poapManagerRoleId: '1130525129131167786',
+        newsChannelId: '1130525131937161286',
+      };
+
       spyDiscordGuildModelFindOne.mockReturnValue(Promise.resolve(mockGuild));
       const result = await service.get('850840267082563596');
-      expect(result).toHaveProperty('guildId', mockGuild.guildId);
-      expect(result).toHaveProperty('_id', '850840267082563596');
+      expect(result).toEqual(mockResponse);
     });
   });
 });
