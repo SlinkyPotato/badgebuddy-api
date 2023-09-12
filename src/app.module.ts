@@ -1,18 +1,17 @@
-import { Logger, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { DiscordModule } from '@discord-nestjs/core';
 import { ApiModule } from './api/api.module';
 import { BullModule } from '@nestjs/bull';
 import { CacheModule } from '@nestjs/cache-manager';
-import { RedisClientOptions } from 'redis';
 import {
   configureBullOptions,
   configureCacheOptions,
   joiValidationConfig,
   configureDiscordOptions,
 } from '@solidchain/badge-buddy-common';
-import { TestModule } from './test/test.module';
+import { DiscordEventsModule } from './discord-events/discord-events.module';
 
 @Module({
   imports: [
@@ -27,7 +26,7 @@ import { TestModule } from './test/test.module';
       useFactory: (configService: ConfigService) =>
         configureBullOptions(configService),
     }),
-    CacheModule.registerAsync<RedisClientOptions>({
+    CacheModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
       isGlobal: true,
@@ -37,10 +36,8 @@ import { TestModule } from './test/test.module';
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: async (
-        configService: ConfigService<{ MONGODB_URI: string }, true>,
-      ) => ({
-        uri: configService.get('MONGODB_URI', { infer: true }),
+      useFactory: (configService: ConfigService) => ({
+        uri: configService.get('MONGODB_URI'),
       }),
     }),
     DiscordModule.forRootAsync({
@@ -50,8 +47,7 @@ import { TestModule } from './test/test.module';
         configureDiscordOptions(configService),
     }),
     ApiModule,
-    TestModule,
+    DiscordEventsModule,
   ],
-  providers: [Logger],
 })
 export class AppModule {}
