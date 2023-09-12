@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.6-7](https://github.com/solidchain-tech/badge-buddy-api/compare/v0.0.6-6...v0.0.6-7) (2023-09-12)
+
+
+### Bug Fixes
+
+* set default isActive to false in swagger ([3c24c1b](https://github.com/solidchain-tech/badge-buddy-api/commit/3c24c1bc9b0266458c4cc92b09dd980974943509))
+* swagger for active events response ([fc4670b](https://github.com/solidchain-tech/badge-buddy-api/commit/fc4670b703683d721bdd9f5947c97c887a1b6253))
+
+
+### Refactor
+
+* import discord-events from bot ([960e052](https://github.com/solidchain-tech/badge-buddy-api/commit/960e0522579c0c6bbf0bebebe532a84222243a7b))
+
+
+### Tests
+
+* add coverage for guild-create.service.ts ([3ff76c7](https://github.com/solidchain-tech/badge-buddy-api/commit/3ff76c73b1293dbfe9ddbbc92db5eeb2d9e51ac0))
+* add coverage for ready, guild-delete events ([b450aae](https://github.com/solidchain-tech/badge-buddy-api/commit/b450aaeed02c78dbbd479eb210662ed38546dcaf))
+* add coverage to app module ([301ff49](https://github.com/solidchain-tech/badge-buddy-api/commit/301ff49c62e40bad06466742c8a6aee2c0e21277))
+* add full coverage for discord-create ([f193e70](https://github.com/solidchain-tech/badge-buddy-api/commit/f193e7036642e22916e8dd6954bb8df5aa5c528b))
+* add ready module coverage ([331dcac](https://github.com/solidchain-tech/badge-buddy-api/commit/331dcac510b8de01005b9250d32a412749700c69))
+* set --verbose flag for jest test ([281436b](https://github.com/solidchain-tech/badge-buddy-api/commit/281436b975bf208a41de3cae64abcea917b10cc0))
+
 ### [0.0.6-6](https://github.com/solidchain-tech/badge-buddy-api/compare/v0.0.6-5...v0.0.6-6) (2023-09-09)
 
 
