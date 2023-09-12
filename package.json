@@ -46,7 +46,7 @@
     "@nestjs/platform-fastify": "^10.2.4",
     "@nestjs/swagger": "^7.1.10",
     "@nestjs/terminus": "^10.0.1",
-    "@solidchain/badge-buddy-common": "1.0.1",
+    "@solidchain/badge-buddy-common": "1.1.0-0",
     "axios": "^1.5.0",
     "bull": "^4.11.3",
     "cache-manager": "^5.2.3",

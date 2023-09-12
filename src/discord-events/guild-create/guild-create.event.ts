@@ -13,7 +13,7 @@ export class GuildCreateEvent {
   @On('guildCreate')
   async onGuildCreate(guild: Guild): Promise<void> {
     this.logger.log(`guild joined, guildId: ${guild.id}, name: ${guild.name}`);
-    this.guildCreateService.setup(guild).catch((err) => {
+    this.guildCreateService.setupGuild(guild).catch((err) => {
       this.logger.error(err);
     });
   }
