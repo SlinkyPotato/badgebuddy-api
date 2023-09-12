@@ -1,16 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsArray, IsISO8601, IsNumberString, IsString } from 'class-validator';
 
-export default class GetActiveEventsResponseDto {
-  @ApiProperty({
-    required: true,
-    description: 'List of active events',
-  })
-  @IsArray()
-  events: ActiveEventDto[];
-}
-
-export class ActiveEventDto {
+class ActiveEventDto {
   @ApiProperty({
     required: true,
     description: 'The ID of the event',
@@ -59,4 +50,14 @@ export class ActiveEventDto {
   })
   @IsISO8601()
   endDate: Date;
+}
+
+export default class GetActiveEventsResponseDto {
+  @ApiProperty({
+    required: true,
+    description: 'List of active events',
+    type: [ActiveEventDto],
+  })
+  @IsArray()
+  events: ActiveEventDto[];
 }

@@ -45,8 +45,8 @@ dependencies:
     specifier: ^10.0.1
     version: 10.0.1(@nestjs/axios@3.0.0)(@nestjs/common@10.2.4)(@nestjs/core@10.2.4)(@nestjs/mongoose@10.0.1)(mongoose@7.5.0)(reflect-metadata@0.1.13)(rxjs@7.8.1)
   '@solidchain/badge-buddy-common':
-    specifier: 1.0.1
-    version: 1.0.1(@jest/globals@29.6.4)(@nestjs/bull@10.0.1)(@nestjs/cache-manager@2.1.0)(@nestjs/common@10.2.4)(@nestjs/config@3.0.1)(@nestjs/core@10.2.4)(@nestjs/mongoose@10.0.1)(bull@4.11.3)(cache-manager-redis-yet@4.1.2)(cache-manager@5.2.3)(class-transformer@0.5.1)(class-validator@0.14.0)(joi@17.10.1)(mongoose@7.5.0)(redis@4.6.8)(reflect-metadata@0.1.13)(rxjs@7.8.1)(standard-version@9.5.0)
+    specifier: 1.1.0-0
+    version: 1.1.0-0(@discord-nestjs/common@5.2.8)(@discord-nestjs/core@5.3.10)(@jest/globals@29.6.4)(@nestjs/bull@10.0.1)(@nestjs/cache-manager@2.1.0)(@nestjs/common@10.2.4)(@nestjs/config@3.0.1)(@nestjs/core@10.2.4)(@nestjs/mongoose@10.0.1)(bull@4.11.3)(cache-manager-redis-yet@4.1.2)(cache-manager@5.2.3)(class-transformer@0.5.1)(class-validator@0.14.0)(discord.js@14.13.0)(joi@17.10.1)(mongoose@7.5.0)(redis@4.6.8)(reflect-metadata@0.1.13)(rxjs@7.8.1)(standard-version@9.5.0)
   axios:
     specifier: ^1.5.0
     version: 1.5.0
@@ -1057,18 +1057,18 @@ packages:
       '@jridgewell/resolve-uri': 3.1.1
       '@jridgewell/sourcemap-codec': 1.4.15
 
-  /@logtail/core@0.4.6:
-    resolution: {integrity: sha512-lUGLtxZoZGgA8WoEOkH3XhldeM7J4+Ou3eIUaxUY0BHMgQSumWIsXlqEaPn6zxLM+b0cyam8z9HH9kUBBnr6Sw==}
+  /@logtail/core@0.4.9:
+    resolution: {integrity: sha512-f9Dgt84OiLsn6lEzF7eCi9ND2ZPrY6jdmbDA55t0i5H5EfE7sehIgB6oof5YqPF9TB/p72sNoxKi5FDAb5iDrw==}
     dependencies:
-      '@logtail/tools': 0.4.6
-      '@logtail/types': 0.4.6
+      '@logtail/tools': 0.4.9
+      '@logtail/types': 0.4.9
     dev: false
 
-  /@logtail/node@0.4.6:
-    resolution: {integrity: sha512-Md2rnsHwn11ISFnxl0ibBJObB6u0DJF7zvQlzAO+zHLb92keSWBs5xq1PowqTkANfZ9VuPIqR4tZ4Tbt0ZPPOw==}
+  /@logtail/node@0.4.9:
+    resolution: {integrity: sha512-Gr4Oz6NEwYC8MWrw+YZx55s1p+LkAeEjQfiHY2BkfKiJz9k7O2ScFs+eqKdAOSINTYUC6HoUYfOTOqqWW8BzIg==}
     dependencies:
-      '@logtail/core': 0.4.6
-      '@logtail/types': 0.4.6
+      '@logtail/core': 0.4.9
+      '@logtail/types': 0.4.9
       '@msgpack/msgpack': 2.8.0
       '@types/stack-trace': 0.0.29
       cross-fetch: 3.1.8
@@ -1078,27 +1078,27 @@ packages:
       - encoding
     dev: false
 
-  /@logtail/pino@0.4.6(pino@8.15.0):
-    resolution: {integrity: sha512-Bx9sUk9Ao4sKTM0t3NnY1x2HdePiBd+A3gtv1GtdBQCUwv/TfYfGh1/KnQBNZ9cjkFH7ptJJqND2Oqq20ZPwiA==}
+  /@logtail/pino@0.4.9(pino@8.15.0):
+    resolution: {integrity: sha512-PfPkPClsiZ8vhmehf0416Bu9nmMGAPHWDBxAZPpp4V7+gsAemekiY7pCQc2tcA1785C3tqE64yqZsaTMnE6kdQ==}
     peerDependencies:
       pino: ^7.0.0 || ^8.0.0
     dependencies:
-      '@logtail/node': 0.4.6
-      '@logtail/types': 0.4.6
+      '@logtail/node': 0.4.9
+      '@logtail/types': 0.4.9
       pino: 8.15.0
-      pino-abstract-transport: 1.1.0
+      pino-abstract-transport: 1.0.0
     transitivePeerDependencies:
       - encoding
     dev: false
 
-  /@logtail/tools@0.4.6:
-    resolution: {integrity: sha512-fcUg/OUTgdaEYUI0SQXQXOeX51+0Xh5r+3ypfbIrovMpeEkyAT12ivs+0vXX1y3uF+XoAYWWXNULGMtUl5KLZg==}
+  /@logtail/tools@0.4.9:
+    resolution: {integrity: sha512-JfLG01JARLNmbCvrqGdQ7c7O1cVTNWLWgJ81+mQ/ZtlQVTJezVH+uQHwa2Qcez1vKOYOlgbL0s1/xJm0QJPKHQ==}
     dependencies:
-      '@logtail/types': 0.4.6
+      '@logtail/types': 0.4.9
     dev: false
 
-  /@logtail/types@0.4.6:
-    resolution: {integrity: sha512-+dlM4hk9MfA9Wes3lk8vBk1P0X+eXHxKkQg8kn6U+A1n8DlL3d4ptFkt19R6axVIvDQRNZ8mAZ0CcYsCxCnPrg==}
+  /@logtail/types@0.4.9:
+    resolution: {integrity: sha512-3tKLic8gV93URDu0dB1kxmxGAK7SpnjdZx7/c3haELMsO64Cq4nlrwIVJNx/5g3Yd2G0RLbt7pvFPFfgQpqljA==}
     dependencies:
       js: 0.1.0
     dev: false
@@ -1806,10 +1806,12 @@ packages:
     dependencies:
       '@sinonjs/commons': 3.0.0
 
-  /@solidchain/badge-buddy-common@1.0.1(@jest/globals@29.6.4)(@nestjs/bull@10.0.1)(@nestjs/cache-manager@2.1.0)(@nestjs/common@10.2.4)(@nestjs/config@3.0.1)(@nestjs/core@10.2.4)(@nestjs/mongoose@10.0.1)(bull@4.11.3)(cache-manager-redis-yet@4.1.2)(cache-manager@5.2.3)(class-transformer@0.5.1)(class-validator@0.14.0)(joi@17.10.1)(mongoose@7.5.0)(redis@4.6.8)(reflect-metadata@0.1.13)(rxjs@7.8.1)(standard-version@9.5.0):
-    resolution: {integrity: sha512-wQgislNeOcPZfidwXDkcn94RLoFP4K+xMGLAsDEYxYpJo6V5hLJqZkfISQSrddNB5dXq5MrYWU/rzClZdc3zBg==}
+  /@solidchain/badge-buddy-common@1.1.0-0(@discord-nestjs/common@5.2.8)(@discord-nestjs/core@5.3.10)(@jest/globals@29.6.4)(@nestjs/bull@10.0.1)(@nestjs/cache-manager@2.1.0)(@nestjs/common@10.2.4)(@nestjs/config@3.0.1)(@nestjs/core@10.2.4)(@nestjs/mongoose@10.0.1)(bull@4.11.3)(cache-manager-redis-yet@4.1.2)(cache-manager@5.2.3)(class-transformer@0.5.1)(class-validator@0.14.0)(discord.js@14.13.0)(joi@17.10.1)(mongoose@7.5.0)(redis@4.6.8)(reflect-metadata@0.1.13)(rxjs@7.8.1)(standard-version@9.5.0):
+    resolution: {integrity: sha512-Qucg3s9hLYz3GSLzRhf08qpc3JS61JjvPOPnaoKksAppk8hz4JGkmmrAwXaD5I8LEgNBzrgueNac5Z04gghaRg==}
     engines: {node: 20.5.1, pnpm: 8.7.4}
     peerDependencies:
+      '@discord-nestjs/common': ^5.2.8
+      '@discord-nestjs/core': ^5.3.10
       '@jest/globals': ^29.6.4
       '@nestjs/bull': ^10.0.1
       '@nestjs/cache-manager': ^2.1.0
@@ -1822,6 +1824,7 @@ packages:
       cache-manager-redis-yet: ^4.1.2
       class-transformer: ^0.5.1
       class-validator: ^0.14.0
+      discord.js: ^14.13.0
       joi: ^17.9.2
       mongoose: ^7.4.2
       redis: ^4.6.7
@@ -1829,8 +1832,10 @@ packages:
       rxjs: ^7.8.1
       standard-version: ^9.5.0
     dependencies:
+      '@discord-nestjs/common': 5.2.8(@discord-nestjs/core@5.3.10)(@nestjs/common@10.2.4)(@nestjs/core@10.2.4)(discord.js@14.13.0)(reflect-metadata@0.1.13)(rxjs@7.8.1)
+      '@discord-nestjs/core': 5.3.10(@nestjs/common@10.2.4)(@nestjs/core@10.2.4)(discord.js@14.13.0)(reflect-metadata@0.1.13)(rxjs@7.8.1)
       '@jest/globals': 29.6.4
-      '@logtail/pino': 0.4.6(pino@8.15.0)
+      '@logtail/pino': 0.4.9(pino@8.15.0)
       '@nestjs/bull': 10.0.1(@nestjs/common@10.2.4)(@nestjs/core@10.2.4)(bull@4.11.3)
       '@nestjs/cache-manager': 2.1.0(@nestjs/common@10.2.4)(@nestjs/core@10.2.4)(cache-manager@5.2.3)(reflect-metadata@0.1.13)(rxjs@7.8.1)
       '@nestjs/common': 10.2.4(class-transformer@0.5.1)(class-validator@0.14.0)(reflect-metadata@0.1.13)(rxjs@7.8.1)
@@ -1842,6 +1847,7 @@ packages:
       cache-manager-redis-yet: 4.1.2
       class-transformer: 0.5.1
       class-validator: 0.14.0
+      discord.js: 14.13.0
       joi: 17.10.1
       mongoose: 7.5.0
       nestjs-pino: 3.4.0(@nestjs/common@10.2.4)(pino-http@8.5.0)
@@ -5781,13 +5787,6 @@ packages:
       split2: 4.2.0
     dev: false
 
-  /pino-abstract-transport@1.1.0:
-    resolution: {integrity: sha512-lsleG3/2a/JIWUtf9Q5gUNErBqwIu1tUKTT3dUzaf5DySw9ra1wcqKjJjLX1VTY64Wk1eEOYsVGSaGfCK85ekA==}
-    dependencies:
-      readable-stream: 4.4.2
-      split2: 4.2.0
-    dev: false
-
   /pino-http@8.5.0:
     resolution: {integrity: sha512-kLGKNLyfWfdmrG1Ug0YdYpCTGbNcuD/YGC3g+elRU/Cm44UTs+tj/dZTxDN3bYauekxFxdLZhJuZdKKl0cml9w==}
     dependencies:
@@ -5809,7 +5808,7 @@ packages:
       joycon: 3.1.1
       minimist: 1.2.8
       on-exit-leak-free: 2.1.0
-      pino-abstract-transport: 1.1.0
+      pino-abstract-transport: 1.0.0
       pump: 3.0.0
       readable-stream: 4.4.2
       secure-json-parse: 2.7.0

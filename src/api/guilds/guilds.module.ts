@@ -17,5 +17,6 @@ import {
   ],
   controllers: [GuildsController],
   providers: [GuildsService, Logger],
+  exports: [GuildsService],
 })
 export class GuildsModule {}
