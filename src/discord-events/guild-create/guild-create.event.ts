@@ -12,6 +12,12 @@ export class GuildCreateEvent {
 
   @On('guildCreate')
   async onGuildCreate(guild: Guild): Promise<void> {
+    if (!guild.available) {
+      this.logger.error(
+        `guild outage for guildId: ${guild.id}, guildName: ${guild.name}`,
+      );
+      return;
+    }
     this.logger.log(`guild joined, guildId: ${guild.id}, name: ${guild.name}`);
     this.guildCreateService.setupGuild(guild).catch((err) => {
       this.logger.error(err);

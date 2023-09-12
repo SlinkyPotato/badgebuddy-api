@@ -44,7 +44,7 @@ describe('ReadyEvent', () => {
     );
   });
 
-  it('should pint no guild', () => {
+  it('should print no guild', () => {
     mockClient.guilds.cache.values.mockReturnValue([]);
     service.onReady(mockClient as unknown as Client);
     expect(mockLogger.log).toBeCalledWith('discord client is ready');
