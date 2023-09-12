@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.6-8](https://github.com/solidchain-tech/badge-buddy-api/compare/v0.0.6-7...v0.0.6-8) (2023-09-12)
+
+
+### Bug Fixes
+
+* add jest.config.ts to ts exclude ([fda19c6](https://github.com/solidchain-tech/badge-buddy-api/commit/fda19c6581303e3562cdbaaa3aee5ac70c70545f))
+
 ### [0.0.6-7](https://github.com/solidchain-tech/badge-buddy-api/compare/v0.0.6-6...v0.0.6-7) (2023-09-12)
 
 
