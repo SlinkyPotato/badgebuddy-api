@@ -84,6 +84,7 @@ export class GuildCreateService {
       );
     });
     this.logger.verbose('role assigned to bot');
+    return botMember;
   }
 
   private async createPrivateChannel(guild: Guild): Promise<TextChannel> {
