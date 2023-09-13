@@ -69,7 +69,7 @@ export class GuildsService {
   }
 
   async get(id: string): Promise<GetGuildResponseDto> {
-    this.logger.log('getting guild: ' + id);
+    this.logger.verbose(`getting guild from db, guildId: ${id}`);
     const discordServer = await this.discordServerModel
       .findOne({ guildId: id })
       .exec();
@@ -83,7 +83,7 @@ export class GuildsService {
     getGuildResponseDto.poapManagerRoleId = discordServer.poapManagerRoleId;
     getGuildResponseDto.privateChannelId = discordServer.privateChannelId;
     getGuildResponseDto.newsChannelId = discordServer.newsChannelId;
-    this.logger.log('got guild: ' + id);
+    this.logger.verbose(`got guild from db, guildId: ${id}`);
     return getGuildResponseDto;
   }
 }
