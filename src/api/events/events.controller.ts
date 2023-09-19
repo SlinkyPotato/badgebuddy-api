@@ -3,8 +3,8 @@ import {
   Controller,
   Get,
   HttpStatus,
+  Patch,
   Post,
-  Put,
   Query,
   UseGuards,
   UseInterceptors,
@@ -46,7 +46,7 @@ export class EventsController {
     return this.eventsService.start(request);
   }
 
-  @Put()
+  @Patch()
   @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Stop tracking voice channel event.' })
   @ApiResponse({
