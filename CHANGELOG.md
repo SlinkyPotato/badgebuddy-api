@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.6-9](https://github.com/SlinkyPotato/badge-buddy-api/compare/v0.0.6-8...v0.0.6-9) (2023-11-01)
+
+
+### Bug Fixes
+
+* use PATCH /events instead of PUT /events ([25ad671](https://github.com/SlinkyPotato/badge-buddy-api/commit/25ad671ed086829d182bed12c4a8984c963f2733))
+
+
+### Performance
+
+* add additional build scripts ([28a8256](https://github.com/SlinkyPotato/badge-buddy-api/commit/28a825652491e21ba72db7da1cd4db948093aa08))
+
+
+### Refactor
+
+* improve logging for get guild ([99c56ef](https://github.com/SlinkyPotato/badge-buddy-api/commit/99c56ef68a8cdb8a3f46d6bf8404795cbfb02e94))
+* remove drizzle and migrate to swc ([9fe043f](https://github.com/SlinkyPotato/badge-buddy-api/commit/9fe043f04a2c70b48a419fb5a4891ff2e8a1ae64))
+* rename log to api ([00afa6f](https://github.com/SlinkyPotato/badge-buddy-api/commit/00afa6fe9ba2477dbd25d5b868a5bb2daed33ad1))
+* return bot member during bot assignment ([ddecc3f](https://github.com/SlinkyPotato/badge-buddy-api/commit/ddecc3f22b29f8fc9d65997eca21a055bd199e5a))
+
 ### [0.0.6-8](https://github.com/solidchain-tech/badge-buddy-api/compare/v0.0.6-7...v0.0.6-8) (2023-09-12)
 
 
