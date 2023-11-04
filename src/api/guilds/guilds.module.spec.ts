@@ -33,7 +33,7 @@ jest.mock('@nestjs/config', () => ({
   ),
 }));
 
-jest.mock('@solidchain/badge-buddy-common', () => ({
+jest.mock('@badgebuddy/common', () => ({
   DiscordGuild: {
     name: 'DiscordGuild',
   },

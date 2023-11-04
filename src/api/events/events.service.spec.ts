@@ -3,7 +3,7 @@ import { EventsService } from './events.service';
 import { getModelToken } from '@nestjs/mongoose';
 import { Logger } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { CommunityEvent } from '@solidchain/badge-buddy-common';
+import { CommunityEvent } from '@badgebuddy/common';
 import {
   describe,
   beforeEach,

@@ -8,7 +8,7 @@ import {
 } from '@jest/globals';
 import { AuthGuard } from './auth.guard';
 import { Test, TestingModule } from '@nestjs/testing';
-import { DiscordGuild } from '@solidchain/badge-buddy-common';
+import { DiscordGuild } from '@badgebuddy/common';
 import { getModelToken } from '@nestjs/mongoose';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Logger } from '@nestjs/common';

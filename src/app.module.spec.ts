@@ -9,11 +9,34 @@ import {
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppModule } from './app.module';
 
-jest.mock('@solidchain/badge-buddy-common', () => ({
-  configureBullOptions: jest.fn().mockReturnThis(),
-  configureCacheOptions: jest.fn().mockReturnThis(),
-  joiValidationConfig: jest.fn().mockReturnThis(),
-  configureDiscordOptions: jest.fn().mockReturnThis(),
+jest.mock('@badgebuddy/common', () => ({
+  CommonConfigModule: {
+    forRoot: jest.fn().mockReturnValue(
+      Test.createTestingModule({
+        providers: [],
+      }),
+    ),
+  },
+  RedisConfigModule: {
+    forRootAsync: jest.fn().mockImplementation(() => {
+      return Test.createTestingModule({});
+    }),
+  },
+  RedisBullConfigModule: {
+    forRootAsync: jest.fn().mockImplementation(() => {
+      return Test.createTestingModule({});
+    }),
+  },
+  MongooseConfigModule: {
+    forRootAsync: jest.fn().mockImplementation(() => {
+      return Test.createTestingModule({});
+    }),
+  },
+  DiscordConfigModule: {
+    forRootAsync: jest.fn().mockImplementation(() => {
+      return Test.createTestingModule({});
+    }),
+  },
 }));
 
 jest.mock('@nestjs/config', () => ({

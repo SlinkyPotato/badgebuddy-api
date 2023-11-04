@@ -3,7 +3,7 @@ import { GuildsService } from './guilds.service';
 import { getModelToken } from '@nestjs/mongoose';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { ConflictException, Logger, NotFoundException } from '@nestjs/common';
-import { DiscordGuild } from '@solidchain/badge-buddy-common';
+import { DiscordGuild } from '@badgebuddy/common';
 import { describe, beforeEach, it, expect, jest } from '@jest/globals';
 import { MongooseError } from 'mongoose';
 import PostGuildRequestDto from './dto/post/guild.request.dto';
