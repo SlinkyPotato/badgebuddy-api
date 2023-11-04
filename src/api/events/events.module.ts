@@ -9,7 +9,7 @@ import {
   CommunityEventSchema,
   DiscordGuild,
   DiscordGuildSchema,
-} from '@solidchain/badge-buddy-common';
+} from '@badgebuddy/common';
 import { ValidateGetActiveEventsQueryPipe } from './pipes/validate-get-active-events-query.pipe';
 import { AuthGuard } from './guards/auth.guard';
 

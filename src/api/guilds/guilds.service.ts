@@ -12,7 +12,7 @@ import PostGuildRequestDto from './dto/post/guild.request.dto';
 import PostGuildResponseDto from './dto/post/guild.response.dto';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
-import { DiscordGuild } from '@solidchain/badge-buddy-common';
+import { DiscordGuild } from '@badgebuddy/common';
 import { redisHttpKeys } from '../redis-keys.constant';
 
 @Injectable()

@@ -11,7 +11,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { InjectDiscordClient } from '@discord-nestjs/core';
 import { Client } from 'discord.js';
-import { DiscordGuild } from '@solidchain/badge-buddy-common';
+import { DiscordGuild } from '@badgebuddy/common';
 import CommonRequestDto from '../dto/common-request.dto';
 import { redisHttpKeys } from '../../redis-keys.constant';
 import GetGuildResponseDto from '../../guilds/dto/get/guild.response.dto';
