@@ -13,7 +13,7 @@ import {
   CommunityEvent,
   CommunityEventDocument,
   CommunityEventDto,
-} from '@solidchain/badge-buddy-common';
+} from '@badgebuddy/common';
 import GetActiveEventsRequestDto from './dto/get/get-active-events.request.dto';
 import { redisHttpKeys, redisProcessorKeys } from '../redis-keys.constant';
 import GetActiveEventsResponseDto from './dto/get/get-active-events.response.dto';

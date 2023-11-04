@@ -6,7 +6,7 @@ import { ConfigModule } from '@nestjs/config';
 import {
   DiscordGuild,
   DiscordGuildSchema,
-} from '@solidchain/badge-buddy-common';
+} from '@badgebuddy/common';
 
 @Module({
   imports: [
