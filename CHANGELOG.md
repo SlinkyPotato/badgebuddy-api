@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.6-12](https://github.com/SlinkyPotato/badge-buddy-api/compare/v0.0.6-11...v0.0.6-12) (2023-11-04)
+
+
+### Bug Fixes
+
+* class-validator and class-transformer placement ([a86cbe4](https://github.com/SlinkyPotato/badge-buddy-api/commit/a86cbe4ec85d46345f1a2cbbeec1f5b2a3cb2186))
+
 ### [0.0.6-11](https://github.com/SlinkyPotato/badge-buddy-api/compare/v0.0.6-10...v0.0.6-11) (2023-11-04)
 
 ### [0.0.6-10](https://github.com/SlinkyPotato/badge-buddy-api/compare/v0.0.6-9...v0.0.6-10) (2023-11-04)
