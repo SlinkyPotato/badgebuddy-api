@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.6-10](https://github.com/SlinkyPotato/badge-buddy-api/compare/v0.0.6-9...v0.0.6-10) (2023-11-04)
+
+
+### Bug Fixes
+
+* test cases ([f81202a](https://github.com/SlinkyPotato/badge-buddy-api/commit/f81202a8b2f8727f946f51a30a3408882ad8888c))
+
+
+### Refactor
+
+* use common configs ([1383101](https://github.com/SlinkyPotato/badge-buddy-api/commit/1383101fd8485832de17e2d8384d666db2464266))
+
 ### [0.0.6-9](https://github.com/SlinkyPotato/badge-buddy-api/compare/v0.0.6-8...v0.0.6-9) (2023-11-01)
 
 
