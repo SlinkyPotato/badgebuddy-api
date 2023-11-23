@@ -10,8 +10,8 @@ import {
 } from 'discord.js';
 import { GuildsService } from '../../api/guilds/guilds.service';
 import { ConfigService } from '@nestjs/config';
-import PostGuildRequestDto from '../../api/guilds/dto/post/guild.request.dto';
-import PostGuildResponseDto from '../../api/guilds/dto/post/guild.response.dto';
+import PostGuildRequestDto from 'src/api/guilds/dto/guild-post-request.dto';
+import PostGuildResponseDto from 'src/api/guilds/dto/guild-post-response.dto';
 
 @Injectable()
 export class GuildCreateService {
@@ -19,7 +19,7 @@ export class GuildCreateService {
     private readonly logger: Logger,
     private guildsApiService: GuildsService,
     private configService: ConfigService,
-  ) {}
+  ) { }
 
   private readonly allowedPermissions = [
     PermissionsBitField.Flags.ViewChannel,

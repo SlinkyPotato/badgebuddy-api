@@ -4,7 +4,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { ValidationError, ValidatorOptions } from 'class-validator';
-import GetActiveEventsRequestDto from '../dto/get/get-active-events.request.dto';
+import GetActiveEventsRequestDto from '../dto/active-events-get-request.dto';
 
 @Injectable()
 export class ValidateGetActiveEventsQueryPipe extends ValidationPipe {

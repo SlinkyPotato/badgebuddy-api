@@ -7,13 +7,13 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import GetGuildResponseDto from './dto/get/guild.response.dto';
-import PostGuildRequestDto from './dto/post/guild.request.dto';
-import PostGuildResponseDto from './dto/post/guild.response.dto';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { DiscordGuild } from '@badgebuddy/common';
 import { redisHttpKeys } from '../redis-keys.constant';
+import GetGuildResponseDto from './dto/guild-get-response.dto';
+import PostGuildRequestDto from './dto/guild-post-request.dto';
+import PostGuildResponseDto from './dto/guild-post-response.dto';
 
 @Injectable()
 export class GuildsService {
@@ -22,7 +22,7 @@ export class GuildsService {
     private discordServerModel: Model<DiscordGuild>,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
     private readonly logger: Logger,
-  ) {}
+  ) { }
 
   async create(
     id: string,

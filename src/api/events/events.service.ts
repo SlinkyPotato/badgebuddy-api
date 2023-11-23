@@ -1,10 +1,6 @@
 import { ConflictException, Inject, Injectable, Logger } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import PostEventResponseDto from './dto/post/post-event.response.dto';
-import PostEventRequestDto from './dto/post/post-event.request.dto';
-import PutEventRequestDto from './dto/put/put-event.request.dto';
-import PutEventResponseDto from './dto/put/put-event.response.dto';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { InjectQueue } from '@nestjs/bull';
@@ -14,9 +10,13 @@ import {
   CommunityEventDocument,
   CommunityEventDto,
 } from '@badgebuddy/common';
-import GetActiveEventsRequestDto from './dto/get/get-active-events.request.dto';
 import { redisHttpKeys, redisProcessorKeys } from '../redis-keys.constant';
-import GetActiveEventsResponseDto from './dto/get/get-active-events.response.dto';
+import GetActiveEventsRequestDto from './dto/active-events-get-request.dto';
+import GetActiveEventsResponseDto from './dto/active-events-get-response.dto';
+import PostEventRequestDto from './dto/event-post-request.dto';
+import PostEventResponseDto from './dto/event-post-response.dto';
+import PutEventRequestDto from './dto/event-put-request.dto';
+import PutEventResponseDto from './dto/event-put-response.dto';
 
 @Injectable()
 export class EventsService {
@@ -26,7 +26,7 @@ export class EventsService {
     private communityEventModel: Model<CommunityEvent>,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
     @InjectQueue('events') private eventsQueue: Queue,
-  ) {}
+  ) { }
 
   async start(request: PostEventRequestDto): Promise<PostEventResponseDto> {
     this.logger.log(

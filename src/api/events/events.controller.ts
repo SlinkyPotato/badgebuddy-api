@@ -14,21 +14,21 @@ import {
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { EventsService } from './events.service';
 import { AuthGuard } from './guards/auth.guard';
-import PutEventResponseDto from './dto/put/put-event.response.dto';
-import PostEventRequestDto from './dto/post/post-event.request.dto';
-import PostEventResponseDto from './dto/post/post-event.response.dto';
-import PutEventRequestDto from './dto/put/put-event.request.dto';
-import GetActiveEventsResponseDto from './dto/get/get-active-events.response.dto';
 import { CacheInterceptor } from '@nestjs/cache-manager';
-import GetActiveEventsRequestDto from './dto/get/get-active-events.request.dto';
 import { ValidateGetActiveEventsQueryPipe } from './pipes/validate-get-active-events-query.pipe';
+import GetActiveEventsRequestDto from './dto/active-events-get-request.dto';
+import GetActiveEventsResponseDto from './dto/active-events-get-response.dto';
+import PostEventRequestDto from './dto/event-post-request.dto';
+import PostEventResponseDto from './dto/event-post-response.dto';
+import PutEventRequestDto from './dto/event-put-request.dto';
+import PutEventResponseDto from './dto/event-put-response.dto';
 
 @Controller('events')
 @ApiTags('events')
 @UseInterceptors(CacheInterceptor)
 @UsePipes(ValidationPipe)
 export class EventsController {
-  constructor(private readonly eventsService: EventsService) {}
+  constructor(private readonly eventsService: EventsService) { }
 
   @Post()
   @UseGuards(AuthGuard)

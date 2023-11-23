@@ -14,7 +14,7 @@ import { Client } from 'discord.js';
 import { DiscordGuild } from '@badgebuddy/common';
 import CommonRequestDto from '../dto/common-request.dto';
 import { redisHttpKeys } from '../../redis-keys.constant';
-import GetGuildResponseDto from '../../guilds/dto/get/guild.response.dto';
+import GetGuildResponseDto from 'src/api/guilds/dto/guild-get-response.dto';
 
 /**
  * Auth guard to authenticate users based on whether they are a POAP manager.
@@ -27,7 +27,7 @@ export class AuthGuard implements CanActivate {
     @InjectModel(DiscordGuild.name) private guildModel: Model<DiscordGuild>,
     @InjectDiscordClient() private readonly discordClient: Client,
     private readonly logger: Logger,
-  ) {}
+  ) { }
 
   async canActivate<T extends CommonRequestDto>(
     context: ExecutionContext,

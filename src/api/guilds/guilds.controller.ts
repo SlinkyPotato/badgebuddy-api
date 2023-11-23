@@ -12,16 +12,16 @@ import {
 } from '@nestjs/common';
 import { GuildsService } from './guilds.service';
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
-import GetGuildResponseDto from './dto/get/guild.response.dto';
-import PostGuildResponseDto from './dto/post/guild.response.dto';
-import PostGuildRequestDto from './dto/post/guild.request.dto';
 import { CacheInterceptor } from '@nestjs/cache-manager';
+import GetGuildResponseDto from './dto/guild-get-response.dto';
+import PostGuildRequestDto from './dto/guild-post-request.dto';
+import PostGuildResponseDto from './dto/guild-post-response.dto';
 
 @ApiTags('guilds')
 @Controller('guilds')
 @UseInterceptors(CacheInterceptor)
 export class GuildsController {
-  constructor(private readonly guildService: GuildsService) {}
+  constructor(private readonly guildService: GuildsService) { }
 
   @Get(':id')
   @ApiParam({

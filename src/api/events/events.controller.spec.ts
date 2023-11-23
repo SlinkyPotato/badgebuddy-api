@@ -9,12 +9,12 @@ import {
   jest,
   afterEach,
 } from '@jest/globals';
-import PostEventRequestDto from './dto/post/post-event.request.dto';
-import PostEventResponseDto from './dto/post/post-event.response.dto';
-import PutEventRequestDto from './dto/put/put-event.request.dto';
-import PutEventResponseDto from './dto/put/put-event.response.dto';
-import GetActiveEventsRequestDto from './dto/get/get-active-events.request.dto';
-import GetActiveEventsResponseDto from './dto/get/get-active-events.response.dto';
+import GetActiveEventsRequestDto from './dto/active-events-get-request.dto';
+import GetActiveEventsResponseDto from './dto/active-events-get-response.dto';
+import PostEventRequestDto from './dto/event-post-request.dto';
+import PostEventResponseDto from './dto/event-post-response.dto';
+import PutEventRequestDto from './dto/event-put-request.dto';
+import PutEventResponseDto from './dto/event-put-response.dto';
 
 jest.mock('./guards/auth.guard.ts', () => ({
   AuthGuard: jest.fn().mockImplementation(() => ({
