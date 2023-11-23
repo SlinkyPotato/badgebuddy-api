@@ -20,4 +20,4 @@ import { DiscordEventsModule } from './discord-events/discord-events.module';
     DiscordEventsModule,
   ],
 })
-export class AppModule {}
+export class AppModule { }
