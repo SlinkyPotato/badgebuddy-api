@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 
 export class AuthorizeResponseGetDto {
   @IsString()
@@ -10,9 +10,11 @@ export class AuthorizeResponseGetDto {
   code: string;
 
   @IsString()
+  @IsOptional()
   @ApiProperty({
     description: 'State',
     type: String,
+    required: false,
   })
-  state: string;
+  state?: string;
 }

@@ -27,3 +27,7 @@ export const redisProcessorKeys = {
   TRACKING_EVENTS_ACTIVE_VOICE_CHANNEL: (id: string) =>
     `tracking:events:active:voiceChannelId:${id}`,
 } as const;
+
+export const redisAuthKeys = {
+  AUTH_REQUEST: (clientId: string, code: string) => `auth:request:${clientId}:${code}`,
+} as const;
