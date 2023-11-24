@@ -27,7 +27,6 @@ export class AuthService {
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
     private jwtService: JwtService,
     private readonly configService: ConfigService,
-    @InjectDataSource() private dataSource: DataSource,
   ) { }
 
   /**

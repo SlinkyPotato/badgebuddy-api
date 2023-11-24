@@ -4,12 +4,10 @@ import { AuthService } from './auth.service';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
 
 @Module({
   imports: [
     ConfigModule,
-    TypeOrmModule.forFeature(),
     JwtModule.register({
       secret: process.env.SECRET_ENCRYPT_KEY,
     }),

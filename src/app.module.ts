@@ -6,12 +6,13 @@ import {
   RedisBullConfigModule,
   MongooseConfigModule,
   DiscordConfigModule,
-  entities,
+  CommonTypeOrmModule,
 } from '@badgebuddy/common';
 import { DiscordEventsModule } from './discord-events/discord-events.module';
 
 @Module({
   imports: [
+    CommonTypeOrmModule.forRootAsync(),
     CommonConfigModule.forRoot(),
     RedisConfigModule.forRootAsync(),
     RedisBullConfigModule.forRootAsync(),
