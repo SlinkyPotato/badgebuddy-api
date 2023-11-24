@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 
 export class TokenResponsePostDto {
   @IsString()
@@ -31,10 +31,12 @@ export class TokenResponsePostDto {
   expiresIn: number;
 
   @IsString()
+  @IsOptional()
   @ApiProperty({
     description: 'Scope',
     type: String,
+    required: false,
   })
-  scope: string;
+  scope?: string;
 
 }

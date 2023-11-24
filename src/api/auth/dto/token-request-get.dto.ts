@@ -13,6 +13,7 @@ export class TokenRequestGetDto {
   @ApiProperty({
     description: 'Grant type',
     type: String,
+    enum: ['authorization_code', 'refresh_token'],
   })
   grantType: string;
 

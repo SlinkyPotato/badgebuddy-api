@@ -24,6 +24,13 @@ export class AuthorizeRequestGetDto {
   codeChallengeMethod: string;
 
   @IsString()
+  @ApiProperty({
+    description: 'The user ID',
+    type: String,
+  })
+  userId: string;
+
+  @IsString()
   @IsOptional()
   @ApiProperty({
     description: 'The scope of the request',

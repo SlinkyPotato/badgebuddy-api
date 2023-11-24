@@ -6,10 +6,11 @@ import { TokenRequestGetDto } from './dto/token-request-get.dto';
 import { TokenResponsePostDto } from './dto/token-response-get.dto';
 import { ClientGuard } from './guards/client.guard';
 import { AuthService } from './auth.service';
+import { UserGuard } from './guards/user.guard';
 
 @Controller('auth')
 @ApiTags('auth')
-@UseGuards(ClientGuard)
+@UseGuards(ClientGuard, UserGuard)
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
