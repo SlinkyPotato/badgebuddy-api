@@ -6,6 +6,7 @@ import {
   RedisBullConfigModule,
   MongooseConfigModule,
   DiscordConfigModule,
+  entities,
 } from '@badgebuddy/common';
 import { DiscordEventsModule } from './discord-events/discord-events.module';
 

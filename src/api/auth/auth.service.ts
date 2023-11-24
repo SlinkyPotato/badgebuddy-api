@@ -9,6 +9,8 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { TokenRequestGetDto } from './dto/token-request-get.dto';
 import { TokenResponsePostDto } from './dto/token-response-get.dto';
+import { DataSource } from 'typeorm';
+import { InjectDataSource } from '@nestjs/typeorm';
 
 
 type RedisAuthCode = {
@@ -25,6 +27,7 @@ export class AuthService {
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
     private jwtService: JwtService,
     private readonly configService: ConfigService,
+    @InjectDataSource() private dataSource: DataSource,
   ) { }
 
   /**
@@ -34,7 +37,7 @@ export class AuthService {
    * 
    * @see https://tools.ietf.org/html/rfc7636
    */
-  async generateAuthCode(request: AuthorizeRequestGetDto): Promise<AuthorizeResponseGetDto> {
+  async generateAuthCode(request: AuthorizeRequestGetDto): Promise<AuthorizeResponseGetDto | null> {
     this.logger.debug(`Attempting to generate auth token for client: ${request.clientId}`);
     const code = crypto.randomBytes(16).toString('hex');
     this.cacheManager.del(redisAuthKeys.AUTH_REQUEST(request.clientId, code));
@@ -64,7 +67,7 @@ export class AuthService {
    * @param code string
    * @returns Promise<string>
    */
-  async generateAccessToken(request: TokenRequestGetDto): Promise<TokenResponsePostDto> {
+  async generateAccessToken(request: TokenRequestGetDto): Promise<TokenResponsePostDto | null> {
     this.logger.debug(`Attempting to generate access token for client ${request.clientId} with auth code ${request.code}`);
     const stored = await this.cacheManager.get<string>(redisAuthKeys.AUTH_REQUEST(request.clientId, request.code));
     if (!stored) {
