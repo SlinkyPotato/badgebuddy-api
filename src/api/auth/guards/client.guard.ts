@@ -1,7 +1,6 @@
 import { CanActivate, ExecutionContext, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Observable } from 'rxjs';
-import { AuthorizeRequestGetDto } from '../dto/authorize-request-get.dto';
 
 @Injectable()
 export class ClientGuard implements CanActivate {
@@ -15,9 +14,10 @@ export class ClientGuard implements CanActivate {
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
     const allowedClients = this.configService.get<string>('ALLOWED_CLIENT_IDS')?.split(',') ?? [];
-    const request: AuthorizeRequestGetDto = context.switchToHttp().getRequest().query as AuthorizeRequestGetDto;
+    const request = context.switchToHttp().getRequest();
+    const clientId = request.query.clientId ?? request.body.clientId;
 
-    if (allowedClients.includes(request.clientId)) {
+    if (allowedClients.includes(clientId)) {
       return true;
     }
     this.logger.warn(`Unauthorized client tried to access the API`, request);

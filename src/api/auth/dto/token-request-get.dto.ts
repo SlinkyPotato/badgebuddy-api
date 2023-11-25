@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString } from 'class-validator';
+import { IsIn, IsString } from 'class-validator';
 
 export class TokenRequestGetDto {
   @IsString()
@@ -10,6 +10,7 @@ export class TokenRequestGetDto {
   code: string;
 
   @IsString()
+  @IsIn(['authorization_code', 'refresh_token'])
   @ApiProperty({
     description: 'Grant type',
     type: String,

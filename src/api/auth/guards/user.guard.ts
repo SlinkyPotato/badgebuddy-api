@@ -3,6 +3,7 @@ import { Observable } from 'rxjs';
 import { AuthorizeRequestGetDto } from '../dto/authorize-request-get.dto';
 import { DataSource } from 'typeorm';
 import { UserEntity } from '@badgebuddy/common';
+import { log } from 'console';
 
 @Injectable()
 export class UserGuard implements CanActivate {
@@ -16,6 +17,10 @@ export class UserGuard implements CanActivate {
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
     const request: AuthorizeRequestGetDto = context.switchToHttp().getRequest().query as AuthorizeRequestGetDto;
+    if (!request.userId) {
+      this.logger.warn('userId is not set');
+      return false;
+    }
     return (async () => {
       const emailVerified = await this.dataSource
         .createQueryBuilder()
@@ -26,10 +31,10 @@ export class UserGuard implements CanActivate {
         .getOne();
 
       if (emailVerified) {
-        this.logger.debug(`User ${request.userId} is email verified on ${emailVerified}`);
+        this.logger.debug(`User ${request.userId} is email verified`);
         return true;
       }
-
+      this.logger.warn(`User ${request.userId} is not email verified}`);
       return false;
     })();
   }

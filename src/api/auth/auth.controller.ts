@@ -1,4 +1,14 @@
-import { Controller, Get, Logger, Post, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Logger,
+  Post,
+  Query,
+  UseGuards,
+  UsePipes,
+  ValidationPipe
+} from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthorizeRequestGetDto } from './dto/authorize-request-get.dto';
 import { AuthorizeResponseGetDto } from './dto/authorize-response-get.dto';
@@ -11,6 +21,7 @@ import { UserGuard } from './guards/user.guard';
 @Controller('auth')
 @ApiTags('auth')
 @UseGuards(ClientGuard)
+@UsePipes(ValidationPipe)
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
@@ -24,7 +35,7 @@ export class AuthController {
     description: 'Authorized',
     type: AuthorizeResponseGetDto,
   })
-  authorize(@Query() request: AuthorizeRequestGetDto): Promise<AuthorizeResponseGetDto | null> {
+  authorize(@Query() request: AuthorizeRequestGetDto): Promise<AuthorizeResponseGetDto> {
     return this.authService.generateAuthCode(request);
   }
 
@@ -35,7 +46,7 @@ export class AuthController {
     description: 'Token',
     type: TokenResponsePostDto,
   })
-  token(@Query() request: TokenRequestGetDto): string {
-    return 'test';
+  token(@Body() request: TokenRequestGetDto): Promise<TokenResponsePostDto> {
+    return this.authService.generateAccessToken(request);
   }
 }

@@ -31,13 +31,13 @@ export class AuthService {
    * Generate an auth code.
    * @param request AuthorizeRequestGetDto
    * @returns Promise<AuthorizeResponseGetDto>
-   * 
+   *
    * @see https://tools.ietf.org/html/rfc7636
    */
-  async generateAuthCode(request: AuthorizeRequestGetDto): Promise<AuthorizeResponseGetDto | null> {
+  async generateAuthCode(request: AuthorizeRequestGetDto): Promise<AuthorizeResponseGetDto> {
     this.logger.debug(`Attempting to generate auth token for client: ${request.clientId}`);
     const code = crypto.randomBytes(16).toString('hex');
-    this.cacheManager.del(redisAuthKeys.AUTH_REQUEST(request.clientId, code));
+    await this.cacheManager.del(redisAuthKeys.AUTH_REQUEST(request.clientId, code));
 
     const stored: RedisAuthCode = {
       codeChannelMethod: request.codeChallengeMethod,
@@ -46,12 +46,12 @@ export class AuthService {
     };
 
     const signed = this.jwtService.sign(stored, {
-      secret: this.configService.get<string>('SECRET_ENCRYPT_KEY'),
+      secret: this.configService.get<string>('AUTH_SECRET_ENCRYPT_KEY'),
       expiresIn: '10m',
       subject: request.userId,
     })
 
-    this.cacheManager.set(redisAuthKeys.AUTH_REQUEST(request.clientId, code), signed);
+    await this.cacheManager.set(redisAuthKeys.AUTH_REQUEST(request.clientId, code), signed);
     this.logger.debug(`Generated auth code ${code} for client ${request.clientId}`);
     return {
       code,
@@ -60,11 +60,12 @@ export class AuthService {
 
   /**
    * Generate an access token.
-   * @param clientId string
-   * @param code string
+   * @param request TokenRequestGetDto
    * @returns Promise<string>
+   *
+   * @see https://tools.ietf.org/html/rfc6749#section-4.1.3
    */
-  async generateAccessToken(request: TokenRequestGetDto): Promise<TokenResponsePostDto | null> {
+  async generateAccessToken(request: TokenRequestGetDto): Promise<TokenResponsePostDto> {
     this.logger.debug(`Attempting to generate access token for client ${request.clientId} with auth code ${request.code}`);
     const stored = await this.cacheManager.get<string>(redisAuthKeys.AUTH_REQUEST(request.clientId, request.code));
     if (!stored) {
@@ -79,7 +80,9 @@ export class AuthService {
 
     switch (verifiedStored.codeChannelMethod) {
       case 's256':
-        const codeChallenge = crypto.createHash('sha256').update(request.codeVerifier).digest('base64');
+        const codeChallenge = crypto.createHash('sha256').update(request.codeVerifier).digest('hex').toString();
+        console.log(codeChallenge);
+        console.log(verifiedStored.codeChallenge);
         if (codeChallenge !== verifiedStored.codeChallenge) {
           throw new Error('Code challenge invalid');
         }
@@ -102,7 +105,7 @@ export class AuthService {
       subject: verifiedStored.userId,
     });
 
-    this.cacheManager.del(redisAuthKeys.AUTH_REQUEST(request.clientId, request.code));
+    await this.cacheManager.del(redisAuthKeys.AUTH_REQUEST(request.clientId, request.code));
     this.logger.debug(`Generated access token for client ${request.clientId} with auth code ${request.code}`);
     return {
       tokenType: 'Bearer',
