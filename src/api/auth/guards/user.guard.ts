@@ -17,18 +17,20 @@ export class UserGuard implements CanActivate {
   ): boolean | Promise<boolean> | Observable<boolean> {
     const request: AuthorizeRequestGetDto = context.switchToHttp().getRequest().query as AuthorizeRequestGetDto;
     return (async () => {
-      // Check DB is user ID exists and is email verified
-      const userId = await this.dataSource
+      const emailVerified = await this.dataSource
         .createQueryBuilder()
-        .select('user.id')
+        .select('user.emailVerified')
         .from(UserEntity, 'user')
         .where('user.id = :id', { id: request.userId })
         .andWhere('user.emailVerified = true')
         .getOne();
 
-      console.log(userId);
+      if (emailVerified) {
+        this.logger.debug(`User ${request.userId} is email verified on ${emailVerified}`);
+        return true;
+      }
 
-      return (userId) ? true : false;
+      return false;
     })();
   }
 }

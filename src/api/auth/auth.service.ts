@@ -9,8 +9,6 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { TokenRequestGetDto } from './dto/token-request-get.dto';
 import { TokenResponsePostDto } from './dto/token-response-get.dto';
-import { DataSource } from 'typeorm';
-import { InjectDataSource } from '@nestjs/typeorm';
 
 
 type RedisAuthCode = {
