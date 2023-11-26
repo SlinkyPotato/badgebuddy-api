@@ -2,13 +2,19 @@ import {
   Body,
   Controller,
   Get,
+  Headers,
   Post,
   Query,
   UseGuards,
   UsePipes,
   ValidationPipe
 } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiHeaders,
+  ApiOperation,
+  ApiResponse,
+  ApiTags
+} from '@nestjs/swagger';
 import { AuthorizeRequestGetDto } from './dto/authorize-request-get.dto';
 import { AuthorizeResponseGetDto } from './dto/authorize-response-get.dto';
 import { TokenRequestGetDto } from './dto/token-request-get.dto';
@@ -54,6 +60,11 @@ export class AuthController {
   @UseGuards(ClientTokenGuard)
   @Post('/register')
   @ApiOperation({ summary: 'Register user' })
+  @ApiHeaders([{
+    name: 'Authorization',
+    description: 'The authorization token',
+    required: true,
+  }])
   @ApiResponse({
     status: 200,
     description: 'Registered',
@@ -69,6 +80,11 @@ export class AuthController {
     status: 200,
     description: 'Logged in',
   })
+  @ApiHeaders([{
+    name: 'Authorization',
+    description: 'The authorization token',
+    required: true,
+  }])
   login(
     @Body() request: LoginRequestPostDto
   ): Promise<LoginResponsePostDto> {
