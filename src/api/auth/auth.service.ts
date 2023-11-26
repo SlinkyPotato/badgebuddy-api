@@ -16,6 +16,7 @@ import {
   DataSource,
 } from 'typeorm';
 import { UserEntity } from '@badgebuddy/common';
+import nodemailer from 'nodemailer';
 
 
 type RedisAuthCode = {
@@ -32,6 +33,7 @@ export class AuthService {
     private jwtService: JwtService,
     private readonly configService: ConfigService,
     private dataSource: DataSource,
+    private transporter: nodemailer.Transporter,
   ) { }
 
   /**
@@ -140,6 +142,7 @@ export class AuthService {
     }
 
     // send out email verification
+
 
     this.logger.debug(`Registered user ${request.email}`);
   }
