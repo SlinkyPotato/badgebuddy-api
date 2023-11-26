@@ -27,13 +27,13 @@ import { ClientIdGuard } from './guards/client-id.guard';
 
 @Controller('auth')
 @ApiTags('auth')
-@UseGuards(ClientIdGuard)
 @UsePipes(ValidationPipe)
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
   ) { }
 
+  @UseGuards(ClientIdGuard)
   @Get('/authorize')
   @ApiOperation({ summary: 'Get auth token' })
   @ApiResponse({
@@ -45,6 +45,7 @@ export class AuthController {
     return this.authService.generateAuthCode(request);
   }
 
+  @UseGuards(ClientIdGuard)
   @Post('/token')
   @ApiOperation({ summary: 'Get token' })
   @ApiResponse({
@@ -88,5 +89,10 @@ export class AuthController {
     @Body() request: LoginRequestPostDto
   ): Promise<LoginResponsePostDto> {
     return this.authService.login(request);
+  }
+
+  @Post('/test')
+  test(): Promise<void> {
+    return this.authService.test();
   }
 }

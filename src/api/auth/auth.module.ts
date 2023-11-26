@@ -23,7 +23,6 @@ import nodemailer from 'nodemailer';
   ],
 })
 export class AuthModule {
-  private transporter: nodemailer.Transporter;
 
   constructor(
     private readonly configService: ConfigService,
@@ -37,14 +36,5 @@ export class AuthModule {
     if (!this.configService.get<string>('ALLOWED_CLIENT_IDS')) {
       throw new Error('Missing ALLOWED_CLIENT_IDS');
     }
-    this.transporter = nodemailer.createTransport({
-      host: this.configService.get<string>('MAIL_HOST'),
-      port: this.configService.get<number>('MAIL_PORT'),
-      secure: true,
-      auth: {
-        user: this.configService.get<string>('MAIL_USER'),
-        pass: this.configService.get<string>('MAIL_PASS'),
-      }
-    });
   }
 }

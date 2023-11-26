@@ -17,6 +17,7 @@ import {
 } from 'typeorm';
 import { UserEntity } from '@badgebuddy/common';
 import nodemailer from 'nodemailer';
+import mjml2html from 'mjml';
 
 
 type RedisAuthCode = {
@@ -26,6 +27,7 @@ type RedisAuthCode = {
 
 @Injectable()
 export class AuthService {
+  private transporter: nodemailer.Transporter;
 
   constructor(
     private readonly logger: Logger,
@@ -33,8 +35,17 @@ export class AuthService {
     private jwtService: JwtService,
     private readonly configService: ConfigService,
     private dataSource: DataSource,
-    private transporter: nodemailer.Transporter,
-  ) { }
+  ) {
+    this.transporter = nodemailer.createTransport({
+      host: this.configService.get<string>('MAIL_HOST'),
+      port: this.configService.get<number>('MAIL_PORT'),
+      secure: true,
+      auth: {
+        user: this.configService.get<string>('MAIL_USER'),
+        pass: this.configService.get<string>('MAIL_PASS'),
+      }
+    });
+  }
 
   /**
    * Generate an auth code.
@@ -142,6 +153,8 @@ export class AuthService {
     }
 
     // send out email verification
+    const randomHash = crypto.randomBytes(16).toString('hex');
+    // await this.cacheManager.set(redisAuthKeys.EMAIL_VERIFICATION(request.email), randomHash);
 
 
     this.logger.debug(`Registered user ${request.email}`);
@@ -183,5 +196,33 @@ export class AuthService {
       accessToken: userToken,
       refreshToken
     };
+  }
+
+  async test(): Promise<void> {
+    const mjmlParse = mjml2html(`
+      <mjml>
+        <mj-body>
+          <mj-section>
+            <mj-column>
+              <mj-text>
+                Hello World!
+              </mj-text>
+            </mj-column>
+          </mj-section>
+        </mj-body>
+      </mjml>
+    `);
+    try {
+      const info = await this.transporter.sendMail({
+        from: this.configService.get<string>('MAIL_FROM'),
+        to: 'patinobrian@gmail.com',
+        subject: 'Hello',
+        text: 'Hello world',
+        html: mjmlParse.html,
+      });
+      console.log(info);
+    } catch (error) {
+      console.log(error);
+    }
   }
 }
