@@ -245,8 +245,8 @@ export class AuthService {
       const info = await this.transporter.sendMail({
         from: this.configService.get<string>('MAIL_FROM'),
         to: 'patinobrian@gmail.com',
-        subject: 'Hello',
-        text: 'Hello world',
+        subject: 'Welcome to BadgeBuddy',
+        text: 'Please confirm your email.',
         html: mjmlParse.html,
       });
       console.log(info);
