@@ -202,11 +202,40 @@ export class AuthService {
     const mjmlParse = mjml2html(`
       <mjml>
         <mj-body>
+          <mj-section background-color="#222b45">
+            <mj-column>
+              <mj-text  align="center"
+                    font-style="italic"
+                        font-size="20px"
+                        color="#fff">
+                BadgeBuddy
+              </mj-text>
+            </mj-column>
+          </mj-section>
           <mj-section>
             <mj-column>
-              <mj-text>
-                Hello World!
+              <mj-spacer height="10px" />
+              <mj-text font-size="20px" color="#222b45" font-family="helvetica" align="center">
+                Helping web3 communities across discord manage their events.
               </mj-text>
+              <mj-spacer height="10px" />
+              <mj-divider border-color="#222b45"></mj-divider>
+              
+              <mj-spacer height="100px" />
+              <mj-text font-size="20px" color="#222b45" font-family="helvetica" align="center">
+                If you did not request for a new account, please ignore.
+              </mj-text>
+              <mj-spacer height="25px" />
+              <mj-button background-color="#222b45"
+                           href="#">Confirm Email</mj-button>
+              <mj-spacer height="100px" />
+              
+              <mj-divider border-color="#222b45"></mj-divider>
+            </mj-column>
+          </mj-section>
+          <mj-section>
+            <mj-column>
+              <mj-text color="#222b45"><a href="#">Homepage</a> | <a href="#">Discord</a> | <a href="#">Terms &amp; Service</a></mj-text>
             </mj-column>
           </mj-section>
         </mj-body>
