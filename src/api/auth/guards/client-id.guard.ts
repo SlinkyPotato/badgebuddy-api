@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { Observable } from 'rxjs';
 
 @Injectable()
-export class ClientGuard implements CanActivate {
+export class ClientIdGuard implements CanActivate {
 
   constructor(
     private readonly configService: ConfigService,

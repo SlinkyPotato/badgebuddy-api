@@ -1,9 +1,7 @@
 import { CanActivate, ExecutionContext, Injectable, Logger } from '@nestjs/common';
 import { Observable } from 'rxjs';
-import { AuthorizeRequestGetDto } from '../dto/authorize-request-get.dto';
 import { DataSource } from 'typeorm';
 import { UserEntity } from '@badgebuddy/common';
-import { log } from 'console';
 
 @Injectable()
 export class UserGuard implements CanActivate {
@@ -16,7 +14,7 @@ export class UserGuard implements CanActivate {
   canActivate(
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
-    const request: AuthorizeRequestGetDto = context.switchToHttp().getRequest().query as AuthorizeRequestGetDto;
+    const request = context.switchToHttp().getRequest().query;
     if (!request.userId) {
       this.logger.warn('userId is not set');
       return false;

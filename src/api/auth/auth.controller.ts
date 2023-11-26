@@ -2,7 +2,6 @@ import {
   Body,
   Controller,
   Get,
-  Logger,
   Post,
   Query,
   UseGuards,
@@ -14,20 +13,22 @@ import { AuthorizeRequestGetDto } from './dto/authorize-request-get.dto';
 import { AuthorizeResponseGetDto } from './dto/authorize-response-get.dto';
 import { TokenRequestGetDto } from './dto/token-request-get.dto';
 import { TokenResponsePostDto } from './dto/token-response-get.dto';
-import { ClientGuard } from './guards/client.guard';
 import { AuthService } from './auth.service';
-import { UserGuard } from './guards/user.guard';
+import { RegisterRequestPostDto } from './dto/register-request-post.dto';
+import { LoginRequestPostDto } from './dto/login-request-post.dto';
+import { LoginResponsePostDto } from './dto/login-response-post.dto';
+import { ClientTokenGuard } from './guards/client-token.guard';
+import { ClientIdGuard } from './guards/client-id.guard';
 
 @Controller('auth')
 @ApiTags('auth')
-@UseGuards(ClientGuard)
+@UseGuards(ClientIdGuard)
 @UsePipes(ValidationPipe)
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
   ) { }
 
-  @UseGuards(UserGuard)
   @Get('/authorize')
   @ApiOperation({ summary: 'Get auth token' })
   @ApiResponse({
@@ -48,5 +49,29 @@ export class AuthController {
   })
   token(@Body() request: TokenRequestGetDto): Promise<TokenResponsePostDto> {
     return this.authService.generateAccessToken(request);
+  }
+
+  @UseGuards(ClientTokenGuard)
+  @Post('/register')
+  @ApiOperation({ summary: 'Register user' })
+  @ApiResponse({
+    status: 200,
+    description: 'Registered',
+  })
+  register(@Body() request: RegisterRequestPostDto): Promise<void> {
+    return this.authService.register(request);
+  }
+
+  @UseGuards(ClientTokenGuard)
+  @Post('/login')
+  @ApiOperation({ summary: 'Login user' })
+  @ApiResponse({
+    status: 200,
+    description: 'Logged in',
+  })
+  login(
+    @Body() request: LoginRequestPostDto
+  ): Promise<LoginResponsePostDto> {
+    return this.authService.login(request);
   }
 }

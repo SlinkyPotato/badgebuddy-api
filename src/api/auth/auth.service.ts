@@ -9,12 +9,18 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { TokenRequestGetDto } from './dto/token-request-get.dto';
 import { TokenResponsePostDto } from './dto/token-response-get.dto';
+import { RegisterRequestPostDto } from './dto/register-request-post.dto';
+import { LoginRequestPostDto } from './dto/login-request-post.dto';
+import { LoginResponsePostDto } from './dto/login-response-post.dto';
+import {
+  DataSource,
+} from 'typeorm';
+import { UserEntity } from '@badgebuddy/common';
 
 
 type RedisAuthCode = {
   codeChannelMethod: string;
   codeChallenge: string;
-  userId: string;
 };
 
 @Injectable()
@@ -25,6 +31,7 @@ export class AuthService {
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
     private jwtService: JwtService,
     private readonly configService: ConfigService,
+    private dataSource: DataSource,
   ) { }
 
   /**
@@ -42,13 +49,11 @@ export class AuthService {
     const stored: RedisAuthCode = {
       codeChannelMethod: request.codeChallengeMethod,
       codeChallenge: request.codeChallenge,
-      userId: request.userId,
     };
 
     const signed = this.jwtService.sign(stored, {
-      secret: this.configService.get<string>('AUTH_SECRET_ENCRYPT_KEY'),
       expiresIn: '10m',
-      subject: request.userId,
+      subject: request.clientId,
     })
 
     await this.cacheManager.set(redisAuthKeys.AUTH_REQUEST(request.clientId, code), signed);
@@ -67,22 +72,25 @@ export class AuthService {
    */
   async generateAccessToken(request: TokenRequestGetDto): Promise<TokenResponsePostDto> {
     this.logger.debug(`Attempting to generate access token for client ${request.clientId} with auth code ${request.code}`);
-    const stored = await this.cacheManager.get<string>(redisAuthKeys.AUTH_REQUEST(request.clientId, request.code));
-    if (!stored) {
+    const cacheAuthCode = await this.cacheManager.get<string>(redisAuthKeys.AUTH_REQUEST(request.clientId, request.code));
+    if (!cacheAuthCode) {
       throw new Error('Auth code not found');
     }
-    const verifiedStored: RedisAuthCode = this.jwtService.verify<RedisAuthCode>(stored, {
-      secret: this.configService.get<string>('AUTH_SECRET_ENCRYPT_KEY'),
-    });
-    if (!verifiedStored) {
+    let verifiedStored: RedisAuthCode;
+    try {
+      verifiedStored = this.jwtService.verify<RedisAuthCode>(cacheAuthCode);
+    } catch (error) {
+      await this.cacheManager.del(redisAuthKeys.AUTH_REQUEST(request.clientId, request.code));
       throw new Error('Auth code invalid');
     }
+
+    await this.cacheManager.del(redisAuthKeys.AUTH_REQUEST(request.clientId, request.code));
 
     switch (verifiedStored.codeChannelMethod) {
       case 's256':
         const codeChallenge = crypto.createHash('sha256').update(request.codeVerifier).digest('hex').toString();
-        console.log(codeChallenge);
-        console.log(verifiedStored.codeChallenge);
+        this.logger.debug(codeChallenge);
+        this.logger.debug(verifiedStored.codeChallenge);
         if (codeChallenge !== verifiedStored.codeChallenge) {
           throw new Error('Code challenge invalid');
         }
@@ -92,25 +100,84 @@ export class AuthService {
     }
 
     const accessToken = this.jwtService.sign({}, {
-      secret: this.configService.get<string>('AUTH_SECRET_ENCRYPT_KEY'),
       expiresIn: '1h',
-      issuer: this.configService.get<string>('AUTH_ISSUER'),
-      subject: verifiedStored.userId,
+      subject: request.clientId,
     });
 
     const refreshToken = this.jwtService.sign({}, {
-      secret: this.configService.get<string>('AUTH_SECRET_ENCRYPT_KEY'),
-      expiresIn: '1d',
-      issuer: this.configService.get<string>('AUTH_ISSUER'),
-      subject: verifiedStored.userId,
+      expiresIn: '3h',
+      subject: request.clientId,
     });
 
-    await this.cacheManager.del(redisAuthKeys.AUTH_REQUEST(request.clientId, request.code));
     this.logger.debug(`Generated access token for client ${request.clientId} with auth code ${request.code}`);
     return {
       tokenType: 'Bearer',
       expiresIn: 3600,
       accessToken,
+      refreshToken
+    };
+  }
+
+  /**
+   * Register a user.
+   * @param request RegisterRequestPostDto
+   * @returns Promise<void>
+   */
+  async register(request: RegisterRequestPostDto): Promise<void> {
+    this.logger.debug(`Attempting to register user ${request.email}`);
+
+    try {
+      await this.dataSource.createQueryBuilder()
+        .insert()
+        .into(UserEntity)
+        .values({
+          email: request.email,
+          passwordHash: request.passwordHash,
+        })
+        .execute();
+    } catch (error) {
+      throw new Error('User already exists');
+    }
+
+    // send out email verification
+
+    this.logger.debug(`Registered user ${request.email}`);
+  }
+
+  /**
+   * Login a user.
+   * @param request LoginRequestPostDto
+   * @returns Promise<LoginResponsePostDto>
+   */
+  async login(request: LoginRequestPostDto): Promise<LoginResponsePostDto> {
+    this.logger.debug(`Attempting to login user ${request.email}`);
+
+    const user = await this.dataSource.createQueryBuilder()
+      .select('user')
+      .from(UserEntity, 'user')
+      .where('user.email = :email', { email: request.email })
+      .andWhere('user.password_hash = :hash', { hash: request.passwordHash })
+      .getOne();
+
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    const userToken = this.jwtService.sign({}, {
+      expiresIn: '24h',
+      subject: user.id,
+    });
+
+    const refreshToken = this.jwtService.sign({}, {
+      expiresIn: '7d',
+      subject: user.id,
+    });
+
+    this.logger.debug(`Logged in user ${request.email}`);
+    return {
+      tokenType: 'Bearer',
+      expiresIn: 86400,
+      accessToken: userToken,
       refreshToken
     };
   }

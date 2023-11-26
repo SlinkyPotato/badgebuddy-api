@@ -1,7 +1,7 @@
-import { ClientGuard } from './client.guard';
+import { ClientIdGuard } from './client-id-guard.service';
 
 describe('ClientGuard', () => {
   it('should be defined', () => {
-    expect(new ClientGuard()).toBeDefined();
+    expect(new ClientIdGuard()).toBeDefined();
   });
 });
