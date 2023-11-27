@@ -14,16 +14,17 @@ import {
   ApiResponse,
   ApiTags
 } from '@nestjs/swagger';
-import { AuthorizeRequestGetDto } from './dto/authorize-request-get.dto';
-import { AuthorizeResponseGetDto } from './dto/authorize-response-get.dto';
-import { TokenRequestGetDto } from './dto/token-request-get.dto';
-import { TokenResponsePostDto } from './dto/token-response-get.dto';
+import { AuthorizeGetRequestDto } from './dto/authorize-get-request.dto';
+import { AuthorizeGetResponseDto } from './dto/authorize-get-response.dto';
+import { TokenGetRequestDto } from './dto/token-get-request.dto';
+import { TokenPostResponseDto } from './dto/token-response-get.dto';
 import { AuthService } from './auth.service';
-import { RegisterRequestPostDto } from './dto/register-request-post.dto';
-import { LoginRequestPostDto } from './dto/login-request-post.dto';
-import { LoginResponsePostDto } from './dto/login-response-post.dto';
+import { RegisterPostRequestDto } from './dto/register-post-request.dto';
+import { LoginPostRequestDto } from './dto/login-post-request.dto';
+import { LoginPostResponseDto } from './dto/login-post-response.dto';
 import { ClientTokenGuard } from './guards/client-token.guard';
 import { ClientIdGuard } from './guards/client-id.guard';
+import { RegisterPostResponseDto } from './dto/register-post-response.dto';
 
 @Controller('auth')
 @ApiTags('auth')
@@ -39,9 +40,9 @@ export class AuthController {
   @ApiResponse({
     status: 200,
     description: 'Authorized',
-    type: AuthorizeResponseGetDto,
+    type: AuthorizeGetResponseDto,
   })
-  authorize(@Query() request: AuthorizeRequestGetDto): Promise<AuthorizeResponseGetDto> {
+  authorize(@Query() request: AuthorizeGetRequestDto): Promise<AuthorizeGetResponseDto> {
     return this.authService.generateAuthCode(request);
   }
 
@@ -51,9 +52,9 @@ export class AuthController {
   @ApiResponse({
     status: 200,
     description: 'Token',
-    type: TokenResponsePostDto,
+    type: TokenPostResponseDto,
   })
-  token(@Body() request: TokenRequestGetDto): Promise<TokenResponsePostDto> {
+  token(@Body() request: TokenGetRequestDto): Promise<TokenPostResponseDto> {
     return this.authService.generateAccessToken(request);
   }
 
@@ -66,10 +67,10 @@ export class AuthController {
     required: true,
   }])
   @ApiResponse({
-    status: 200,
+    status: 201,
     description: 'Registered',
   })
-  register(@Body() request: RegisterRequestPostDto): Promise<void> {
+  register(@Body() request: RegisterPostRequestDto): Promise<RegisterPostResponseDto> {
     return this.authService.register(request);
   }
 
@@ -86,8 +87,8 @@ export class AuthController {
     required: true,
   }])
   login(
-    @Body() request: LoginRequestPostDto
-  ): Promise<LoginResponsePostDto> {
+    @Body() request: LoginPostRequestDto
+  ): Promise<LoginPostResponseDto> {
     return this.authService.login(request);
   }
 

@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsOptional, IsString } from 'class-validator';
 
-export class AuthorizeRequestGetDto {
+export class AuthorizeGetRequestDto {
   @IsString()
   @ApiProperty({
     description: 'The client ID',

@@ -1,7 +1,7 @@
-import { LoginRequestPostDto } from './login-request-post.dto';
+import { LoginPostRequestDto } from './login-post-request.dto';
 
 describe('LoginRequestPostDto', () => {
   it('should be defined', () => {
-    expect(new LoginRequestPostDto()).toBeDefined();
+    expect(new LoginPostRequestDto()).toBeDefined();
   });
 });

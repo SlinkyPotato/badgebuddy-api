@@ -1,7 +1,7 @@
-import { RegisterRequestPostDto } from './register-request-post.dto';
+import { RegisterPostRequestDto } from './register-post-request.dto';
 
 describe('RegisterRequestPostDto', () => {
   it('should be defined', () => {
-    expect(new RegisterRequestPostDto()).toBeDefined();
+    expect(new RegisterPostRequestDto()).toBeDefined();
   });
 });

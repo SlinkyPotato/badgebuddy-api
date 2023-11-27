@@ -18,10 +18,16 @@ export class ClientTokenGuard implements CanActivate {
   canActivate(
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
-    const headers = context.switchToHttp().getRequest().headers;
-    const accessToken = this.extractTokenFromHeader(headers);
-    if (!accessToken) {
-      this.logger.warn('No access token provided');
+    let accessToken: string;
+    try {
+      accessToken = context.switchToHttp().getRequest().headers['authorization'].split(' ')[1];
+      if (!accessToken) {
+        this.logger.warn('No access token provided');
+        return false;
+      }
+    } catch (error) {
+      this.logger.warn('No authorization header provided');
+      this.logger.error(error);
       return false;
     }
     try {
@@ -31,10 +37,5 @@ export class ClientTokenGuard implements CanActivate {
       this.logger.warn('Invalid access token');
       return false;
     }
-  }
-
-  private extractTokenFromHeader(request: Request): string | undefined {
-    const [type, token] = request.headers.get('Authorization')?.split(' ') ?? [];
-    return type === 'Bearer' ? token : undefined;
   }
 }

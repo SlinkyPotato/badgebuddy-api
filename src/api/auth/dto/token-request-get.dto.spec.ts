@@ -1,9 +1,9 @@
 
 import { describe, it, expect } from '@jest/globals';
-import { TokenRequestGetDto } from './token-request-get.dto';
+import { TokenGetRequestDto } from './token-get-request.dto';
 
 describe('GetTokenRequestDto', () => {
   it('should be defined', () => {
-    expect(new TokenRequestGetDto()).toBeDefined();
+    expect(new TokenGetRequestDto()).toBeDefined();
   });
 });

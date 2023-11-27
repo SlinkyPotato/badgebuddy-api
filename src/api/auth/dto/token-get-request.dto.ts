@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsIn, IsString } from 'class-validator';
 
-export class TokenRequestGetDto {
+export class TokenGetRequestDto {
   @IsString()
   @ApiProperty({
     description: 'Authorization code',

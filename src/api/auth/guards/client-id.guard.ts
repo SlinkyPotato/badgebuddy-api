@@ -13,7 +13,7 @@ export class ClientIdGuard implements CanActivate {
   canActivate(
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
-    const allowedClients = this.configService.get<string>('ALLOWED_CLIENT_IDS')?.split(',') ?? [];
+    const allowedClients = this.configService.get<string>('AUTH_ALLOWED_CLIENT_IDS')?.split(',') ?? [];
     const request = context.switchToHttp().getRequest();
     const clientId = request.query.clientId ?? request.body.clientId;
 

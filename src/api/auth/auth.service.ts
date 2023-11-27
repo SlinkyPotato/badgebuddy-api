@@ -1,26 +1,33 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
-import { AuthorizeRequestGetDto } from './dto/authorize-request-get.dto';
-import { AuthorizeResponseGetDto } from './dto/authorize-response-get.dto';
+import {
+  ConflictException,
+  Inject,
+  Injectable,
+  Logger,
+  NotAcceptableException
+} from '@nestjs/common';
+import { AuthorizeGetRequestDto } from './dto/authorize-get-request.dto';
+import { AuthorizeGetResponseDto } from './dto/authorize-get-response.dto';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import crypto from 'crypto';
 import { redisAuthKeys } from '../redis-keys.constant';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { TokenRequestGetDto } from './dto/token-request-get.dto';
-import { TokenResponsePostDto } from './dto/token-response-get.dto';
-import { RegisterRequestPostDto } from './dto/register-request-post.dto';
-import { LoginRequestPostDto } from './dto/login-request-post.dto';
-import { LoginResponsePostDto } from './dto/login-response-post.dto';
+import { TokenGetRequestDto } from './dto/token-get-request.dto';
+import { TokenPostResponseDto } from './dto/token-response-get.dto';
+import { RegisterPostRequestDto } from './dto/register-post-request.dto';
+import { LoginPostRequestDto } from './dto/login-post-request.dto';
+import { LoginPostResponseDto } from './dto/login-post-response.dto';
 import {
   DataSource,
 } from 'typeorm';
 import {
   UserEntity,
-  VerificationTokenEntity
 } from '@badgebuddy/common';
 import nodemailer from 'nodemailer';
 import mjml2html from 'mjml';
+import { RegisterPostResponseDto } from './dto/register-post-response.dto';
+import base64url from 'base64url';
 
 
 type RedisAuthCode = {
@@ -53,11 +60,11 @@ export class AuthService {
   /**
    * Generate an auth code.
    * @param request AuthorizeRequestGetDto
-   * @returns Promise<AuthorizeResponseGetDto>
+   * @returns Promise<AuthorizeGetResponseDto>
    *
    * @see https://tools.ietf.org/html/rfc7636
    */
-  async generateAuthCode(request: AuthorizeRequestGetDto): Promise<AuthorizeResponseGetDto> {
+  async generateAuthCode(request: AuthorizeGetRequestDto): Promise<AuthorizeGetResponseDto> {
     this.logger.debug(`Attempting to generate auth token for client: ${request.clientId}`);
     const code = crypto.randomBytes(16).toString('hex');
     await this.cacheManager.del(redisAuthKeys.AUTH_REQUEST(request.clientId, code));
@@ -86,7 +93,7 @@ export class AuthService {
    *
    * @see https://tools.ietf.org/html/rfc6749#section-4.1.3
    */
-  async generateAccessToken(request: TokenRequestGetDto): Promise<TokenResponsePostDto> {
+  async generateAccessToken(request: TokenGetRequestDto): Promise<TokenPostResponseDto> {
     this.logger.debug(`Attempting to generate access token for client ${request.clientId} with auth code ${request.code}`);
     const cacheAuthCode = await this.cacheManager.get<string>(redisAuthKeys.AUTH_REQUEST(request.clientId, request.code));
     if (!cacheAuthCode) {
@@ -97,7 +104,7 @@ export class AuthService {
       verifiedStored = this.jwtService.verify<RedisAuthCode>(cacheAuthCode);
     } catch (error) {
       await this.cacheManager.del(redisAuthKeys.AUTH_REQUEST(request.clientId, request.code));
-      throw new Error('Auth code invalid');
+      throw new NotAcceptableException('Auth code invalid');
     }
 
     await this.cacheManager.del(redisAuthKeys.AUTH_REQUEST(request.clientId, request.code));
@@ -108,11 +115,11 @@ export class AuthService {
         this.logger.debug(codeChallenge);
         this.logger.debug(verifiedStored.codeChallenge);
         if (codeChallenge !== verifiedStored.codeChallenge) {
-          throw new Error('Code challenge invalid');
+          throw new NotAcceptableException('Code challenge invalid');
         }
         break;
       default:
-        throw new Error('Code challenge method invalid');
+        throw new NotAcceptableException('Code challenge method invalid');
     }
 
     const accessToken = this.jwtService.sign({}, {
@@ -139,61 +146,50 @@ export class AuthService {
    * @param request RegisterRequestPostDto
    * @returns Promise<void>
    */
-  async register(request: RegisterRequestPostDto): Promise<void> {
+  async register(request: RegisterPostRequestDto): Promise<RegisterPostResponseDto> {
     this.logger.debug(`Attempting to register user ${request.email}`);
-    let user: UserEntity;
+    let userId: string;
     try {
-      const result = await this.dataSource.createQueryBuilder()
-        .insert()
-        .into(UserEntity)
-        .values({
-          email: request.email,
-          passwordHash: request.passwordHash,
-        })
-        .execute();
-      user = {
-        id: result.identifiers[0].id,
-        name: null,
+      const result = await this.dataSource.manager.insert(UserEntity, {
         email: request.email,
         passwordHash: request.passwordHash,
-        emailVerified: null,
-        image: null,
-        sessions: [],
-        accounts: [],
-      };
+      });
+      userId = result.identifiers[0].id;
     } catch (error) {
-      throw new Error('User already exists');
+      this.logger.error(error);
+      throw new ConflictException('User already exists');
     }
 
-    // send out email verification
-    const randomHash = crypto.randomBytes(16).toString('hex').toString();
-    const signed = this.jwtService.sign({
-      hash: randomHash,
-      email: user.email,
-    }, {
-      expiresIn: '24h',
-      subject: user.id,
-    });
-
-    await this.dataSource.createQueryBuilder()
-      .insert()
-      .into(VerificationTokenEntity)
-      .values({
-        userId: request.email,
-        token: randomHash,
-      })
-
-
+    const randomHash = crypto.randomBytes(16).toString('base64url');
+    const encoding = base64url(`${request.email}:${randomHash}`);
+    await this.cacheManager.set(redisAuthKeys.AUTH_EMAIL_VERIFY(request.email), encoding, (1000 * 60 * 60 * 24));
+    const mjmlParse = this.generateConfirmationEmailHtml(encoding);
+    try {
+      const info = await this.transporter.sendMail({
+        from: this.configService.get<string>('MAIL_FROM'),
+        to: 'patinobrian@gmail.com',
+        subject: 'Welcome to BadgeBuddy',
+        text: 'Please confirm your email.',
+        html: mjmlParse.html,
+      });
+      console.log(info);
+    } catch (error) {
+      this.logger.warn(`Failed to send confirmation email to ${request.email}`);
+      this.logger.error(error);
+    }
 
     this.logger.debug(`Registered user ${request.email}`);
+    return {
+      userId: userId,
+    };
   }
 
   /**
    * Login a user.
    * @param request LoginRequestPostDto
-   * @returns Promise<LoginResponsePostDto>
+   * @returns Promise<LoginPostResponseDto>
    */
-  async login(request: LoginRequestPostDto): Promise<LoginResponsePostDto> {
+  async login(request: LoginPostRequestDto): Promise<LoginPostResponseDto> {
     this.logger.debug(`Attempting to login user ${request.email}`);
 
     const user = await this.dataSource.createQueryBuilder()
@@ -227,7 +223,7 @@ export class AuthService {
   }
 
   async test(): Promise<void> {
-    const mjmlParse = this.generateConfirmationEmailHtml();
+    const mjmlParse = this.generateConfirmationEmailHtml('');
     try {
       const info = await this.transporter.sendMail({
         from: this.configService.get<string>('MAIL_FROM'),
@@ -242,7 +238,7 @@ export class AuthService {
     }
   }
 
-  private generateConfirmationEmailHtml() {
+  private generateConfirmationEmailHtml(encoding: string) {
     return mjml2html(`
       <mjml>
         <mj-body>
@@ -264,20 +260,20 @@ export class AuthService {
               
               <mj-spacer height="100px" />
               <mj-text font-size="16px" color="#222b45" font-family="Open Sans, sans-serif">
-                gm frens 👋,
+                gm fren 👋,
               </mj-text>
               <mj-text font-size="16px" color="#222b45" font-family="Open Sans, sans-serif">
                 Thank you for creating an account on BadeBuddy!
               </mj-text>
               <mj-text font-size="16px" color="#222b45" font-family="Open Sans, sans-serif">
-              I hope you enjoy the services provided. Hit the below button to confirm your email. If this wasn't you, no worries, our automated systems wil take care of cleanup 🤖
+              I hope you enjoy the services provided. Hit the button to confirm your email. If this wasn't you, please ignore 🤖
               </mj-text>
               <mj-text font-size="16px" color="#222b45" font-family="Open Sans, sans-serif">
               wgmi
               </mj-text>
               <mj-spacer height="75px" />
               <mj-button background-color="#222b45"
-                           href="#">Confirm Email</mj-button>
+                           href="http://localhost:4200/verify?type=email&key=${encoding}"">Confirm Email</mj-button>
               <mj-spacer height="75px" />
               
               <mj-divider border-color="#222b45"></mj-divider>
