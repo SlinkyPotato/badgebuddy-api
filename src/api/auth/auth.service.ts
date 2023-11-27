@@ -98,7 +98,7 @@ export class AuthService {
     this.logger.debug(`Attempting to generate access token for client ${request.clientId} with auth code ${request.code}`);
     const cacheAuthCode = await this.cacheManager.get<string>(redisAuthKeys.AUTH_REQUEST(request.clientId, request.code));
     if (!cacheAuthCode) {
-      throw new Error('Auth code not found');
+      throw new NotFoundException('Auth code not found');
     }
     let verifiedStored: RedisAuthCode;
     try {
@@ -201,7 +201,7 @@ export class AuthService {
       .getOne();
 
     if (!user) {
-      throw new Error('User not found');
+      throw new NotFoundException('User not found');
     }
 
     const userToken = this.jwtService.sign({}, {

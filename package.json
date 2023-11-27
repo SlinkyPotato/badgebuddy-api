@@ -38,7 +38,7 @@
     "git:sync": "git fetch && git pull && dotenv-vault pull"
   },
   "dependencies": {
-    "@badgebuddy/common": "1.1.0-23",
+    "@badgebuddy/common": "1.1.0-24",
     "@discord-nestjs/common": "^5.2.10",
     "@discord-nestjs/core": "^5.3.12",
     "@fastify/static": "^6.12.0",
