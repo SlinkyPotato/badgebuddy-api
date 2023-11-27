@@ -215,21 +215,27 @@ export class AuthService {
           </mj-section>
           <mj-section>
             <mj-column>
-              <mj-spacer height="10px" />
-              <mj-text font-size="20px" color="#222b45" font-family="helvetica" align="center">
-                gm frens 👋
-              </mj-text>
-              <mj-spacer height="10px" />
+              <mj-spacer height="20px" />
               <mj-divider border-color="#222b45"></mj-divider>
               
               <mj-spacer height="100px" />
-              <mj-text font-size="16px" color="#222b45" font-family="helvetica" align="center">
-                Thank you for creating an account on BadeBuddy! I hope you enjoy the services provided. Hit that button to confirm your email. If this wasn't you, no worries, our automated systems wil take care of cleanup 🤖
+              <mj-text font-size="16px" color="#222b45" font-family="Open Sans, sans-serif">
+                gm frens 👋,
               </mj-text>
-              <mj-spacer height="25px" />
+              <mj-text font-size="16px" color="#222b45" font-family="Open Sans, sans-serif">
+                Thank you for creating an account on BadeBuddy!
+              </mj-text>
+              <mj-text font-size="16px" color="#222b45" font-family="Open Sans, sans-serif">
+              I hope you enjoy the services provided. Hit the below button to confirm your email. If this wasn't you, no worries, our automated systems wil take care of cleanup 🤖
+              </mj-text>
+              <mj-text font-size="16px" color="#222b45" font-family="Open Sans, sans-serif">
+                Best, <br />
+                BadgeBuddy
+              </mj-text>
+              <mj-spacer height="75px" />
               <mj-button background-color="#222b45"
                            href="#">Confirm Email</mj-button>
-              <mj-spacer height="100px" />
+              <mj-spacer height="75px" />
               
               <mj-divider border-color="#222b45"></mj-divider>
             </mj-column>
