@@ -3,7 +3,7 @@ import {
   Inject,
   Injectable,
   Logger,
-  NotAcceptableException
+  NotAcceptableException, NotFoundException
 } from '@nestjs/common';
 import { AuthorizeGetRequestDto } from './dto/authorize-get-request.dto';
 import { AuthorizeGetResponseDto } from './dto/authorize-get-response.dto';
@@ -28,6 +28,7 @@ import nodemailer from 'nodemailer';
 import mjml2html from 'mjml';
 import { RegisterPostResponseDto } from './dto/register-post-response.dto';
 import base64url from 'base64url';
+import { VerifyPatchRequestDto } from './dto/verify-patch-request.dto';
 
 
 type RedisAuthCode = {
@@ -220,6 +221,38 @@ export class AuthService {
       accessToken: userToken,
       refreshToken
     };
+  }
+
+  async verify(request: VerifyPatchRequestDto): Promise<void> {
+    this.logger.debug(`Attempting to verify code`);
+    const [requestEmail, requestRandomHash] = base64url.decode(request.encoding).split(':');
+    if (!requestEmail || !requestRandomHash) {
+      throw new NotAcceptableException('Email verification invalid');
+    }
+    const encoding = await this.cacheManager.get<string>(redisAuthKeys.AUTH_EMAIL_VERIFY(requestEmail));
+    if (!encoding) {
+      throw new NotFoundException('Email verification not found');
+    }
+    const [email, randomHash] = base64url.decode(encoding).split(':');
+    if (email !== requestEmail || randomHash !== requestRandomHash) {
+      throw new NotAcceptableException('Email verification invalid');
+    }
+
+    try {
+      const result = await this.dataSource.createQueryBuilder()
+        .update(UserEntity)
+        .set({ emailVerified: new Date() })
+        .where('email = :email', { email: requestEmail })
+        .execute();
+      if (result.affected !== 1) {
+        throw new Error('Failed update db');
+      }
+    } catch(error) {
+      this.logger.error(error);
+      throw new Error('Failed update db');
+    }
+
+    await this.cacheManager.del(redisAuthKeys.AUTH_EMAIL_VERIFY(requestEmail));
   }
 
   async test(): Promise<void> {

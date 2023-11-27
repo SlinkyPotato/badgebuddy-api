@@ -1,7 +1,7 @@
 import {
   Body,
   Controller,
-  Get,
+  Get, Patch,
   Post,
   Query,
   UseGuards,
@@ -25,6 +25,7 @@ import { LoginPostResponseDto } from './dto/login-post-response.dto';
 import { ClientTokenGuard } from './guards/client-token.guard';
 import { ClientIdGuard } from './guards/client-id.guard';
 import { RegisterPostResponseDto } from './dto/register-post-response.dto';
+import { VerifyPatchRequestDto } from './dto/verify-patch-request.dto';
 
 @Controller('auth')
 @ApiTags('auth')
@@ -72,6 +73,22 @@ export class AuthController {
   })
   register(@Body() request: RegisterPostRequestDto): Promise<RegisterPostResponseDto> {
     return this.authService.register(request);
+  }
+
+  @UseGuards(ClientTokenGuard)
+  @Patch('/verify/email')
+  @ApiOperation({ summary: 'Verify email' })
+  @ApiHeaders([{
+    name: 'Authorization',
+    description: 'The authorization token',
+    required: true,
+  }])
+  @ApiResponse({
+    status: 200,
+    description: 'Email verified',
+  })
+  verify(@Body() request: VerifyPatchRequestDto): Promise<void> {
+    return this.authService.verify(request);
   }
 
   @UseGuards(ClientTokenGuard)
