@@ -204,10 +204,11 @@ export class AuthService {
         <mj-body>
           <mj-section background-color="#222b45">
             <mj-column>
-              <mj-text  align="center"
+              <mj-text  
+                    align="center"
                     font-style="italic"
-                        font-size="20px"
-                        color="#fff">
+                    font-size="20px"
+                    color="#fff">
                 BadgeBuddy
               </mj-text>
             </mj-column>
@@ -216,14 +217,14 @@ export class AuthService {
             <mj-column>
               <mj-spacer height="10px" />
               <mj-text font-size="20px" color="#222b45" font-family="helvetica" align="center">
-                Helping web3 communities across discord manage their events.
+                gm frens 👋
               </mj-text>
               <mj-spacer height="10px" />
               <mj-divider border-color="#222b45"></mj-divider>
               
               <mj-spacer height="100px" />
-              <mj-text font-size="20px" color="#222b45" font-family="helvetica" align="center">
-                If you did not request for a new account, please ignore.
+              <mj-text font-size="16px" color="#222b45" font-family="helvetica" align="center">
+                Thank you for creating an account on BadeBuddy! I hope you enjoy the services provided. Hit that button to confirm your email. If this wasn't you, no worries, our automated systems wil take care of cleanup 🤖
               </mj-text>
               <mj-spacer height="25px" />
               <mj-button background-color="#222b45"
