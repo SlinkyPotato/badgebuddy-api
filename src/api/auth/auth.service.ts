@@ -15,7 +15,10 @@ import { LoginResponsePostDto } from './dto/login-response-post.dto';
 import {
   DataSource,
 } from 'typeorm';
-import { UserEntity } from '@badgebuddy/common';
+import {
+  UserEntity,
+  VerificationTokenEntity
+} from '@badgebuddy/common';
 import nodemailer from 'nodemailer';
 import mjml2html from 'mjml';
 
@@ -138,9 +141,9 @@ export class AuthService {
    */
   async register(request: RegisterRequestPostDto): Promise<void> {
     this.logger.debug(`Attempting to register user ${request.email}`);
-
+    let user: UserEntity;
     try {
-      await this.dataSource.createQueryBuilder()
+      const result = await this.dataSource.createQueryBuilder()
         .insert()
         .into(UserEntity)
         .values({
@@ -148,13 +151,38 @@ export class AuthService {
           passwordHash: request.passwordHash,
         })
         .execute();
+      user = {
+        id: result.identifiers[0].id,
+        name: null,
+        email: request.email,
+        passwordHash: request.passwordHash,
+        emailVerified: null,
+        image: null,
+        sessions: [],
+        accounts: [],
+      };
     } catch (error) {
       throw new Error('User already exists');
     }
 
     // send out email verification
-    const randomHash = crypto.randomBytes(16).toString('hex');
-    // await this.cacheManager.set(redisAuthKeys.EMAIL_VERIFICATION(request.email), randomHash);
+    const randomHash = crypto.randomBytes(16).toString('hex').toString();
+    const signed = this.jwtService.sign({
+      hash: randomHash,
+      email: user.email,
+    }, {
+      expiresIn: '24h',
+      subject: user.id,
+    });
+
+    await this.dataSource.createQueryBuilder()
+      .insert()
+      .into(VerificationTokenEntity)
+      .values({
+        userId: request.email,
+        token: randomHash,
+      })
+
 
 
     this.logger.debug(`Registered user ${request.email}`);
@@ -199,7 +227,23 @@ export class AuthService {
   }
 
   async test(): Promise<void> {
-    const mjmlParse = mjml2html(`
+    const mjmlParse = this.generateConfirmationEmailHtml();
+    try {
+      const info = await this.transporter.sendMail({
+        from: this.configService.get<string>('MAIL_FROM'),
+        to: 'patinobrian@gmail.com',
+        subject: 'Welcome to BadgeBuddy',
+        text: 'Please confirm your email.',
+        html: mjmlParse.html,
+      });
+      console.log(info);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  private generateConfirmationEmailHtml() {
+    return mjml2html(`
       <mjml>
         <mj-body>
           <mj-section background-color="#222b45">
@@ -229,8 +273,7 @@ export class AuthService {
               I hope you enjoy the services provided. Hit the below button to confirm your email. If this wasn't you, no worries, our automated systems wil take care of cleanup 🤖
               </mj-text>
               <mj-text font-size="16px" color="#222b45" font-family="Open Sans, sans-serif">
-                Best, <br />
-                BadgeBuddy
+              wgmi
               </mj-text>
               <mj-spacer height="75px" />
               <mj-button background-color="#222b45"
@@ -248,17 +291,5 @@ export class AuthService {
         </mj-body>
       </mjml>
     `);
-    try {
-      const info = await this.transporter.sendMail({
-        from: this.configService.get<string>('MAIL_FROM'),
-        to: 'patinobrian@gmail.com',
-        subject: 'Welcome to BadgeBuddy',
-        text: 'Please confirm your email.',
-        html: mjmlParse.html,
-      });
-      console.log(info);
-    } catch (error) {
-      console.log(error);
-    }
   }
 }
