@@ -18,9 +18,14 @@ export class ClientTokenGuard implements CanActivate {
   canActivate(
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
+    const authorizationHeader = context.switchToHttp().getRequest().headers['authorization'];
+    if (!authorizationHeader) {
+      this.logger.warn('No authorization header provided');
+      return false;
+    }
     let accessToken: string;
     try {
-      accessToken = context.switchToHttp().getRequest().headers['authorization'].split(' ')[1];
+      accessToken = authorizationHeader.split(' ')[1];
       if (!accessToken) {
         this.logger.warn('No access token provided');
         return false;

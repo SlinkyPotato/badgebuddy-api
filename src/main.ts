@@ -21,6 +21,11 @@ async function bootstrap() {
       logger: pinoLoggerService,
     },
   );
+  
+  app.enableCors({
+    origin: [process.env.CORS_ORIGIN ?? '']
+  });
+
   const config = new DocumentBuilder()
     .setTitle('Badge Buddy API')
     .setDescription('API for Badge Buddy to management POAP Events.')
