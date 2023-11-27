@@ -7,5 +7,5 @@ export class VerifyPatchRequestDto {
     description: 'Encoded verification code',
     type: String,
   })
-  encoding: string;
+  code: string;
 }

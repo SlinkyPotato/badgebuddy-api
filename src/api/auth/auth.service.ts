@@ -225,7 +225,7 @@ export class AuthService {
 
   async verify(request: VerifyPatchRequestDto): Promise<void> {
     this.logger.debug(`Attempting to verify code`);
-    const [requestEmail, requestRandomHash] = base64url.decode(request.encoding).split(':');
+    const [requestEmail, requestRandomHash] = base64url.decode(request.code).split(':');
     if (!requestEmail || !requestRandomHash) {
       throw new NotAcceptableException('Email verification invalid');
     }
