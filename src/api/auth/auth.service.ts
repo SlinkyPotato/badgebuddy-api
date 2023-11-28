@@ -150,6 +150,15 @@ export class AuthService {
   async register(request: RegisterPostRequestDto): Promise<RegisterPostResponseDto> {
     this.logger.debug(`Attempting to register user ${request.email}`);
     let userId: string;
+    const foundUser = await this.dataSource.createQueryBuilder()
+        .select('user')
+        .from(UserEntity, 'user')
+        .where('user.email = :email', { email: request.email })
+        .getOne();
+    if (foundUser) {
+      this.logger.warn(`User ${request.email} already exists`);
+      throw new ConflictException('User already exists');
+    }
     try {
       const result = await this.dataSource.manager.insert(UserEntity, {
         email: request.email,
@@ -158,7 +167,7 @@ export class AuthService {
       userId = result.identifiers[0].id;
     } catch (error) {
       this.logger.error(error);
-      throw new ConflictException('User already exists');
+      throw new Error('Failed to register user');
     }
 
     const randomHash = crypto.randomBytes(16).toString('base64url');
