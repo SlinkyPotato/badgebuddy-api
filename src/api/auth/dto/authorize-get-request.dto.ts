@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsOptional, IsString } from 'class-validator';
+import { IsAlpha, IsAlphanumeric, IsOptional, IsString } from 'class-validator';
 
 export class AuthorizeGetRequestDto {
   @IsString()
@@ -10,6 +10,7 @@ export class AuthorizeGetRequestDto {
   clientId: string;
 
   @IsString()
+  @IsAlphanumeric()
   @ApiProperty({
     description: 'The code challenge method',
     type: String,
@@ -17,6 +18,7 @@ export class AuthorizeGetRequestDto {
   codeChallenge: string;
 
   @IsString()
+  @IsAlphanumeric()
   @ApiProperty({
     description: 'The code challenge',
     type: String,
@@ -33,6 +35,7 @@ export class AuthorizeGetRequestDto {
   scope?: string;
 
   @IsString()
+  @IsAlpha()
   @IsOptional()
   @ApiProperty({
     description: 'The state of the request',
