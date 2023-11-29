@@ -310,7 +310,7 @@ export class AuthService {
               
               <mj-spacer height="100px" />
               <mj-text font-size="16px" color="#222b45" font-family="Open Sans, sans-serif">
-                gm fren 👋,
+                gm 👋,
               </mj-text>
               <mj-text font-size="16px" color="#222b45" font-family="Open Sans, sans-serif">
                 Thank you for creating an account on BadeBuddy!
