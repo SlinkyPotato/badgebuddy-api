@@ -109,8 +109,4 @@ export class AuthController {
     return this.authService.login(request);
   }
 
-  @Post('/test')
-  test(): Promise<void> {
-    return this.authService.test();
-  }
 }

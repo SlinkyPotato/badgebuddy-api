@@ -172,25 +172,35 @@ export class AuthService {
 
     const randomHash = crypto.randomBytes(16).toString('base64url');
     const encoding = base64url(`${request.email}:${randomHash}`);
-    await this.cacheManager.set(redisAuthKeys.AUTH_EMAIL_VERIFY(request.email), encoding, (1000 * 60 * 60 * 24));
+    this.cacheManager.set(redisAuthKeys.AUTH_EMAIL_VERIFY(request.email), encoding, (1000 * 60 * 60 * 24)).then(() =>  {
+      this.logger.debug(`Set email verification for ${request.email} in cache`);
+    }).catch((error) => {
+      this.logger.error(`Failed to set email verification for ${request.email} in cache`, error);
+    });
     const mjmlParse = this.generateConfirmationEmailHtml(encoding);
-    try {
-      const info = await this.transporter.sendMail({
-        from: this.configService.get<string>('MAIL_FROM'),
-        to: 'patinobrian@gmail.com',
-        subject: 'Welcome to BadgeBuddy',
-        text: 'Please confirm your email.',
-        html: mjmlParse.html,
-      });
-      console.log(info);
-    } catch (error) {
-      this.logger.warn(`Failed to send confirmation email to ${request.email}`);
-      this.logger.error(error);
-    }
-
+    this.transporter.sendMail({
+      from: this.configService.get<string>('MAIL_FROM'),
+      to: 'patinobrian@gmail.com',
+      subject: 'Welcome to BadgeBuddy',
+      text: 'Please confirm your email.',
+      html: mjmlParse.html,
+    }).then((info) => {
+      this.logger.debug(`Sent confirmation email to ${request.email}`, info);
+    }).catch((error) => {
+      this.logger.error(`Failed to send confirmation email to ${request.email}`, error);
+    });
     this.logger.debug(`Registered user ${request.email}`);
+    const { accessToken, refreshToken } = this.generateTokens(userId);
+    
     return {
-      userId: userId,
+      user: {
+        id: userId,
+        email: request.email,
+      },
+      tokenType: 'Bearer',
+      expiresIn: 86400,
+      accessToken,
+      refreshToken,
     };
   }
 
@@ -213,22 +223,36 @@ export class AuthService {
       throw new NotFoundException('User not found');
     }
 
-    const userToken = this.jwtService.sign({}, {
+    const { accessToken, refreshToken } = this.generateTokens(user.id);
+    this.logger.debug(`Logged in user ${request.email}`);
+    return {
+      user: {
+        id: user.id,
+        email: user.email!,
+        emailVerifiedOn: user.emailVerifiedOn?.toISOString() ?? undefined,
+        name: user.name ?? undefined,
+      },
+      tokenType: 'Bearer',
+      expiresIn: 86400,
+      accessToken,
+      refreshToken
+    };
+  }
+
+  private generateTokens(userId: string): { accessToken: string, refreshToken: string } {
+    const accessToken = this.jwtService.sign({}, {
       expiresIn: '24h',
-      subject: user.id,
+      subject: userId,
     });
 
     const refreshToken = this.jwtService.sign({}, {
       expiresIn: '7d',
-      subject: user.id,
+      subject: userId,
     });
 
-    this.logger.debug(`Logged in user ${request.email}`);
     return {
-      tokenType: 'Bearer',
-      expiresIn: 86400,
-      accessToken: userToken,
-      refreshToken
+      accessToken,
+      refreshToken,
     };
   }
 
@@ -250,7 +274,7 @@ export class AuthService {
     try {
       const result = await this.dataSource.createQueryBuilder()
         .update(UserEntity)
-        .set({ emailVerified: new Date() })
+        .set({ emailVerifiedOn: new Date() })
         .where('email = :email', { email: requestEmail })
         .execute();
       if (result.affected !== 1) {
@@ -262,22 +286,6 @@ export class AuthService {
     }
 
     await this.cacheManager.del(redisAuthKeys.AUTH_EMAIL_VERIFY(requestEmail));
-  }
-
-  async test(): Promise<void> {
-    const mjmlParse = this.generateConfirmationEmailHtml('');
-    try {
-      const info = await this.transporter.sendMail({
-        from: this.configService.get<string>('MAIL_FROM'),
-        to: 'patinobrian@gmail.com',
-        subject: 'Welcome to BadgeBuddy',
-        text: 'Please confirm your email.',
-        html: mjmlParse.html,
-      });
-      console.log(info);
-    } catch (error) {
-      console.log(error);
-    }
   }
 
   private generateConfirmationEmailHtml(encoding: string) {

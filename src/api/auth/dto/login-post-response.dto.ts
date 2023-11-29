@@ -1,5 +1,6 @@
 import { IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { UserDto } from './user.dto';
 
 export class LoginPostResponseDto {
   @IsString()
@@ -29,4 +30,10 @@ export class LoginPostResponseDto {
     type: Number,
   })
   expiresIn: number;
+
+  @ApiProperty({
+    description: 'The user.',
+    type: UserDto,
+  })
+  user: UserDto;
 }
