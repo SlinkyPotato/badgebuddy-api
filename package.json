@@ -35,7 +35,7 @@
     "env:pull": "dotenv-vault pull",
     "publish-docker:staging": "node publish.docker.js staging latest-beta",
     "publish-docker:production": "node publish.docker.js production latest",
-    "git:sync": "git fetch && git pull && dotenv-vault pull"
+    "sync": "git fetch && git pull && dotenv-vault pull"
   },
   "dependencies": {
     "@badgebuddy/common": "1.1.0-25",
