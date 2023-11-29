@@ -1,9 +1,11 @@
 import {
+  BadRequestException,
   ConflictException,
   Inject,
   Injectable,
+  InternalServerErrorException,
   Logger,
-  NotAcceptableException, NotFoundException
+  NotFoundException, UnprocessableEntityException
 } from '@nestjs/common';
 import { AuthorizeGetRequestDto } from './dto/authorize-get-request.dto';
 import { AuthorizeGetResponseDto } from './dto/authorize-get-response.dto';
@@ -29,6 +31,8 @@ import mjml2html from 'mjml';
 import { RegisterPostResponseDto } from './dto/register-post-response.dto';
 import base64url from 'base64url';
 import { VerifyPatchRequestDto } from './dto/verify-patch-request.dto';
+import { RefreshTokenPostRequestDto } from './dto/refresh-token-post-request.dto';
+import { RefreshTokenPostResponseDto } from './dto/refresh-token-post-response.dto';
 
 
 type RedisAuthCode = {
@@ -36,8 +40,22 @@ type RedisAuthCode = {
   codeChallenge: string;
 };
 
+type AccessToken ={
+  iat: number,
+  exp: number,
+  iss: string,
+  sub: string,
+};
+
+export type UserToken = {
+  userId: string,
+} & AccessToken;
+
 @Injectable()
 export class AuthService {
+  private static readonly ACCESS_TOKEN_EXPIRES_IN = 86400;
+  private static readonly REFRESH_TOKEN_EXPIRES_IN = 604800;
+
   private transporter: nodemailer.Transporter;
 
   constructor(
@@ -105,7 +123,7 @@ export class AuthService {
       verifiedStored = this.jwtService.verify<RedisAuthCode>(cacheAuthCode);
     } catch (error) {
       await this.cacheManager.del(redisAuthKeys.AUTH_REQUEST(request.clientId, request.code));
-      throw new NotAcceptableException('Auth code invalid');
+      throw new UnprocessableEntityException('Auth code invalid');
     }
 
     await this.cacheManager.del(redisAuthKeys.AUTH_REQUEST(request.clientId, request.code));
@@ -116,20 +134,15 @@ export class AuthService {
         this.logger.debug(codeChallenge);
         this.logger.debug(verifiedStored.codeChallenge);
         if (codeChallenge !== verifiedStored.codeChallenge) {
-          throw new NotAcceptableException('Code challenge invalid');
+          throw new UnprocessableEntityException('Code challenge invalid');
         }
         break;
       default:
-        throw new NotAcceptableException('Code challenge method invalid');
+        throw new BadRequestException('Code challenge method invalid');
     }
 
     const accessToken = this.jwtService.sign({}, {
       expiresIn: '1h',
-      subject: request.clientId,
-    });
-
-    const refreshToken = this.jwtService.sign({}, {
-      expiresIn: '3h',
       subject: request.clientId,
     });
 
@@ -138,7 +151,40 @@ export class AuthService {
       tokenType: 'Bearer',
       expiresIn: 3600,
       accessToken,
-      refreshToken
+    };
+  }
+
+  /**
+   * Refresh an access token.
+   * @param request RefreshTokenPostRequestDto
+   * @returns Promise<RefreshTokenPostResponseDto>
+   *
+   * @see https://tools.ietf.org/html/rfc6749#section-6
+   */
+  async refreshAccessToken(request: RefreshTokenPostRequestDto, requestAccessToken: string): Promise<RefreshTokenPostResponseDto> {    
+    this.logger.debug(`Attempting to refresh access token for client`);
+    const decodedAccessToken = this.jwtService.decode<UserToken>(requestAccessToken);
+    let decodedRefresh: UserToken;
+    try {
+      decodedRefresh = this.jwtService.verify<UserToken>(request.refreshToken);
+      if (!decodedRefresh.userId || decodedRefresh.sub !== decodedAccessToken.sub || decodedRefresh.iss !== decodedAccessToken.iss || decodedRefresh.userId !== decodedAccessToken.userId) {
+        throw new UnprocessableEntityException('Invalid refresh token');
+      }
+    } catch (error) {
+      throw new UnprocessableEntityException('Invalid token invalid');
+    }
+    const cacheRefreshToken = await this.cacheManager.get<string>(redisAuthKeys.AUTH_REFRESH_TOKEN(decodedRefresh.userId));
+    if (!cacheRefreshToken || cacheRefreshToken !== request.refreshToken) {
+      throw new NotFoundException('Invalid refresh token');
+    }
+    
+    const { accessToken , refreshToken } = this.generateTokens(decodedAccessToken.sub, decodedAccessToken.userId);
+
+    return {
+      tokenType: 'Bearer',
+      expiresIn: AuthService.ACCESS_TOKEN_EXPIRES_IN,
+      accessToken: accessToken,
+      refreshToken: refreshToken,
     };
   }
 
@@ -167,7 +213,7 @@ export class AuthService {
       userId = result.identifiers[0].id;
     } catch (error) {
       this.logger.error(error);
-      throw new Error('Failed to register user');
+      throw new InternalServerErrorException('Failed to register user');
     }
 
     const randomHash = crypto.randomBytes(16).toString('base64url');
@@ -190,7 +236,8 @@ export class AuthService {
       this.logger.error(`Failed to send confirmation email to ${request.email}`, error);
     });
     this.logger.debug(`Registered user ${request.email}`);
-    const { accessToken, refreshToken } = this.generateTokens(userId);
+
+    const { accessToken, refreshToken } = this.generateTokens(request.clientId, userId);
     
     return {
       user: {
@@ -198,7 +245,7 @@ export class AuthService {
         email: request.email,
       },
       tokenType: 'Bearer',
-      expiresIn: 86400,
+      expiresIn: AuthService.ACCESS_TOKEN_EXPIRES_IN,
       accessToken,
       refreshToken,
     };
@@ -223,7 +270,8 @@ export class AuthService {
       throw new NotFoundException('User not found');
     }
 
-    const { accessToken, refreshToken } = this.generateTokens(user.id);
+    const { accessToken, refreshToken } = this.generateTokens(request.clientId, user.id);
+
     this.logger.debug(`Logged in user ${request.email}`);
     return {
       user: {
@@ -233,21 +281,31 @@ export class AuthService {
         name: user.name ?? undefined,
       },
       tokenType: 'Bearer',
-      expiresIn: 86400,
+      expiresIn: AuthService.ACCESS_TOKEN_EXPIRES_IN,
       accessToken,
       refreshToken
     };
   }
 
-  private generateTokens(userId: string): { accessToken: string, refreshToken: string } {
-    const accessToken = this.jwtService.sign({}, {
+  private generateTokens(clientId: string, userId: string): { accessToken: string, refreshToken: string } {
+    const accessToken = this.jwtService.sign({
+      userId: userId,
+    }, {
       expiresIn: '24h',
-      subject: userId,
+      subject: clientId,
     });
 
-    const refreshToken = this.jwtService.sign({}, {
+    const refreshToken = this.jwtService.sign({
+      userId: userId,
+    }, {
       expiresIn: '7d',
-      subject: userId,
+      subject: clientId,
+    });
+
+    this.cacheManager.set(redisAuthKeys.AUTH_REFRESH_TOKEN(userId), refreshToken, (AuthService.REFRESH_TOKEN_EXPIRES_IN * 1000)).then(() =>  {
+      this.logger.debug(`Set refresh token for ${userId} in cache`);
+    }).catch((error) => {
+      this.logger.error(`Failed to store refresh token for ${userId}`, error);
     });
 
     return {
@@ -260,7 +318,7 @@ export class AuthService {
     this.logger.debug(`Attempting to verify code`);
     const [requestEmail, requestRandomHash] = base64url.decode(request.code).split(':');
     if (!requestEmail || !requestRandomHash) {
-      throw new NotAcceptableException('Email verification invalid');
+      throw new UnprocessableEntityException('Email verification invalid');
     }
     const encoding = await this.cacheManager.get<string>(redisAuthKeys.AUTH_EMAIL_VERIFY(requestEmail));
     if (!encoding) {
@@ -268,7 +326,7 @@ export class AuthService {
     }
     const [email, randomHash] = base64url.decode(encoding).split(':');
     if (email !== requestEmail || randomHash !== requestRandomHash) {
-      throw new NotAcceptableException('Email verification invalid');
+      throw new UnprocessableEntityException('Email verification invalid');
     }
 
     try {
@@ -278,11 +336,11 @@ export class AuthService {
         .where('email = :email', { email: requestEmail })
         .execute();
       if (result.affected !== 1) {
-        throw new Error('Failed update db');
+        throw new InternalServerErrorException('Failed update db');
       }
     } catch(error) {
       this.logger.error(error);
-      throw new Error('Failed update db');
+      throw new InternalServerErrorException('Failed update db');
     }
 
     await this.cacheManager.del(redisAuthKeys.AUTH_EMAIL_VERIFY(requestEmail));
@@ -313,7 +371,7 @@ export class AuthService {
                 gm 👋,
               </mj-text>
               <mj-text font-size="16px" color="#222b45" font-family="Open Sans, sans-serif">
-                Thank you for creating an account on BadeBuddy!
+                Thank you for creating an account on BadgeBuddy!
               </mj-text>
               <mj-text font-size="16px" color="#222b45" font-family="Open Sans, sans-serif">
               I hope you enjoy the services provided. Hit the button to confirm your email. If this wasn't you, please ignore 🤖

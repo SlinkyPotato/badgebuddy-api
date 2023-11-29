@@ -11,11 +11,11 @@ export class TokenGetRequestDto {
   code: string;
 
   @IsString()
-  @IsIn(['authorization_code', 'refresh_token'])
+  @IsIn(['authorization_code'])
   @ApiProperty({
     description: 'Grant type',
     type: String,
-    enum: ['authorization_code', 'refresh_token'],
+    enum: ['authorization_code'],
   })
   grantType: string;
 

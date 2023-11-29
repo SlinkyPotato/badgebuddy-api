@@ -16,4 +16,11 @@ export class RegisterPostRequestDto {
   })
   passwordHash: string;
 
+  @IsString()
+  @ApiProperty({
+    description: 'The client ID',
+    type: String,
+  })
+  clientId: string;
+
 }

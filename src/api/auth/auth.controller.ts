@@ -1,7 +1,7 @@
 import {
   Body,
   Controller,
-  Get, Patch,
+  Get, Headers, Patch,
   Post,
   Query,
   UseGuards,
@@ -26,6 +26,9 @@ import { ClientTokenGuard } from './guards/client-token.guard';
 import { ClientIdGuard } from './guards/client-id.guard';
 import { RegisterPostResponseDto } from './dto/register-post-response.dto';
 import { VerifyPatchRequestDto } from './dto/verify-patch-request.dto';
+import { UserTokenGuard } from './guards/user-token.guard';
+import { RefreshTokenPostResponseDto } from './dto/refresh-token-post-response.dto';
+import { RefreshTokenPostRequestDto } from './dto/refresh-token-post-request.dto';
 
 @Controller('auth')
 @ApiTags('auth')
@@ -59,7 +62,19 @@ export class AuthController {
     return this.authService.generateAccessToken(request);
   }
 
-  @UseGuards(ClientTokenGuard)
+  @UseGuards(UserTokenGuard)
+  @Post('/refresh')
+  @ApiOperation({ summary: 'Refresh token' })
+  @ApiResponse({
+    status: 200,
+    description: 'Token refreshed',
+    type: RefreshTokenPostResponseDto,
+  })
+  refresh(@Headers('Authorization') authorization: string, @Body() request: RefreshTokenPostRequestDto): Promise<RefreshTokenPostResponseDto> {
+    return this.authService.refreshAccessToken(request, authorization.split(' ')[1]);
+  }
+
+  @UseGuards(ClientTokenGuard, ClientIdGuard)
   @Post('/register')
   @ApiOperation({ summary: 'Register user' })
   @ApiHeaders([{
@@ -91,7 +106,7 @@ export class AuthController {
     return this.authService.verify(request);
   }
 
-  @UseGuards(ClientTokenGuard)
+  @UseGuards(ClientTokenGuard, ClientIdGuard)
   @Post('/login')
   @ApiOperation({ summary: 'Login user' })
   @ApiResponse({

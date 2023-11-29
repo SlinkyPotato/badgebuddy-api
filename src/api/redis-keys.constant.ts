@@ -31,4 +31,5 @@ export const redisProcessorKeys = {
 export const redisAuthKeys = {
   AUTH_REQUEST: (clientId: string, code: string) => `auth:request:${clientId}:${code}`,
   AUTH_EMAIL_VERIFY: (email: string) => `auth:verify:${email}`,
+  AUTH_REFRESH_TOKEN: (userId: string) => `auth:refreshToken:${userId}`,
 } as const;

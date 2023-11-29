@@ -11,13 +11,6 @@ export class TokenPostResponseDto {
 
   @IsString()
   @ApiProperty({
-    description: 'Refresh token',
-    type: String,
-  })
-  refreshToken: string;
-
-  @IsString()
-  @ApiProperty({
     description: 'Token type',
     type: String,
   })
