@@ -29,6 +29,7 @@ import { VerifyPatchRequestDto } from './dto/verify-patch-request.dto';
 import { RefreshTokenPostResponseDto } from './dto/refresh-token-post-response.dto';
 import { RefreshTokenPostRequestDto } from './dto/refresh-token-post-request.dto';
 import { UserTokenNoVerifyGuard } from './guards/user-token-guard-no-verify.guard';
+import { EmailCode, EmailCodePipe } from './pipes/email-code.pipe';
 
 @Controller('auth')
 @ApiTags('auth')
@@ -102,8 +103,11 @@ export class AuthController {
     status: 200,
     description: 'Email verified',
   })
-  verify(@Body() request: VerifyPatchRequestDto): Promise<void> {
-    return this.authService.verify(request);
+  verifyEmail(
+    @Body() _: VerifyPatchRequestDto,
+    @Body('code', ValidationPipe, EmailCodePipe) request: EmailCode,
+  ): Promise<void> {
+    return this.authService.verifyEmail(request);
   }
 
   @UseGuards(ClientTokenGuard, ClientIdGuard)

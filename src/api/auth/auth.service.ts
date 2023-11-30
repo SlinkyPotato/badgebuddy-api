@@ -33,6 +33,7 @@ import base64url from 'base64url';
 import { VerifyPatchRequestDto } from './dto/verify-patch-request.dto';
 import { RefreshTokenPostRequestDto } from './dto/refresh-token-post-request.dto';
 import { RefreshTokenPostResponseDto } from './dto/refresh-token-post-response.dto';
+import { EmailCode } from './pipes/email-code.pipe';
 
 
 type RedisAuthCode = {
@@ -314,18 +315,15 @@ export class AuthService {
     };
   }
 
-  async verify(request: VerifyPatchRequestDto): Promise<void> {
-    this.logger.debug(`Attempting to verify code`);
-    const [requestEmail, requestRandomHash] = base64url.decode(request.code).split(':');
-    if (!requestEmail || !requestRandomHash) {
-      throw new UnprocessableEntityException('Email verification invalid');
-    }
-    const encoding = await this.cacheManager.get<string>(redisAuthKeys.AUTH_EMAIL_VERIFY(requestEmail));
+  async verifyEmail(request: EmailCode): Promise<void> {
+    this.logger.debug(`Attempting to verify email code`);
+    
+    const encoding = await this.cacheManager.get<string>(redisAuthKeys.AUTH_EMAIL_VERIFY(request.email));
     if (!encoding) {
       throw new NotFoundException('Email verification not found');
     }
     const [email, randomHash] = base64url.decode(encoding).split(':');
-    if (email !== requestEmail || randomHash !== requestRandomHash) {
+    if (email !== request.email || randomHash !== request.code) {
       throw new UnprocessableEntityException('Email verification invalid');
     }
 
@@ -333,17 +331,18 @@ export class AuthService {
       const result = await this.dataSource.createQueryBuilder()
         .update(UserEntity)
         .set({ emailVerifiedOn: new Date() })
-        .where('email = :email', { email: requestEmail })
+        .where('email = :email', { email: request.email })
+        .andWhere('email_verified_on IS NULL')
         .execute();
       if (result.affected !== 1) {
-        throw new InternalServerErrorException('Failed update db');
+        throw new NotFoundException('User not found');
       }
     } catch(error) {
       this.logger.error(error);
       throw new InternalServerErrorException('Failed update db');
     }
 
-    await this.cacheManager.del(redisAuthKeys.AUTH_EMAIL_VERIFY(requestEmail));
+    await this.cacheManager.del(redisAuthKeys.AUTH_EMAIL_VERIFY(request.email));
   }
 
   private generateConfirmationEmailHtml(encoding: string) {
