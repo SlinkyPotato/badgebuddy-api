@@ -4,9 +4,12 @@ import {
   Get, Headers, Patch,
   Post,
   Query,
+  Redirect,
+  Res,
   UseGuards,
   UsePipes,
-  ValidationPipe
+  ValidationPipe,
+  Response,
 } from '@nestjs/common';
 import {
   ApiHeaders,
@@ -127,6 +130,20 @@ export class AuthController {
     @Body() request: LoginPostRequestDto
   ): Promise<LoginPostResponseDto> {
     return this.authService.login(request);
+  }
+
+  @Get('/login/google')
+  @ApiOperation({ summary: 'Login google' })
+  loginGoogle(@Response() response: any) {
+    console.log('configuring passport');
+    console.log(response);
+    // return response.status(302).redirect('https://runescape.com');
+    // response.redirected
+  }
+
+  @Get('/callback/google')
+  callbackGoogle() {
+    return 'ok';
   }
 
 }
