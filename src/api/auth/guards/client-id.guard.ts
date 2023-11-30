@@ -1,4 +1,4 @@
-import { BadRequestException, CanActivate, ExecutionContext, Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, CanActivate, ExecutionContext, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Observable } from 'rxjs';
 
@@ -26,6 +26,6 @@ export class ClientIdGuard implements CanActivate {
       return true;
     }
     this.logger.warn(`Unauthorized client tried to access the API`, request);
-    return false;
+    throw new UnauthorizedException();
   }
 }

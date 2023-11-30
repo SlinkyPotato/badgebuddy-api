@@ -2,7 +2,8 @@ import {
   CanActivate,
   ExecutionContext,
   Injectable,
-  Logger
+  Logger,
+  UnauthorizedException
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { JwtService } from '@nestjs/jwt';
@@ -21,25 +22,25 @@ export class ClientTokenGuard implements CanActivate {
     const authorizationHeader = context.switchToHttp().getRequest().headers['authorization'];
     if (!authorizationHeader) {
       this.logger.warn('No authorization header provided');
-      return false;
+      throw new UnauthorizedException();
     }
     let accessToken: string;
     try {
       accessToken = authorizationHeader.split(' ')[1];
       if (!accessToken) {
         this.logger.warn('No access token provided');
-        return false;
+        throw new UnauthorizedException();
       }
     } catch (error) {
       this.logger.warn('No authorization header provided');
       this.logger.error(error);
-      return false;
+      throw new UnauthorizedException();
     }
     try {
       this.jwtService.verify(accessToken);
     } catch (error) {
       this.logger.warn('Invalid access token');
-      return false;
+      throw new UnauthorizedException();
     }
     return true;
   }
