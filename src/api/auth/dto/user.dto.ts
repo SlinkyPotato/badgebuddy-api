@@ -22,13 +22,11 @@ export class UserDto {
 
   @IsString()
   @IsISO8601()
-  @IsOptional()
   @ApiProperty({
     description: 'Email verification date.',
     type: String,
-    required: false,
   })
-  emailVerifiedOn?: string;
+  emailVerifiedOn: string;
 
   @IsString()
   @IsOptional()

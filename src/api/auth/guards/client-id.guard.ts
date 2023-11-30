@@ -1,4 +1,4 @@
-import { CanActivate, ExecutionContext, Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, CanActivate, ExecutionContext, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Observable } from 'rxjs';
 
@@ -16,6 +16,11 @@ export class ClientIdGuard implements CanActivate {
     const allowedClients = this.configService.get<string>('AUTH_ALLOWED_CLIENT_IDS')?.split(',') ?? [];
     const request = context.switchToHttp().getRequest();
     const clientId = request.query.clientId ?? request.body.clientId;
+
+    if (!clientId) {
+      this.logger.warn(`No client ID provided`, request);
+      throw new BadRequestException('No client ID provided');
+    }
 
     if (allowedClients.includes(clientId)) {
       return true;

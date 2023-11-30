@@ -1,7 +1,15 @@
 import { IsNotEmpty, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
-export class VerifyPatchRequestDto {
+export class LoginEmailPostRequestDto {
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty({
+    description: 'The client ID',
+    type: String,
+  })
+  clientId: string;
+
   @IsString()
   @IsNotEmpty()
   @ApiProperty({

@@ -25,11 +25,12 @@ import { LoginPostResponseDto } from './dto/login-post-response.dto';
 import { ClientTokenGuard } from './guards/client-token.guard';
 import { ClientIdGuard } from './guards/client-id.guard';
 import { RegisterPostResponseDto } from './dto/register-post-response.dto';
-import { VerifyPatchRequestDto } from './dto/verify-patch-request.dto';
+import { LoginEmailPostRequestDto } from './dto/login-email-post-request.dto';
 import { RefreshTokenPostResponseDto } from './dto/refresh-token-post-response.dto';
 import { RefreshTokenPostRequestDto } from './dto/refresh-token-post-request.dto';
 import { UserTokenNoVerifyGuard } from './guards/user-token-guard-no-verify.guard';
 import { EmailCode, EmailCodePipe } from './pipes/email-code.pipe';
+import { LoginEmailPostResponseDto } from './login-email-post-response-dto';
 
 @Controller('auth')
 @ApiTags('auth')
@@ -91,9 +92,9 @@ export class AuthController {
     return this.authService.register(request);
   }
 
-  @UseGuards(ClientTokenGuard)
-  @Patch('/verify/email')
-  @ApiOperation({ summary: 'Verify email' })
+  @UseGuards(ClientTokenGuard, ClientIdGuard)
+  @Post('/login/email')
+  @ApiOperation({ summary: 'Login by email' })
   @ApiHeaders([{
     name: 'Authorization',
     description: 'The authorization token',
@@ -101,13 +102,13 @@ export class AuthController {
   }])
   @ApiResponse({
     status: 200,
-    description: 'Email verified',
+    description: 'Logged in by email',
   })
-  verifyEmail(
-    @Body() _: VerifyPatchRequestDto,
-    @Body('code', ValidationPipe, EmailCodePipe) request: EmailCode,
-  ): Promise<void> {
-    return this.authService.verifyEmail(request);
+  loginEmail(
+    @Body(ValidationPipe) request: LoginEmailPostRequestDto,
+    @Body('code', ValidationPipe, EmailCodePipe) emailCode: EmailCode,
+  ): Promise<LoginEmailPostResponseDto> {
+    return this.authService.loginEmail(emailCode, request.clientId);
   }
 
   @UseGuards(ClientTokenGuard, ClientIdGuard)

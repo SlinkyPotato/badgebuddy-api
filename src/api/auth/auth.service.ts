@@ -30,10 +30,10 @@ import nodemailer from 'nodemailer';
 import mjml2html from 'mjml';
 import { RegisterPostResponseDto } from './dto/register-post-response.dto';
 import base64url from 'base64url';
-import { VerifyPatchRequestDto } from './dto/verify-patch-request.dto';
 import { RefreshTokenPostRequestDto } from './dto/refresh-token-post-request.dto';
 import { RefreshTokenPostResponseDto } from './dto/refresh-token-post-response.dto';
 import { EmailCode } from './pipes/email-code.pipe';
+import { LoginEmailPostResponseDto } from './login-email-post-response-dto';
 
 
 type RedisAuthCode = {
@@ -192,7 +192,7 @@ export class AuthService {
   /**
    * Register a user.
    * @param request RegisterRequestPostDto
-   * @returns Promise<void>
+   * @returns Promise<RegisterPostResponseDto>
    */
   async register(request: RegisterPostRequestDto): Promise<RegisterPostResponseDto> {
     this.logger.debug(`Attempting to register user ${request.email}`);
@@ -219,12 +219,15 @@ export class AuthService {
 
     const randomHash = crypto.randomBytes(16).toString('base64url');
     const encoding = base64url(`${request.email}:${randomHash}`);
+    
     this.cacheManager.set(redisAuthKeys.AUTH_EMAIL_VERIFY(request.email), encoding, (1000 * 60 * 60 * 24)).then(() =>  {
       this.logger.debug(`Set email verification for ${request.email} in cache`);
     }).catch((error) => {
       this.logger.error(`Failed to set email verification for ${request.email} in cache`, error);
     });
+    
     const mjmlParse = this.generateConfirmationEmailHtml(encoding);
+    
     this.transporter.sendMail({
       from: this.configService.get<string>('MAIL_FROM'),
       to: 'patinobrian@gmail.com',
@@ -236,20 +239,12 @@ export class AuthService {
     }).catch((error) => {
       this.logger.error(`Failed to send confirmation email to ${request.email}`, error);
     });
+    
     this.logger.debug(`Registered user ${request.email}`);
-
-    const { accessToken, refreshToken } = this.generateTokens(request.clientId, userId);
     
     return {
-      user: {
-        id: userId,
-        email: request.email,
-      },
-      tokenType: 'Bearer',
-      expiresIn: AuthService.ACCESS_TOKEN_EXPIRES_IN,
-      accessToken,
-      refreshToken,
-    };
+      user: userId,
+    }
   }
 
   /**
@@ -278,7 +273,7 @@ export class AuthService {
       user: {
         id: user.id,
         email: user.email!,
-        emailVerifiedOn: user.emailVerifiedOn?.toISOString() ?? undefined,
+        emailVerifiedOn: user.emailVerifiedOn!.toISOString(),
         name: user.name ?? undefined,
       },
       tokenType: 'Bearer',
@@ -315,7 +310,13 @@ export class AuthService {
     };
   }
 
-  async verifyEmail(request: EmailCode): Promise<void> {
+  /**
+   * Generate an access token for the registered email.
+   * @param request emailCode
+   * @param clientId the approved client id
+   * @returns LoginEmailPostResponseDtos
+   */
+  async loginEmail(request: EmailCode, clientId: string): Promise<LoginEmailPostResponseDto> {
     this.logger.debug(`Attempting to verify email code`);
     
     const encoding = await this.cacheManager.get<string>(redisAuthKeys.AUTH_EMAIL_VERIFY(request.email));
@@ -327,15 +328,24 @@ export class AuthService {
       throw new UnprocessableEntityException('Email verification invalid');
     }
 
+    let user: UserEntity | null;
     try {
+      user = await this.dataSource.createQueryBuilder()
+        .select('user')
+        .from(UserEntity, 'user')
+        .where('user.email = :email', { email: request.email })
+        .getOne();
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
       const result = await this.dataSource.createQueryBuilder()
         .update(UserEntity)
         .set({ emailVerifiedOn: new Date() })
         .where('email = :email', { email: request.email })
         .andWhere('email_verified_on IS NULL')
         .execute();
-      if (result.affected !== 1) {
-        throw new NotFoundException('User not found');
+      if (result.affected === 1) {
+        this.logger.debug(`Updated user ${request.email} with email verification`);
       }
     } catch(error) {
       this.logger.error(error);
@@ -343,6 +353,20 @@ export class AuthService {
     }
 
     await this.cacheManager.del(redisAuthKeys.AUTH_EMAIL_VERIFY(request.email));
+
+    const { accessToken, refreshToken } = this.generateTokens(clientId, user.id);
+
+    return {
+      user: {
+        id: user.id,
+        email: request.email,
+        emailVerifiedOn: user.emailVerifiedOn!.toISOString(),
+      },
+      tokenType: 'Bearer',
+      expiresIn: AuthService.ACCESS_TOKEN_EXPIRES_IN,
+      accessToken,
+      refreshToken,
+    };
   }
 
   private generateConfirmationEmailHtml(encoding: string) {
