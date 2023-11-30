@@ -26,9 +26,9 @@ import { ClientTokenGuard } from './guards/client-token.guard';
 import { ClientIdGuard } from './guards/client-id.guard';
 import { RegisterPostResponseDto } from './dto/register-post-response.dto';
 import { VerifyPatchRequestDto } from './dto/verify-patch-request.dto';
-import { UserTokenGuard } from './guards/user-token.guard';
 import { RefreshTokenPostResponseDto } from './dto/refresh-token-post-response.dto';
 import { RefreshTokenPostRequestDto } from './dto/refresh-token-post-request.dto';
+import { UserTokenNoVerifyGuard } from './guards/user-token-guard-no-verify.guard';
 
 @Controller('auth')
 @ApiTags('auth')
@@ -62,7 +62,7 @@ export class AuthController {
     return this.authService.generateAccessToken(request);
   }
 
-  @UseGuards(UserTokenGuard)
+  @UseGuards(UserTokenNoVerifyGuard)
   @Post('/refresh')
   @ApiOperation({ summary: 'Refresh token' })
   @ApiResponse({
