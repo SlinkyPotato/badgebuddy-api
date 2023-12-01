@@ -1,11 +1,9 @@
 import {
   Body,
   Controller,
-  Get, Headers, Patch,
+  Get, Headers, 
   Post,
   Query,
-  Redirect,
-  Res,
   UseGuards,
   UsePipes,
   ValidationPipe,
@@ -33,8 +31,7 @@ import { RefreshTokenPostResponseDto } from './dto/refresh-token-post-response.d
 import { RefreshTokenPostRequestDto } from './dto/refresh-token-post-request.dto';
 import { UserTokenNoVerifyGuard } from './guards/user-token-guard-no-verify.guard';
 import { EmailCode, EmailCodePipe } from './pipes/email-code.pipe';
-import { LoginEmailPostResponseDto } from './login-email-post-response-dto';
-import { OAuth2Client } from 'google-auth-library';
+import { LoginEmailPostResponseDto } from './dto/login-email-post-response-dto';
 
 @Controller('auth')
 @ApiTags('auth')
@@ -133,31 +130,21 @@ export class AuthController {
     return this.authService.login(request);
   }
 
-  @Get('/login/google')
-  @ApiOperation({ summary: 'Login google' })
-  loginGoogle(@Response() response: any) {
-    console.log('configuring google auth');
-    console.log(process.env.AUTH_GOOGLE_CLIENT_ID);
-    console.log(process.env.AUTH_GOOGLE_CLIENT_SECRET);
-    console.log(process.env.AUTH_GOOGLE_REDIRECT_URI);
-    
-    const oauthClient = new OAuth2Client(
-      process.env.AUTH_GOOGLE_CLIENT_ID,
-      process.env.AUTH_GOOGLE_CLIENT_SECRET,
-      process.env.AUTH_GOOGLE_REDIRECT_URI,
-    );
-    const authorizeUrl = oauthClient.generateAuthUrl({
-      access_type: 'offline',
-      scope: 'https://www.googleapis.com/auth/userinfo.profile',
-    });
-    response.status(302).redirect(authorizeUrl);
-    // return response.status(302).redirect('https://runescape.com');
-    // response.redirected
+  @Get('/authorize/google')
+  @ApiOperation({ summary: 'Authorize google' })
+  authorizeGoogle(@Response() reply: any) {
+    const authorizeUrl = this.authService.authorizeGoogle();
+    reply.status(302).redirect(authorizeUrl);
   }
 
-  @Get('/callback/google')
-  callbackGoogle() {
-    return 'ok';
+  @Get('/login/google')
+  callbackGoogle(
+    @Query('code') code: string, 
+    @Query('state') state: string,
+    // @Response() reply: any,
+  ) {
+    return this.authService.loginGoogle(code, state);
+    // reply.status(302).redirect('http://localhost:4200');
   }
 
 }

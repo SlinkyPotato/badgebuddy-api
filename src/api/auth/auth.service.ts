@@ -33,7 +33,8 @@ import base64url from 'base64url';
 import { RefreshTokenPostRequestDto } from './dto/refresh-token-post-request.dto';
 import { RefreshTokenPostResponseDto } from './dto/refresh-token-post-response.dto';
 import { EmailCode } from './pipes/email-code.pipe';
-import { LoginEmailPostResponseDto } from './login-email-post-response-dto';
+import { LoginEmailPostResponseDto } from './dto/login-email-post-response-dto';
+import { OAuth2Client } from 'google-auth-library';
 
 
 type RedisAuthCode = {
@@ -56,6 +57,7 @@ export type UserToken = {
 export class AuthService {
   private static readonly ACCESS_TOKEN_EXPIRES_IN = 86400;
   private static readonly REFRESH_TOKEN_EXPIRES_IN = 604800;
+  private googleOAuthClient: OAuth2Client;
 
   private transporter: nodemailer.Transporter;
 
@@ -75,6 +77,11 @@ export class AuthService {
         pass: this.configService.get<string>('MAIL_PASS'),
       }
     });
+    this.googleOAuthClient = new OAuth2Client(
+      process.env.AUTH_GOOGLE_CLIENT_ID,
+      process.env.AUTH_GOOGLE_CLIENT_SECRET,
+      process.env.AUTH_GOOGLE_REDIRECT_URI,
+    );
   }
 
   /**
@@ -104,6 +111,15 @@ export class AuthService {
     return {
       code,
     }
+  }
+
+  authorizeGoogle(): string {
+    const authorizeUrl = this.googleOAuthClient.generateAuthUrl({
+      access_type: 'offline',
+      scope: 'https://www.googleapis.com/auth/userinfo.profile',
+    });
+    console.log(authorizeUrl);
+    return authorizeUrl;
   }
 
   /**
@@ -280,6 +296,18 @@ export class AuthService {
       expiresIn: AuthService.ACCESS_TOKEN_EXPIRES_IN,
       accessToken,
       refreshToken
+    };
+  }
+
+  async loginGoogle(code: string, state: string): Promise<any> {
+    this.logger.debug(`Attempting to login user with google`);
+    console.log(code);
+    const result = await this.googleOAuthClient.getToken(code);
+    console.log(result);
+    this.googleOAuthClient.setCredentials(result.tokens);
+    return {
+      accessToken: result.tokens.access_token,
+      refreshToken: result.tokens.refresh_token,
     };
   }
 
