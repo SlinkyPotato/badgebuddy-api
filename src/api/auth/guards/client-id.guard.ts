@@ -15,7 +15,13 @@ export class ClientIdGuard implements CanActivate {
   ): boolean | Promise<boolean> | Observable<boolean> {
     const allowedClients = this.configService.get<string>('AUTH_ALLOWED_CLIENT_IDS')?.split(',') ?? [];
     const request = context.switchToHttp().getRequest();
-    const clientId = request.query.clientId ?? request.body.clientId;
+    let clientId: string;
+    try {
+      clientId = request.query.clientId ?? request.body.clientId;
+    } catch (error) {
+      this.logger.warn(`No client ID provided`, request);
+      throw new BadRequestException('No client ID provided');
+    }
 
     if (!clientId) {
       this.logger.warn(`No client ID provided`, request);

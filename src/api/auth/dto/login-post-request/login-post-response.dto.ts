@@ -1,35 +1,22 @@
 import { IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { UserDto } from './user.dto';
+import { UserDto } from '../user.dto';
+import { TokenDto } from '../token.dto';
 
 export class LoginPostResponseDto {
   @IsString()
   @ApiProperty({
     description: 'The access token.',
-    type: String,
+    type: TokenDto,
   })
-  accessToken: string;
+  accessToken: TokenDto;
 
   @IsString()
   @ApiProperty({
     description: 'The refresh token.',
-    type: String,
+    type: TokenDto,
   })
-  refreshToken: string;
-
-  @IsString()
-  @ApiProperty({
-    description: 'The token type.',
-    type: String,
-  })
-  tokenType: string;
-
-  @IsString()
-  @ApiProperty({
-    description: 'The token expiration in seconds.',
-    type: Number,
-  })
-  expiresIn: number;
+  refreshToken: TokenDto;
 
   @ApiProperty({
     description: 'The user.',

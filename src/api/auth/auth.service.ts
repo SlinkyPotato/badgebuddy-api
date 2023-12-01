@@ -7,19 +7,12 @@ import {
   Logger,
   NotFoundException, UnprocessableEntityException
 } from '@nestjs/common';
-import { AuthorizeGetRequestDto } from './dto/authorize-get-request.dto';
-import { AuthorizeGetResponseDto } from './dto/authorize-get-response.dto';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import crypto from 'crypto';
 import { redisAuthKeys } from '../redis-keys.constant';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { TokenGetRequestDto } from './dto/token-get-request.dto';
-import { TokenPostResponseDto } from './dto/token-response-get.dto';
-import { RegisterPostRequestDto } from './dto/register-post-request.dto';
-import { LoginPostRequestDto } from './dto/login-post-request.dto';
-import { LoginPostResponseDto } from './dto/login-post-response.dto';
 import {
   DataSource,
 } from 'typeorm';
@@ -28,14 +21,22 @@ import {
 } from '@badgebuddy/common';
 import nodemailer from 'nodemailer';
 import mjml2html from 'mjml';
-import { RegisterPostResponseDto } from './dto/register-post-response.dto';
 import base64url from 'base64url';
-import { RefreshTokenPostRequestDto } from './dto/refresh-token-post-request.dto';
-import { RefreshTokenPostResponseDto } from './dto/refresh-token-post-response.dto';
 import { EmailCode } from './pipes/email-code.pipe';
-import { LoginEmailPostResponseDto } from './dto/login-email-post-response-dto';
-import { OAuth2Client } from 'google-auth-library';
-
+import { CodeChallengeMethod, CodeVerifierResults, OAuth2Client } from 'google-auth-library';
+import { AuthorizeGetRequestDto } from './dto/authorize-get-request/authorize-get-request.dto';
+import { AuthorizeGetResponseDto } from './dto/authorize-get-request/authorize-get-response.dto';
+import { LoginEmailPostResponseDto } from './dto/login-email-post-request/login-email-post-response-dto';
+import { LoginGooglePostRequestDto } from './dto/login-google-post-request/login-google-post-request-dto';
+import { LoginGooglePostResponseDto } from './dto/login-google-post-request/login-google-post-response-dto';
+import { LoginPostRequestDto } from './dto/login-post-request/login-post-request.dto';
+import { LoginPostResponseDto } from './dto/login-post-request/login-post-response.dto';
+import { RefreshTokenPostRequestDto } from './dto/refresh-token-post-request/refresh-token-post-request.dto';
+import { RefreshTokenPostResponseDto } from './dto/refresh-token-post-request/refresh-token-post-response.dto';
+import { RegisterPostRequestDto } from './dto/register-post-request/register-post-request.dto';
+import { RegisterPostResponseDto } from './dto/register-post-request/register-post-response.dto';
+import { TokenGetRequestDto } from './dto/token-get-request/token-get-request.dto';
+import { TokenPostResponseDto } from './dto/token-get-request/token-get-response.dto';
 
 type RedisAuthCode = {
   codeChannelMethod: string;
@@ -47,6 +48,7 @@ type AccessToken ={
   exp: number,
   iss: string,
   sub: string,
+  sessionId: string,
 };
 
 export type UserToken = {
@@ -57,7 +59,6 @@ export type UserToken = {
 export class AuthService {
   private static readonly ACCESS_TOKEN_EXPIRES_IN = 86400;
   private static readonly REFRESH_TOKEN_EXPIRES_IN = 604800;
-  private googleOAuthClient: OAuth2Client;
 
   private transporter: nodemailer.Transporter;
 
@@ -77,11 +78,7 @@ export class AuthService {
         pass: this.configService.get<string>('MAIL_PASS'),
       }
     });
-    this.googleOAuthClient = new OAuth2Client(
-      process.env.AUTH_GOOGLE_CLIENT_ID,
-      process.env.AUTH_GOOGLE_CLIENT_SECRET,
-      process.env.AUTH_GOOGLE_REDIRECT_URI,
-    );
+    console.log(process.env.AUTH_GOOGLE_REDIRECT_URI);
   }
 
   /**
@@ -91,10 +88,10 @@ export class AuthService {
    *
    * @see https://tools.ietf.org/html/rfc7636
    */
-  async generateAuthCode(request: AuthorizeGetRequestDto): Promise<AuthorizeGetResponseDto> {
+  async authorize(request: AuthorizeGetRequestDto): Promise<AuthorizeGetResponseDto> {
     this.logger.debug(`Attempting to generate auth token for client: ${request.clientId}`);
-    const code = crypto.randomBytes(16).toString('hex');
-    await this.cacheManager.del(redisAuthKeys.AUTH_REQUEST(request.clientId, code));
+    const authCode = crypto.randomBytes(20).toString('hex');
+    await this.cacheManager.del(redisAuthKeys.AUTH_REQUEST(request.clientId, authCode));
 
     const stored: RedisAuthCode = {
       codeChannelMethod: request.codeChallengeMethod,
@@ -106,20 +103,34 @@ export class AuthService {
       subject: request.clientId,
     })
 
-    await this.cacheManager.set(redisAuthKeys.AUTH_REQUEST(request.clientId, code), signed);
-    this.logger.debug(`Generated auth code ${code} for client ${request.clientId}`);
+    await this.cacheManager.set(redisAuthKeys.AUTH_REQUEST(request.clientId, authCode), signed);
+    this.logger.debug(`Generated auth code ${authCode} for client ${request.clientId}`);
     return {
-      code,
+      code: authCode,
     }
   }
 
-  authorizeGoogle(): string {
-    const authorizeUrl = this.googleOAuthClient.generateAuthUrl({
+  async authorizeGoogle(auth: string, reply: any): Promise<void> {
+    console.log('attempting to authorize google');
+    const sessionId = this.decodeToken(this.getTokenFromHeader(auth)).sessionId;
+    const client = this.getGoogleClient();
+    const veriferValues: CodeVerifierResults = await client.generateCodeVerifierAsync();
+    const authorizeUrl = client.generateAuthUrl({
       access_type: 'offline',
       scope: 'https://www.googleapis.com/auth/userinfo.profile',
+      code_challenge_method: CodeChallengeMethod.S256,
+      code_challenge: veriferValues.codeChallenge,
+      state: base64url.encode(sessionId),
     });
-    console.log(authorizeUrl);
-    return authorizeUrl;
+
+    try {
+      await this.cacheManager.set(redisAuthKeys.AUTH_REQUEST_GOOGLE(sessionId), veriferValues.codeVerifier, (1000 * 60 * 10));
+    } catch (error) {
+      this.logger.error(`Failed to set google auth code for ${sessionId}`, error);
+      throw new InternalServerErrorException('Failed to set google auth code');
+    }
+
+    reply.status(302).redirect(authorizeUrl);
   }
 
   /**
@@ -143,8 +154,6 @@ export class AuthService {
       throw new UnprocessableEntityException('Auth code invalid');
     }
 
-    await this.cacheManager.del(redisAuthKeys.AUTH_REQUEST(request.clientId, request.code));
-
     switch (verifiedStored.codeChannelMethod) {
       case 's256':
         const codeChallenge = crypto.createHash('sha256').update(request.codeVerifier).digest('hex').toString();
@@ -158,7 +167,12 @@ export class AuthService {
         throw new BadRequestException('Code challenge method invalid');
     }
 
-    const accessToken = this.jwtService.sign({}, {
+    // Must be after verification
+    await this.cacheManager.del(redisAuthKeys.AUTH_REQUEST(request.clientId, request.code));
+
+    const accessToken = this.jwtService.sign({
+      sessionId: crypto.randomUUID().toString(),
+    }, {
       expiresIn: '1h',
       subject: request.clientId,
     });
@@ -185,6 +199,9 @@ export class AuthService {
     try {
       decodedRefresh = this.jwtService.verify<UserToken>(request.refreshToken);
       if (!decodedRefresh.userId || decodedRefresh.sub !== decodedAccessToken.sub || decodedRefresh.iss !== decodedAccessToken.iss || decodedRefresh.userId !== decodedAccessToken.userId) {
+        throw new UnprocessableEntityException('Invalid refresh token');
+      }
+      if (!decodedRefresh.sessionId || decodedRefresh.sessionId !== decodedAccessToken.sessionId) {
         throw new UnprocessableEntityException('Invalid refresh token');
       }
     } catch (error) {
@@ -268,7 +285,7 @@ export class AuthService {
    * @param request LoginRequestPostDto
    * @returns Promise<LoginPostResponseDto>
    */
-  async login(request: LoginPostRequestDto): Promise<LoginPostResponseDto> {
+  async login(auth: string, request: LoginPostRequestDto): Promise<LoginPostResponseDto> {
     this.logger.debug(`Attempting to login user ${request.email}`);
 
     const user = await this.dataSource.createQueryBuilder()
@@ -281,8 +298,8 @@ export class AuthService {
     if (!user) {
       throw new NotFoundException('User not found');
     }
-
-    const { accessToken, refreshToken } = this.generateTokens(request.clientId, user.id);
+    const clientId = this.decodeToken(this.getTokenFromHeader(auth)).sub;
+    const { accessToken, refreshToken } = this.generateTokens(clientId, user.id);
 
     this.logger.debug(`Logged in user ${request.email}`);
     return {
@@ -292,59 +309,26 @@ export class AuthService {
         emailVerifiedOn: user.emailVerifiedOn!.toISOString(),
         name: user.name ?? undefined,
       },
-      tokenType: 'Bearer',
-      expiresIn: AuthService.ACCESS_TOKEN_EXPIRES_IN,
-      accessToken,
-      refreshToken
-    };
-  }
-
-  async loginGoogle(code: string, state: string): Promise<any> {
-    this.logger.debug(`Attempting to login user with google`);
-    console.log(code);
-    const result = await this.googleOAuthClient.getToken(code);
-    console.log(result);
-    this.googleOAuthClient.setCredentials(result.tokens);
-    return {
-      accessToken: result.tokens.access_token,
-      refreshToken: result.tokens.refresh_token,
-    };
-  }
-
-  private generateTokens(clientId: string, userId: string): { accessToken: string, refreshToken: string } {
-    const accessToken = this.jwtService.sign({
-      userId: userId,
-    }, {
-      expiresIn: '24h',
-      subject: clientId,
-    });
-
-    const refreshToken = this.jwtService.sign({
-      userId: userId,
-    }, {
-      expiresIn: '7d',
-      subject: clientId,
-    });
-
-    this.cacheManager.set(redisAuthKeys.AUTH_REFRESH_TOKEN(userId), refreshToken, (AuthService.REFRESH_TOKEN_EXPIRES_IN * 1000)).then(() =>  {
-      this.logger.debug(`Set refresh token for ${userId} in cache`);
-    }).catch((error) => {
-      this.logger.error(`Failed to store refresh token for ${userId}`, error);
-    });
-
-    return {
-      accessToken,
-      refreshToken,
+      accessToken: {
+        token: accessToken,
+        tokenType: 'Bearer',
+        expiresIn: AuthService.ACCESS_TOKEN_EXPIRES_IN,
+      },
+      refreshToken: {
+        token: refreshToken,
+        tokenType: 'Bearer',
+        expiresIn: AuthService.REFRESH_TOKEN_EXPIRES_IN,
+      }
     };
   }
 
   /**
    * Generate an access token for the registered email.
-   * @param request emailCode
    * @param clientId the approved client id
+   * @param request emailCode
    * @returns LoginEmailPostResponseDtos
    */
-  async loginEmail(request: EmailCode, clientId: string): Promise<LoginEmailPostResponseDto> {
+  async loginEmail(auth: string, request: EmailCode): Promise<LoginEmailPostResponseDto> {
     this.logger.debug(`Attempting to verify email code`);
     
     const encoding = await this.cacheManager.get<string>(redisAuthKeys.AUTH_EMAIL_VERIFY(request.email));
@@ -382,6 +366,7 @@ export class AuthService {
 
     await this.cacheManager.del(redisAuthKeys.AUTH_EMAIL_VERIFY(request.email));
 
+    const clientId = this.decodeToken(this.getTokenFromHeader(auth)).sub;
     const { accessToken, refreshToken } = this.generateTokens(clientId, user.id);
 
     return {
@@ -390,11 +375,96 @@ export class AuthService {
         email: request.email,
         emailVerifiedOn: user.emailVerifiedOn!.toISOString(),
       },
-      tokenType: 'Bearer',
-      expiresIn: AuthService.ACCESS_TOKEN_EXPIRES_IN,
+      accessToken: {
+        token: accessToken,
+        tokenType: 'Bearer',
+        expiresIn: AuthService.ACCESS_TOKEN_EXPIRES_IN,
+      },
+      refreshToken: {
+        token: refreshToken,
+        tokenType: 'Bearer',
+        expiresIn: AuthService.REFRESH_TOKEN_EXPIRES_IN,
+      }
+    };
+  }
+
+  async loginGoogle(clientToken: string, request: LoginGooglePostRequestDto): Promise<LoginGooglePostResponseDto> {
+    this.logger.debug(`Attempting to login user with google`);
+    const client = this.getGoogleClient();
+    const sessionId = this.decodeToken(this.getTokenFromHeader(clientToken)).sessionId;
+    const codeVerifier = await this.cacheManager.get<string>(redisAuthKeys.AUTH_REQUEST_GOOGLE(sessionId));
+    if (!codeVerifier) {
+      throw new NotFoundException('Auth code not found');
+    }
+
+    const result = await client.getToken({
+      code: request.authCode,
+      codeVerifier: codeVerifier,
+    });
+
+    // create user if not exists
+    // save tokens to db
+    return {
+      
+    }
+  }
+
+  /**
+   *  Helper functions
+   * */
+
+  private getGoogleClient(): OAuth2Client {
+    return new OAuth2Client(
+      process.env.AUTH_GOOGLE_CLIENT_ID,
+      process.env.AUTH_GOOGLE_CLIENT_SECRET,
+      process.env.AUTH_GOOGLE_REDIRECT_URI,
+    );
+  }
+
+  private generateTokens(clientId: string, userId: string): { accessToken: string, refreshToken: string } {
+    const sessionId = crypto.randomUUID().toString();
+    const accessToken = this.jwtService.sign({
+      userId: userId,
+      sessionId: sessionId,
+    }, {
+      expiresIn: '24h',
+      subject: clientId,
+    });
+
+    const refreshToken = this.jwtService.sign({
+      userId: userId,
+      sessionId: sessionId,
+    }, {
+      expiresIn: '7d',
+      subject: clientId,
+    });
+
+    this.cacheManager.set(redisAuthKeys.AUTH_REFRESH_TOKEN(userId), refreshToken, (AuthService.REFRESH_TOKEN_EXPIRES_IN * 1000)).then(() =>  {
+      this.logger.debug(`Set refresh token for ${userId} in cache`);
+    }).catch((error) => {
+      this.logger.error(`Failed to store refresh token for ${userId}`, error);
+    });
+
+    return {
       accessToken,
       refreshToken,
     };
+  }
+
+  /**
+   * Extract token from header.
+   * 
+   * Must be used with ClientTokenGuard.
+   * 
+   * @param authorizationHeader the authorization header
+   * @returns the token
+   */
+  private getTokenFromHeader(authorizationHeader: string): string {
+    return authorizationHeader.split(' ')[1];
+  }
+
+  private decodeToken(token: string): AccessToken {
+    return this.jwtService.decode<AccessToken>(token);
   }
 
   private generateConfirmationEmailHtml(encoding: string) {

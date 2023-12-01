@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>My Index Page</title>
+</head>
+<body>
+  <h1>Welcome to My Index Page</h1>
+
+  <script>
+// WARNING: For GET requests, body is set to null by browsers.
+
+var xhr = new XMLHttpRequest();
+xhr.withCredentials = true;
+
+xhr.addEventListener("readystatechange", function() {
+  if(this.readyState === 4) {
+    console.log(this.responseText);
+  }
+});
+
+xhr.open("GET", "http://localhost:3000/auth/authorize/google");
+xhr.setRequestHeader("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3MDE0NTIwNDMsImV4cCI6MTcwMTQ1NTY0MywiaXNzIjoiaHR0cHM6Ly9iYWRnZWJ1ZGR5LmFwcC8iLCJzdWIiOiJiYl93ZWJfNTI0In0.I9JgANiA3fipJO8dJcymZH9u3QzoiLPq9wLfVwMQtXA");
+
+xhr.send();
+  </script>
+</body>
+</html>

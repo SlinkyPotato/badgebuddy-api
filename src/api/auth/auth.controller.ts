@@ -8,6 +8,7 @@ import {
   UsePipes,
   ValidationPipe,
   Response,
+  Request,
 } from '@nestjs/common';
 import {
   ApiHeaders,
@@ -15,23 +16,24 @@ import {
   ApiResponse,
   ApiTags
 } from '@nestjs/swagger';
-import { AuthorizeGetRequestDto } from './dto/authorize-get-request.dto';
-import { AuthorizeGetResponseDto } from './dto/authorize-get-response.dto';
-import { TokenGetRequestDto } from './dto/token-get-request.dto';
-import { TokenPostResponseDto } from './dto/token-response-get.dto';
-import { AuthService } from './auth.service';
-import { RegisterPostRequestDto } from './dto/register-post-request.dto';
-import { LoginPostRequestDto } from './dto/login-post-request.dto';
-import { LoginPostResponseDto } from './dto/login-post-response.dto';
 import { ClientTokenGuard } from './guards/client-token.guard';
 import { ClientIdGuard } from './guards/client-id.guard';
-import { RegisterPostResponseDto } from './dto/register-post-response.dto';
-import { LoginEmailPostRequestDto } from './dto/login-email-post-request.dto';
-import { RefreshTokenPostResponseDto } from './dto/refresh-token-post-response.dto';
-import { RefreshTokenPostRequestDto } from './dto/refresh-token-post-request.dto';
 import { UserTokenNoVerifyGuard } from './guards/user-token-guard-no-verify.guard';
 import { EmailCode, EmailCodePipe } from './pipes/email-code.pipe';
-import { LoginEmailPostResponseDto } from './dto/login-email-post-response-dto';
+import { AuthService } from './auth.service';
+import { AuthorizeGetRequestDto } from './dto/authorize-get-request/authorize-get-request.dto';
+import { AuthorizeGetResponseDto } from './dto/authorize-get-request/authorize-get-response.dto';
+import { LoginEmailPostResponseDto } from './dto/login-email-post-request/login-email-post-response-dto';
+import { LoginGooglePostRequestDto } from './dto/login-google-post-request/login-google-post-request-dto';
+import { LoginPostRequestDto } from './dto/login-post-request/login-post-request.dto';
+import { LoginPostResponseDto } from './dto/login-post-request/login-post-response.dto';
+import { RefreshTokenPostRequestDto } from './dto/refresh-token-post-request/refresh-token-post-request.dto';
+import { RefreshTokenPostResponseDto } from './dto/refresh-token-post-request/refresh-token-post-response.dto';
+import { RegisterPostRequestDto } from './dto/register-post-request/register-post-request.dto';
+import { RegisterPostResponseDto } from './dto/register-post-request/register-post-response.dto';
+import { TokenGetRequestDto } from './dto/token-get-request/token-get-request.dto';
+import { TokenPostResponseDto } from './dto/token-get-request/token-get-response.dto';
+import { LoginGooglePostResponseDto } from './dto/login-google-post-request/login-google-post-response-dto';
 
 @Controller('auth')
 @ApiTags('auth')
@@ -50,7 +52,18 @@ export class AuthController {
     type: AuthorizeGetResponseDto,
   })
   authorize(@Query() request: AuthorizeGetRequestDto): Promise<AuthorizeGetResponseDto> {
-    return this.authService.generateAuthCode(request);
+    return this.authService.authorize(request);
+  }
+
+  @UseGuards(ClientTokenGuard)
+  @Get('/authorize/google')
+  @ApiOperation({ summary: 'Authorize google' })
+  @ApiResponse({
+    status: 302,
+    description: 'Redirect to google',
+  })
+  authorizeGoogle(@Headers('Authorization') clientToken: string, @Response() reply: any) {
+    this.authService.authorizeGoogle(clientToken, reply);
   }
 
   @UseGuards(ClientIdGuard)
@@ -77,7 +90,7 @@ export class AuthController {
     return this.authService.refreshAccessToken(request, authorization.split(' ')[1]);
   }
 
-  @UseGuards(ClientTokenGuard, ClientIdGuard)
+  @UseGuards(ClientTokenGuard)
   @Post('/register')
   @ApiOperation({ summary: 'Register user' })
   @ApiHeaders([{
@@ -93,26 +106,7 @@ export class AuthController {
     return this.authService.register(request);
   }
 
-  @UseGuards(ClientTokenGuard, ClientIdGuard)
-  @Post('/login/email')
-  @ApiOperation({ summary: 'Login by email' })
-  @ApiHeaders([{
-    name: 'Authorization',
-    description: 'The authorization token',
-    required: true,
-  }])
-  @ApiResponse({
-    status: 200,
-    description: 'Logged in by email',
-  })
-  loginEmail(
-    @Body(ValidationPipe) request: LoginEmailPostRequestDto,
-    @Body('code', ValidationPipe, EmailCodePipe) emailCode: EmailCode,
-  ): Promise<LoginEmailPostResponseDto> {
-    return this.authService.loginEmail(emailCode, request.clientId);
-  }
-
-  @UseGuards(ClientTokenGuard, ClientIdGuard)
+  @UseGuards(ClientTokenGuard)
   @Post('/login')
   @ApiOperation({ summary: 'Login user' })
   @ApiResponse({
@@ -125,26 +119,44 @@ export class AuthController {
     required: true,
   }])
   login(
+    @Headers('Authorization') clientToken: string,
     @Body() request: LoginPostRequestDto
   ): Promise<LoginPostResponseDto> {
-    return this.authService.login(request);
+    return this.authService.login(clientToken, request);
   }
 
-  @Get('/authorize/google')
-  @ApiOperation({ summary: 'Authorize google' })
-  authorizeGoogle(@Response() reply: any) {
-    const authorizeUrl = this.authService.authorizeGoogle();
-    reply.status(302).redirect(authorizeUrl);
+  @UseGuards(ClientTokenGuard)
+  @Post('/login/email')
+  @ApiOperation({ summary: 'Login by email' })
+  @ApiHeaders([{
+    name: 'Authorization',
+    description: 'The authorization token',
+    required: true,
+  }])
+  @ApiResponse({
+    status: 200,
+    description: 'Logged in by email',
+  })
+  loginEmail(
+    @Headers('Authorization') clientToken: string,
+    @Body('code', ValidationPipe, EmailCodePipe) emailCode: EmailCode,
+  ): Promise<LoginEmailPostResponseDto> {
+    return this.authService.loginEmail(clientToken, emailCode);
   }
 
-  @Get('/login/google')
-  callbackGoogle(
-    @Query('code') code: string, 
-    @Query('state') state: string,
-    // @Response() reply: any,
-  ) {
-    return this.authService.loginGoogle(code, state);
-    // reply.status(302).redirect('http://localhost:4200');
+  @UseGuards(ClientTokenGuard)
+  @Post('/login/google')
+  @ApiOperation({ summary: 'Login user by google' })
+  @ApiResponse({
+    status: 200,
+    description: 'Logged in by google',
+    type: LoginGooglePostRequestDto,
+  })
+  loginGoogle(
+    @Headers('Authorization') clientToken: string,
+    @Request() request: LoginGooglePostRequestDto,
+  ): Promise<LoginGooglePostResponseDto> {
+    return this.authService.loginGoogle(clientToken, request);
   }
 
 }
