@@ -22,9 +22,14 @@ async function bootstrap() {
     },
   );
   
-  app.enableCors({
-    origin: [process.env.CORS_ORIGIN ?? '']
-  });
+  // app.enableCors({
+  //   origin: process.env.CORS_ORIGIN?.split(',') ?? [],
+  // });
+  // app.enableCors({
+  //   origin: '*',
+  //   // methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+  //   // allowedHeaders: 'Content-Type, Accept, Authorization',
+  // })
 
   const config = new DocumentBuilder()
     .setTitle('Badge Buddy API')

@@ -7,8 +7,6 @@ import {
   UseGuards,
   UsePipes,
   ValidationPipe,
-  Response,
-  Request,
 } from '@nestjs/common';
 import {
   ApiHeaders,
@@ -34,6 +32,7 @@ import { RegisterPostResponseDto } from './dto/register-post-request/register-po
 import { TokenGetRequestDto } from './dto/token-get-request/token-get-request.dto';
 import { TokenPostResponseDto } from './dto/token-get-request/token-get-response.dto';
 import { LoginGooglePostResponseDto } from './dto/login-google-post-request/login-google-post-response-dto';
+import { AuthorizeGoogleGetResponseDto } from './dto/authorize-google-get-response/authorize-google-get-response.dto';
 
 @Controller('auth')
 @ApiTags('auth')
@@ -51,7 +50,9 @@ export class AuthController {
     description: 'Authorized',
     type: AuthorizeGetResponseDto,
   })
-  authorize(@Query() request: AuthorizeGetRequestDto): Promise<AuthorizeGetResponseDto> {
+  authorize(
+    @Query() request: AuthorizeGetRequestDto
+  ): Promise<AuthorizeGetResponseDto> {
     return this.authService.authorize(request);
   }
 
@@ -59,11 +60,14 @@ export class AuthController {
   @Get('/authorize/google')
   @ApiOperation({ summary: 'Authorize google' })
   @ApiResponse({
-    status: 302,
-    description: 'Redirect to google',
+    status: 200,
+    description: 'Get authorize google url',
+    type: AuthorizeGoogleGetResponseDto,
   })
-  authorizeGoogle(@Headers('Authorization') clientToken: string, @Response() reply: any) {
-    this.authService.authorizeGoogle(clientToken, reply);
+  authorizeGoogle(
+    @Headers('Authorization') clientToken: string,
+  ): Promise<AuthorizeGoogleGetResponseDto> {
+    return this.authService.authorizeGoogle(clientToken);
   }
 
   @UseGuards(ClientIdGuard)
@@ -154,7 +158,7 @@ export class AuthController {
   })
   loginGoogle(
     @Headers('Authorization') clientToken: string,
-    @Request() request: LoginGooglePostRequestDto,
+    @Body() request: LoginGooglePostRequestDto,
   ): Promise<LoginGooglePostResponseDto> {
     return this.authService.loginGoogle(clientToken, request);
   }

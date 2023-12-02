@@ -40,6 +40,7 @@ import { RegisterPostRequestDto } from './dto/register-post-request/register-pos
 import { RegisterPostResponseDto } from './dto/register-post-request/register-post-response.dto';
 import { TokenGetRequestDto } from './dto/token-get-request/token-get-request.dto';
 import { TokenPostResponseDto } from './dto/token-get-request/token-get-response.dto';
+import { AuthorizeGoogleGetResponseDto } from './dto/authorize-google-get-response/authorize-google-get-response.dto';
 
 type RedisAuthCode = {
   codeChannelMethod: string;
@@ -57,6 +58,8 @@ type AccessToken ={
 export type UserToken = {
   userId: string,
 } & AccessToken;
+
+// TODO: remove all printed accountIds (use sessionId)
 
 @Injectable()
 export class AuthService {
@@ -112,9 +115,10 @@ export class AuthService {
     }
   }
 
-  async authorizeGoogle(auth: string, reply: any): Promise<void> {
+  async authorizeGoogle(auth: string): Promise<AuthorizeGoogleGetResponseDto> {
     this.logger.debug('attempting to authorize google');
     const sessionId = this.decodeToken<AccessToken>(this.getTokenFromHeader(auth)).sessionId;
+    console.log(sessionId);
     const client = this.getGoogleClient();
     const veriferValues: CodeVerifierResults = await client.generateCodeVerifierAsync();
     const authorizeUrl = client.generateAuthUrl({
@@ -122,7 +126,6 @@ export class AuthService {
       scope: 'openid https://www.googleapis.com/auth/userinfo.email',
       code_challenge_method: CodeChallengeMethod.S256,
       code_challenge: veriferValues.codeChallenge,
-      state: base64url.encode(sessionId),
     });
 
     try {
@@ -132,7 +135,9 @@ export class AuthService {
       throw new InternalServerErrorException('Failed to set google auth code');
     }
 
-    reply.status(302).redirect(authorizeUrl);
+    return {
+      redirectUrl: authorizeUrl,
+    }
   }
 
   /**
@@ -396,17 +401,30 @@ export class AuthService {
   async loginGoogle(clientToken: string, request: LoginGooglePostRequestDto): Promise<LoginGooglePostResponseDto> {
     this.logger.debug(`Attempting to login user with google`);
     const client = this.getGoogleClient();
-    const sessionId = this.decodeToken<AccessToken>(this.getTokenFromHeader(clientToken)).sessionId;
+    const resultFromHeader = this.getTokenFromHeader(clientToken);
+    const sessionId = this.decodeToken<AccessToken>(resultFromHeader).sessionId;
+
+    if (!sessionId) {
+      throw new InternalServerErrorException('Session id not found');
+    }
+
     const codeVerifier = await this.cacheManager.get<string>(redisAuthKeys.AUTH_REQUEST_GOOGLE(sessionId));
     
     if (!codeVerifier) {
       throw new NotFoundException('Auth code not found');
     }
 
-    const result = await client.getToken({
-      code: request.authCode,
-      codeVerifier: codeVerifier,
-    });
+    let tokenResult;
+    try {
+      tokenResult = await client.getToken({
+        code: request.authCode,
+        codeVerifier: codeVerifier,
+      });
+    } catch (error) {
+      this.logger.error(`Failed to get token for ${sessionId}`, error);
+      throw new InternalServerErrorException('Failed to get token from google');
+    }
+
 
     type GoogleToken = {
       iss: string,
@@ -419,7 +437,7 @@ export class AuthService {
       iat: number,
       exp: number,
     };
-    const idToken = this.decodeToken<GoogleToken>(result.tokens.id_token!);
+    const idToken = this.decodeToken<GoogleToken>(tokenResult.tokens.id_token!);
 
     if (!idToken.email_verified) {
       //TODO: send out email confirmation
@@ -429,13 +447,14 @@ export class AuthService {
     const user = await this.getOrInsertUser(idToken.email);
     const account = await this.insertAccountForUser(user.id, idToken.sub);
     
-    this.insertTokenForAccount(account.id, result.tokens.id_token!, 'id_token', idToken.exp, result.tokens.scope)
+    this.insertTokenForAccount(account.id, tokenResult.tokens.id_token!, 'id_token', idToken.exp, tokenResult.tokens.scope)
       .catch((error) => {
         this.logger.error(`Failed to insert id_token for ${idToken.email}`, error);
       });
 
     const { accessToken, refreshToken } = this.generateTokens(idToken.azp, user.id);
     
+    this.logger.debug(`Logged in user ${sessionId}`);
     return {
       user: {
         id: user.id,
