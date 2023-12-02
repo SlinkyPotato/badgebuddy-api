@@ -633,7 +633,7 @@ export class AuthService {
               </mj-text>
               <mj-spacer height="75px" />
               <mj-button background-color="#222b45"
-                           href="http://localhost:4200/verify?type=email&code=${encoding}">Confirm Email</mj-button>
+                           href="http://localhost:4200/login/email?code=${encoding}">Confirm Email</mj-button>
               <mj-spacer height="75px" />
               
               <mj-divider border-color="#222b45"></mj-divider>
