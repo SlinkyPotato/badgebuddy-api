@@ -59,7 +59,7 @@ export type UserToken = {
   userId: string,
 } & AccessToken;
 
-// TODO: remove all printed accountIds (use sessionId)
+// TODO: remove all printed accountIds (use sessionId or userId)
 
 @Injectable()
 export class AuthService {
@@ -424,8 +424,7 @@ export class AuthService {
       this.logger.error(`Failed to get token for ${sessionId}`, error);
       throw new InternalServerErrorException('Failed to get token from google');
     }
-
-
+    
     type GoogleToken = {
       iss: string,
       azp: string,
@@ -444,7 +443,7 @@ export class AuthService {
       throw new NotImplementedException('Should send out email verification');
     }
 
-    const user = await this.getOrInsertUser(idToken.email);
+    const user = await this.getOrInsertUser(idToken.email.trim());
     const account = await this.insertAccountForUser(user.id, idToken.sub);
     
     this.insertTokenForAccount(account.id, tokenResult.tokens.id_token!, 'id_token', idToken.exp, tokenResult.tokens.scope)
@@ -504,17 +503,19 @@ export class AuthService {
         email: email,
         emailVerifiedOn: new Date(),
       };
+      this.logger.debug(`Created user ${user.id}`);
     }
 
     return user;
   }
 
   private async insertAccountForUser(userId: string, providerAccountId: string): Promise<AccountEntity>{
+    this.logger.debug(`Attempting to insert account for user: ${userId}`);
     let account = await this.dataSource.createQueryBuilder()
       .select('account')
       .from(AccountEntity, 'account')
       .where('account.userId = :userId', { userId: userId })
-      .andWhere('account.type = :type', { type: 'google' })
+      .andWhere('account.provider = :provider', { provider: 'google' })
       .getOne();
 
     if (!account) {
@@ -537,6 +538,7 @@ export class AuthService {
         provider: 'google',
         providerAccountId: providerAccountId,
       } as AccountEntity;
+      this.logger.debug(`Linked google account for user ${userId}`);
     }
     return account;
   }
