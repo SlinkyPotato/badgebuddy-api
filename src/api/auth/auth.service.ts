@@ -5,7 +5,7 @@ import {
   Injectable,
   InternalServerErrorException,
   Logger,
-  NotFoundException, UnprocessableEntityException
+  NotFoundException, NotImplementedException, UnprocessableEntityException
 } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
@@ -17,6 +17,8 @@ import {
   DataSource,
 } from 'typeorm';
 import {
+  AccountEntity,
+  TokenEntity,
   UserEntity,
 } from '@badgebuddy/common';
 import nodemailer from 'nodemailer';
@@ -112,12 +114,12 @@ export class AuthService {
 
   async authorizeGoogle(auth: string, reply: any): Promise<void> {
     console.log('attempting to authorize google');
-    const sessionId = this.decodeToken(this.getTokenFromHeader(auth)).sessionId;
+    const sessionId = this.decodeToken<AccessToken>(this.getTokenFromHeader(auth)).sessionId;
     const client = this.getGoogleClient();
     const veriferValues: CodeVerifierResults = await client.generateCodeVerifierAsync();
     const authorizeUrl = client.generateAuthUrl({
       access_type: 'offline',
-      scope: 'https://www.googleapis.com/auth/userinfo.profile',
+      scope: 'openid https://www.googleapis.com/auth/userinfo.email',
       code_challenge_method: CodeChallengeMethod.S256,
       code_challenge: veriferValues.codeChallenge,
       state: base64url.encode(sessionId),
@@ -229,7 +231,6 @@ export class AuthService {
    */
   async register(request: RegisterPostRequestDto): Promise<RegisterPostResponseDto> {
     this.logger.debug(`Attempting to register user ${request.email}`);
-    let userId: string;
     const foundUser = await this.dataSource.createQueryBuilder()
         .select('user')
         .from(UserEntity, 'user')
@@ -239,17 +240,16 @@ export class AuthService {
       this.logger.warn(`User ${request.email} already exists`);
       throw new ConflictException('User already exists');
     }
-    try {
-      const result = await this.dataSource.manager.insert(UserEntity, {
+    const userId = (await this.dataSource.createQueryBuilder()
+      .insert()
+      .into(UserEntity)
+      .values({
         email: request.email,
+        emailVerifiedOn: new Date(),
         passwordHash: request.passwordHash,
-      });
-      userId = result.identifiers[0].id;
-    } catch (error) {
-      this.logger.error(error);
-      throw new InternalServerErrorException('Failed to register user');
-    }
-
+      })
+      .execute()).identifiers[0].id;
+      
     const randomHash = crypto.randomBytes(16).toString('base64url');
     const encoding = base64url(`${request.email}:${randomHash}`);
     
@@ -298,7 +298,7 @@ export class AuthService {
     if (!user) {
       throw new NotFoundException('User not found');
     }
-    const clientId = this.decodeToken(this.getTokenFromHeader(auth)).sub;
+    const clientId = this.decodeToken<AccessToken>(this.getTokenFromHeader(auth)).sub;
     const { accessToken, refreshToken } = this.generateTokens(clientId, user.id);
 
     this.logger.debug(`Logged in user ${request.email}`);
@@ -366,7 +366,7 @@ export class AuthService {
 
     await this.cacheManager.del(redisAuthKeys.AUTH_EMAIL_VERIFY(request.email));
 
-    const clientId = this.decodeToken(this.getTokenFromHeader(auth)).sub;
+    const clientId = this.decodeToken<AccessToken>(this.getTokenFromHeader(auth)).sub;
     const { accessToken, refreshToken } = this.generateTokens(clientId, user.id);
 
     return {
@@ -391,8 +391,9 @@ export class AuthService {
   async loginGoogle(clientToken: string, request: LoginGooglePostRequestDto): Promise<LoginGooglePostResponseDto> {
     this.logger.debug(`Attempting to login user with google`);
     const client = this.getGoogleClient();
-    const sessionId = this.decodeToken(this.getTokenFromHeader(clientToken)).sessionId;
+    const sessionId = this.decodeToken<AccessToken>(this.getTokenFromHeader(clientToken)).sessionId;
     const codeVerifier = await this.cacheManager.get<string>(redisAuthKeys.AUTH_REQUEST_GOOGLE(sessionId));
+    
     if (!codeVerifier) {
       throw new NotFoundException('Auth code not found');
     }
@@ -402,16 +403,134 @@ export class AuthService {
       codeVerifier: codeVerifier,
     });
 
-    // create user if not exists
-    // save tokens to db
+    type GoogleToken = {
+      iss: string,
+      azp: string,
+      aud: string,
+      sub: string,
+      email: string,
+      email_verified: boolean,
+      at_hash: string,
+      iat: number,
+      exp: number,
+    };
+    const idToken = this.decodeToken<GoogleToken>(result.tokens.id_token!);
+
+    if (!idToken.email_verified) {
+      //TODO: send out email confirmation
+      throw new NotImplementedException('Should send out email verification');
+    }
+
+    const user = await this.getOrInsertUser(idToken.email);
+    const account = await this.insertAccountForUser(user.id, idToken.sub);
+    this.logger.debug(`attempting to insert tokens for ${idToken.email}`);
+    // TODO: insert tokens
+    const accessTokenResult = await this.insertTokenForAccount(account.id, result.tokens.access_token!, 'access_token' ,result.tokens.expiry_date!);
+    x
     return {
-      
+      user: {
+        id: user.id,
+        email: user.email!,
+        emailVerifiedOn: user.emailVerifiedOn!.toISOString(),
+      },
+      accessToken: {
+      },
+      refreshToken: {
+
+      }
     }
   }
 
   /**
    *  Helper functions
    * */
+
+  private async getOrInsertUser(email: string, passwordHash?: string): Promise<UserEntity> {
+    let user = await this.dataSource.createQueryBuilder()
+      .select('user')
+      .from(UserEntity, 'user')
+      .where('user.email = :email', { email: email })
+      .getOne();
+
+    if (!user) {
+      this.logger.debug(`User not found, creating user`);
+      const result = await this.dataSource.createQueryBuilder()
+        .insert()
+        .into(UserEntity)
+        .values({
+          email: email,
+          emailVerifiedOn: new Date(),
+          passwordHash: passwordHash,
+        })
+        .execute();
+      if (result.identifiers.length === 0) {
+        throw new InternalServerErrorException('Failed to create user');
+      }
+      user = {
+        id: result.identifiers[0].id,
+        email: email,
+        emailVerifiedOn: new Date(),
+      };
+    }
+
+    return user;
+  }
+
+  private async insertAccountForUser(userId: string, providerAccountId: string): Promise<AccountEntity>{
+    let account = await this.dataSource.createQueryBuilder()
+      .select('account')
+      .from(AccountEntity, 'account')
+      .where('account.userId = :userId', { userId: userId })
+      .andWhere('account.type = :type', { type: 'google' })
+      .getOne();
+
+    if (!account) {
+      this.logger.debug(`Account not found, creating account for user: ${userId}`);
+      const accountResult = await this.dataSource.createQueryBuilder()
+        .insert()
+        .into(AccountEntity)
+        .values({
+          userId: userId,
+          provider: 'google',
+          providerAccountId: providerAccountId,
+        })
+        .execute();
+      if (accountResult.identifiers.length === 0) {
+        throw new InternalServerErrorException('Failed to insert account');
+      }
+      account = {
+        id: accountResult.identifiers[0].id,
+        userId: userId,
+        provider: 'google',
+        providerAccountId: providerAccountId,
+      };
+    }
+    return account;
+  }
+
+  private async insertTokenForAccount(
+    accountId: string, token: string, tokenType: 'access_token' | 'refresh_token' | 'id_token',
+    expiryDate?: number, scope?: string
+  ) {
+    // TODO: convert expiresOn to date
+    const expiresOn = (expiryDate) ? new Date(new Date().getTime() + expiryDate) : undefined;
+    try {
+      return await this.dataSource.createQueryBuilder()
+      .insert()
+      .into(TokenEntity)
+      .values({
+        accountId: accountId,
+        expiresOn: expiresOn,
+        scope: scope,
+        token: token,
+        tokenType: tokenType
+      })
+      .execute();
+    } catch (error) {
+      this.logger.error(`Failed to insert token for account ${accountId}`, error);
+      throw new InternalServerErrorException('Failed to insert token');
+    }
+  }
 
   private getGoogleClient(): OAuth2Client {
     return new OAuth2Client(
@@ -463,8 +582,8 @@ export class AuthService {
     return authorizationHeader.split(' ')[1];
   }
 
-  private decodeToken(token: string): AccessToken {
-    return this.jwtService.decode<AccessToken>(token);
+  private decodeToken<T>(token: string): T {
+    return this.jwtService.decode<T>(token);
   }
 
   private generateConfirmationEmailHtml(encoding: string) {
