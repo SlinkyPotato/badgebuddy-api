@@ -75,7 +75,7 @@ export class AuthController {
     type: TokenPostResponseDto,
   })
   token(@Body() request: TokenGetRequestDto): Promise<TokenPostResponseDto> {
-    return this.authService.generateAccessToken(request);
+    return this.authService.generateClientToken(request);
   }
 
   @UseGuards(UserTokenNoVerifyGuard)

@@ -19,6 +19,7 @@ import {
 import {
   AccountEntity,
   TokenEntity,
+  TokenType,
   UserEntity,
 } from '@badgebuddy/common';
 import nodemailer from 'nodemailer';
@@ -80,7 +81,6 @@ export class AuthService {
         pass: this.configService.get<string>('MAIL_PASS'),
       }
     });
-    console.log(process.env.AUTH_GOOGLE_REDIRECT_URI);
   }
 
   /**
@@ -113,7 +113,7 @@ export class AuthService {
   }
 
   async authorizeGoogle(auth: string, reply: any): Promise<void> {
-    console.log('attempting to authorize google');
+    this.logger.debug('attempting to authorize google');
     const sessionId = this.decodeToken<AccessToken>(this.getTokenFromHeader(auth)).sessionId;
     const client = this.getGoogleClient();
     const veriferValues: CodeVerifierResults = await client.generateCodeVerifierAsync();
@@ -142,7 +142,7 @@ export class AuthService {
    *
    * @see https://tools.ietf.org/html/rfc6749#section-4.1.3
    */
-  async generateAccessToken(request: TokenGetRequestDto): Promise<TokenPostResponseDto> {
+  async generateClientToken(request: TokenGetRequestDto): Promise<TokenPostResponseDto> {
     this.logger.debug(`Attempting to generate access token for client ${request.clientId} with auth code ${request.code}`);
     const cacheAuthCode = await this.cacheManager.get<string>(redisAuthKeys.AUTH_REQUEST(request.clientId, request.code));
     if (!cacheAuthCode) {
@@ -298,6 +298,11 @@ export class AuthService {
     if (!user) {
       throw new NotFoundException('User not found');
     }
+
+    if (!user.emailVerifiedOn) {
+      throw new UnprocessableEntityException('Email not verified');
+    }
+
     const clientId = this.decodeToken<AccessToken>(this.getTokenFromHeader(auth)).sub;
     const { accessToken, refreshToken } = this.generateTokens(clientId, user.id);
 
@@ -311,12 +316,12 @@ export class AuthService {
       },
       accessToken: {
         token: accessToken,
-        tokenType: 'Bearer',
+        type: 'Bearer',
         expiresIn: AuthService.ACCESS_TOKEN_EXPIRES_IN,
       },
       refreshToken: {
         token: refreshToken,
-        tokenType: 'Bearer',
+        type: 'Bearer',
         expiresIn: AuthService.REFRESH_TOKEN_EXPIRES_IN,
       }
     };
@@ -377,12 +382,12 @@ export class AuthService {
       },
       accessToken: {
         token: accessToken,
-        tokenType: 'Bearer',
+        type: 'Bearer',
         expiresIn: AuthService.ACCESS_TOKEN_EXPIRES_IN,
       },
       refreshToken: {
         token: refreshToken,
-        tokenType: 'Bearer',
+        type: 'Bearer',
         expiresIn: AuthService.REFRESH_TOKEN_EXPIRES_IN,
       }
     };
@@ -423,10 +428,14 @@ export class AuthService {
 
     const user = await this.getOrInsertUser(idToken.email);
     const account = await this.insertAccountForUser(user.id, idToken.sub);
-    this.logger.debug(`attempting to insert tokens for ${idToken.email}`);
-    // TODO: insert tokens
-    const accessTokenResult = await this.insertTokenForAccount(account.id, result.tokens.access_token!, 'access_token' ,result.tokens.expiry_date!);
-    x
+    
+    this.insertTokenForAccount(account.id, result.tokens.id_token!, 'id_token', idToken.exp, result.tokens.scope)
+      .catch((error) => {
+        this.logger.error(`Failed to insert id_token for ${idToken.email}`, error);
+      });
+
+    const { accessToken, refreshToken } = this.generateTokens(idToken.azp, user.id);
+    
     return {
       user: {
         id: user.id,
@@ -434,10 +443,15 @@ export class AuthService {
         emailVerifiedOn: user.emailVerifiedOn!.toISOString(),
       },
       accessToken: {
+        token: accessToken,
+        type: 'Bearer',
+        expiresIn: AuthService.ACCESS_TOKEN_EXPIRES_IN,
       },
       refreshToken: {
-
-      }
+        token: refreshToken,
+        type: 'Bearer',
+        expiresIn: AuthService.REFRESH_TOKEN_EXPIRES_IN,
+      },
     }
   }
 
@@ -503,27 +517,25 @@ export class AuthService {
         userId: userId,
         provider: 'google',
         providerAccountId: providerAccountId,
-      };
+      } as AccountEntity;
     }
     return account;
   }
 
   private async insertTokenForAccount(
-    accountId: string, token: string, tokenType: 'access_token' | 'refresh_token' | 'id_token',
-    expiryDate?: number, scope?: string
-  ) {
-    // TODO: convert expiresOn to date
-    const expiresOn = (expiryDate) ? new Date(new Date().getTime() + expiryDate) : undefined;
+    accountId: string, token: string, tokenType: TokenType, exp: number, scope?: string
+  ): Promise<any> {
+    this.logger.debug(`Attempting to insert token ${tokenType}`);
     try {
       return await this.dataSource.createQueryBuilder()
       .insert()
       .into(TokenEntity)
       .values({
         accountId: accountId,
-        expiresOn: expiresOn,
+        expiresOn: new Date(exp),
         scope: scope,
         token: token,
-        tokenType: tokenType
+        type: tokenType
       })
       .execute();
     } catch (error) {

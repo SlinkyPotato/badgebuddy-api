@@ -14,7 +14,7 @@ export class TokenDto {
     description: 'The token type.',
     type: String,
   })
-  tokenType: string;
+  type: string;
 
   @IsString()
   @ApiProperty({
