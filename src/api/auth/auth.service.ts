@@ -41,6 +41,7 @@ import { RegisterPostResponseDto } from './dto/register-post-request/register-po
 import { TokenGetRequestDto } from './dto/token-get-request/token-get-request.dto';
 import { TokenPostResponseDto } from './dto/token-get-request/token-get-response.dto';
 import { AuthorizeGoogleGetResponseDto } from './dto/authorize-google-get-response/authorize-google-get-response.dto';
+import { AuthorizeEmailPostRequestDto } from './dto/authorize-email-post-request/authorize-email-post-request.dto';
 
 type RedisAuthCode = {
   codeChannelMethod: string;
@@ -59,7 +60,8 @@ export type UserToken = {
   userId: string,
 } & AccessToken;
 
-// TODO: remove all printed accountIds (use sessionId or userId)
+// TODO: implement forgot/reset password
+// TODO: implement magic links login
 
 @Injectable()
 export class AuthService {
@@ -113,6 +115,25 @@ export class AuthService {
     return {
       code: authCode,
     }
+  }
+
+  async authorizeEmail({email}: AuthorizeEmailPostRequestDto): Promise<void> {
+    this.logger.debug('Attempting to authorize email');
+
+    const emailCode: string = this.genMagicEmailCode(email);
+    const mjmlParse = this.genConfirmationEmailHtml(emailCode);
+    
+    this.transporter.sendMail({
+      from: this.configService.get<string>('MAIL_FROM'),
+      to: email,
+      subject: 'BadgeBuddy Magic Email Link',
+      text: 'Please confirm your email.',
+      html: mjmlParse.html,
+    }).then((info) => {
+      this.logger.debug(`Sent mage email code`, info);
+    }).catch((error) => {
+      this.logger.error(`Failed to send magic email code`, error);
+    });
   }
 
   async authorizeGoogle(auth: string): Promise<AuthorizeGoogleGetResponseDto> {
@@ -234,51 +255,44 @@ export class AuthService {
    * @param request RegisterRequestPostDto
    * @returns Promise<RegisterPostResponseDto>
    */
-  async register(request: RegisterPostRequestDto): Promise<RegisterPostResponseDto> {
-    this.logger.debug(`Attempting to register user ${request.email}`);
+  async register({email, passwordHash}: RegisterPostRequestDto): Promise<RegisterPostResponseDto> {
+    this.logger.debug('Attempting to register user');
     const foundUser = await this.dataSource.createQueryBuilder()
-        .select('user')
+        .select('user.id')
         .from(UserEntity, 'user')
-        .where('user.email = :email', { email: request.email })
+        .where('user.email = :email', { email: email })
         .getOne();
+
     if (foundUser) {
-      this.logger.warn(`User ${request.email} already exists`);
+      this.logger.warn(`User ${foundUser.id} with same email already exists`);
       throw new ConflictException('User already exists');
     }
     const userId = (await this.dataSource.createQueryBuilder()
       .insert()
       .into(UserEntity)
       .values({
-        email: request.email,
+        email: email,
         emailVerifiedOn: new Date(),
-        passwordHash: request.passwordHash,
+        passwordHash: passwordHash,
       })
       .execute()).identifiers[0].id;
-      
-    const randomHash = crypto.randomBytes(16).toString('base64url');
-    const encoding = base64url(`${request.email}:${randomHash}`);
     
-    this.cacheManager.set(redisAuthKeys.AUTH_EMAIL_VERIFY(request.email), encoding, (1000 * 60 * 60 * 24)).then(() =>  {
-      this.logger.debug(`Set email verification for ${request.email} in cache`);
-    }).catch((error) => {
-      this.logger.error(`Failed to set email verification for ${request.email} in cache`, error);
-    });
-    
-    const mjmlParse = this.generateConfirmationEmailHtml(encoding);
+    const emailCode: string = this.genMagicEmailCode(email);
+    const mjmlParse = this.genConfirmationEmailHtml(emailCode);
     
     this.transporter.sendMail({
       from: this.configService.get<string>('MAIL_FROM'),
-      to: 'patinobrian@gmail.com',
+      to: email,
       subject: 'Welcome to BadgeBuddy',
       text: 'Please confirm your email.',
       html: mjmlParse.html,
     }).then((info) => {
-      this.logger.debug(`Sent confirmation email to ${request.email}`, info);
+      this.logger.debug(`Sent confirmation email to userId: ${userId}`, info);
     }).catch((error) => {
-      this.logger.error(`Failed to send confirmation email to ${request.email}`, error);
+      this.logger.error(`Failed to send confirmation email to ${userId}`, error);
     });
     
-    this.logger.debug(`Registered user ${request.email}`);
+    this.logger.debug(`Registered user ${userId}`);
     
     return {
       user: userId,
@@ -291,7 +305,7 @@ export class AuthService {
    * @returns Promise<LoginPostResponseDto>
    */
   async login(auth: string, request: LoginPostRequestDto): Promise<LoginPostResponseDto> {
-    this.logger.debug(`Attempting to login user ${request.email}`);
+    this.logger.debug(`Attempting to login user`);
 
     const user = await this.dataSource.createQueryBuilder()
       .select('user')
@@ -311,7 +325,7 @@ export class AuthService {
     const clientId = this.decodeToken<AccessToken>(this.getTokenFromHeader(auth)).sub;
     const { accessToken, refreshToken } = this.generateTokens(clientId, user.id);
 
-    this.logger.debug(`Logged in user ${request.email}`);
+    this.logger.debug(`Logged in user ${user.id}`);
     return {
       user: {
         id: user.id,
@@ -367,7 +381,7 @@ export class AuthService {
         .andWhere('email_verified_on IS NULL')
         .execute();
       if (result.affected === 1) {
-        this.logger.debug(`Updated user ${request.email} with email verification`);
+        this.logger.debug(`Updated user ${user.id} with email verification`);
       }
     } catch(error) {
       this.logger.error(error);
@@ -448,7 +462,7 @@ export class AuthService {
     
     this.insertTokenForAccount(account.id, tokenResult.tokens.id_token!, 'id_token', idToken.exp, tokenResult.tokens.scope)
       .catch((error) => {
-        this.logger.error(`Failed to insert id_token for ${idToken.email}`, error);
+        this.logger.error(`Failed to insert id_token for ${user.id}`, error);
       });
 
     const { accessToken, refreshToken } = this.generateTokens(idToken.azp, user.id);
@@ -621,7 +635,21 @@ export class AuthService {
     return this.jwtService.decode<T>(token);
   }
 
-  private generateConfirmationEmailHtml(encoding: string) {
+  private genMagicEmailCode(email: string): string {
+    const randomHash = crypto.randomBytes(16).toString('base64url');
+    const encoding = base64url(`${email}:${randomHash}`);
+    const CODE_EXPIRES_IN = 1000 * 60 * 60 * 24; // 24 hours
+    
+    this.cacheManager.set(redisAuthKeys.AUTH_EMAIL_VERIFY(email), encoding, (CODE_EXPIRES_IN))
+      .then(() =>  {
+        this.logger.debug(`Set email verification in cache`);
+      }).catch((error) => {
+        this.logger.error(`Failed to set email verification in cache`, error);
+    });
+    return encoding;
+  }
+
+  private genConfirmationEmailHtml(encoding: string) {
     return mjml2html(`
       <mjml>
         <mj-body>
@@ -670,5 +698,53 @@ export class AuthService {
         </mj-body>
       </mjml>
     `);
+  }
+
+  private getMagicEmailLoginHTML(encoding: string) {
+    return mjml2html(`
+    <mjml>
+      <mj-body>
+        <mj-section background-color="#222b45">
+          <mj-column>
+            <mj-text  
+                    align="center"
+                    font-style="italic"
+                    font-size="20px"
+                    color="#fff">
+              BadgeBuddy
+            </mj-text>
+          </mj-column>
+        </mj-section>
+        <mj-section>
+          <mj-column>
+            <mj-spacer height="20px" />
+            <mj-divider border-color="#222b45"></mj-divider>
+    
+            <mj-spacer height="100px" />
+            <mj-text font-size="16px" color="#222b45" font-family="Open Sans, sans-serif">
+              gm 👋,
+            </mj-text>
+            <mj-text font-size="16px" color="#222b45" font-family="Open Sans, sans-serif">
+    
+            </mj-text>
+            <mj-text font-size="16px" color="#222b45" font-family="Open Sans, sans-serif">
+              I hope you enjoy the services provided. Hit the button below to log in. If this wasn't you, please ignore 🤖
+            </mj-text>
+            <mj-spacer height="75px" />
+            <mj-button background-color="#222b45"
+                      href="http://localhost:4200/login/email?code=${encoding}">Login</mj-button>
+            <mj-spacer height="75px" />
+    
+            <mj-divider border-color="#222b45"></mj-divider>
+          </mj-column>
+        </mj-section>
+        <mj-section>
+          <mj-column>
+            <mj-text color="#222b45"><a href="#">Homepage</a> | <a href="#">Discord</a> | <a href="#">Terms &amp; Service</a></mj-text>
+          </mj-column>
+        </mj-section>
+      </mj-body>
+    </mjml>
+  `);
   }
 }

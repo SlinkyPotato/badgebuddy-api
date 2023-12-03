@@ -37,7 +37,10 @@ export class ClientTokenGuard implements CanActivate {
       throw new UnauthorizedException();
     }
     try {
-      this.jwtService.verify(accessToken);
+      const decoded = this.jwtService.verify(accessToken);
+      if (!decoded || !decoded.sessionId) {
+        throw new UnauthorizedException();
+      }
     } catch (error) {
       this.logger.warn('Invalid access token');
       throw new UnauthorizedException();

@@ -33,6 +33,7 @@ import { TokenGetRequestDto } from './dto/token-get-request/token-get-request.dt
 import { TokenPostResponseDto } from './dto/token-get-request/token-get-response.dto';
 import { LoginGooglePostResponseDto } from './dto/login-google-post-request/login-google-post-response-dto';
 import { AuthorizeGoogleGetResponseDto } from './dto/authorize-google-get-response/authorize-google-get-response.dto';
+import { AuthorizeEmailPostRequestDto } from './dto/authorize-email-post-request/authorize-email-post-request.dto';
 
 @Controller('auth')
 @ApiTags('auth')
@@ -47,7 +48,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Get auth token' })
   @ApiResponse({
     status: 200,
-    description: 'Authorized',
+    description: 'Success',
     type: AuthorizeGetResponseDto,
   })
   authorize(
@@ -57,11 +58,24 @@ export class AuthController {
   }
 
   @UseGuards(ClientTokenGuard)
+  @Post('/authorize/email')
+  @ApiOperation({ summary: 'Send magic email code' })
+  @ApiResponse({
+    status: 201,
+    description: 'Created',
+  })
+  authorizeEmail(
+    @Body() request: AuthorizeEmailPostRequestDto,
+  ): Promise<void> {
+    return this.authService.authorizeEmail(request);
+  }
+
+  @UseGuards(ClientTokenGuard)
   @Get('/authorize/google')
   @ApiOperation({ summary: 'Authorize google' })
   @ApiResponse({
     status: 200,
-    description: 'Get authorize google url',
+    description: 'Success',
     type: AuthorizeGoogleGetResponseDto,
   })
   authorizeGoogle(
@@ -72,10 +86,10 @@ export class AuthController {
 
   @UseGuards(ClientIdGuard)
   @Post('/token')
-  @ApiOperation({ summary: 'Get token' })
+  @ApiOperation({ summary: 'Get client token' })
   @ApiResponse({
-    status: 200,
-    description: 'Token',
+    status: 201,
+    description: 'Created',
     type: TokenPostResponseDto,
   })
   token(@Body() request: TokenGetRequestDto): Promise<TokenPostResponseDto> {
@@ -86,8 +100,8 @@ export class AuthController {
   @Post('/refresh')
   @ApiOperation({ summary: 'Refresh token' })
   @ApiResponse({
-    status: 200,
-    description: 'Token refreshed',
+    status: 201,
+    description: 'Created',
     type: RefreshTokenPostResponseDto,
   })
   refresh(@Headers('Authorization') authorization: string, @Body() request: RefreshTokenPostRequestDto): Promise<RefreshTokenPostResponseDto> {
@@ -104,9 +118,11 @@ export class AuthController {
   }])
   @ApiResponse({
     status: 201,
-    description: 'Registered',
+    description: 'Created',
   })
-  register(@Body() request: RegisterPostRequestDto): Promise<RegisterPostResponseDto> {
+  register(
+    @Body() request: RegisterPostRequestDto
+  ): Promise<RegisterPostResponseDto> {
     return this.authService.register(request);
   }
 
@@ -114,8 +130,8 @@ export class AuthController {
   @Post('/login')
   @ApiOperation({ summary: 'Login user' })
   @ApiResponse({
-    status: 200,
-    description: 'Logged in',
+    status: 201,
+    description: 'Created auth token',
   })
   @ApiHeaders([{
     name: 'Authorization',
@@ -138,8 +154,8 @@ export class AuthController {
     required: true,
   }])
   @ApiResponse({
-    status: 200,
-    description: 'Logged in by email',
+    status: 201,
+    description: 'Created auth token',
   })
   loginEmail(
     @Headers('Authorization') clientToken: string,
@@ -152,8 +168,8 @@ export class AuthController {
   @Post('/login/google')
   @ApiOperation({ summary: 'Login user by google' })
   @ApiResponse({
-    status: 200,
-    description: 'Logged in by google',
+    status: 201,
+    description: 'Created auth token',
     type: LoginGooglePostRequestDto,
   })
   loginGoogle(
