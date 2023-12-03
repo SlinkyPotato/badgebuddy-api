@@ -136,7 +136,6 @@ export class AuthService {
   async authorizeGoogle(auth: string): Promise<AuthorizeGoogleGetResponseDto> {
     this.logger.debug('attempting to authorize google');
     const sessionId = this.decodeToken<AccessToken>(this.getTokenFromHeader(auth)).sessionId;
-    console.log(sessionId);
     const client = this.getGoogleClient();
     const veriferValues: CodeVerifierResults = await client.generateCodeVerifierAsync();
     const authorizeUrl = client.generateAuthUrl({
@@ -529,7 +528,6 @@ export class AuthService {
       .where('account.user_id = :id', { 'id': userId })
       .andWhere('account.provider = :provider', { 'provider': 'google' })
       .getOne();
-    console.log(account);
 
     if (!account) {
       this.logger.debug(`Account not found, creating account for user: ${userId}`);
