@@ -5,7 +5,7 @@ import {
   Injectable,
   InternalServerErrorException,
   Logger,
-  NotFoundException, NotImplementedException, UnprocessableEntityException
+  NotFoundException, NotImplementedException, UnauthorizedException, UnprocessableEntityException,
 } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
@@ -42,6 +42,11 @@ import { TokenGetRequestDto } from './dto/token-get-request/token-get-request.dt
 import { TokenPostResponseDto } from './dto/token-get-request/token-get-response.dto';
 import { AuthorizeGoogleGetResponseDto } from './dto/authorize-google-get-response/authorize-google-get-response.dto';
 import { AuthorizeEmailPostRequestDto } from './dto/authorize-email-post-request/authorize-email-post-request.dto';
+import { AuthorizeDiscordGetResponseDto } from './dto/authorize-discord-get-response/authorize-discord-get-response.dto';
+import { LoginDiscordPostRequestDto } from './dto/login-discord-post-request/login-discord-post-request.dto';
+import { LoginDiscordPostResponseDto } from './dto/login-discord-post-response/login-discord-post-response.dto';
+import { HttpService } from '@nestjs/axios';
+import { firstValueFrom } from 'rxjs';
 
 type RedisAuthCode = {
   codeChannelMethod: string;
@@ -73,6 +78,7 @@ export class AuthService {
     private jwtService: JwtService,
     private readonly configService: ConfigService,
     private dataSource: DataSource,
+    private readonly httpService: HttpService,
   ) {
     this.transporter = nodemailer.createTransport({
       host: this.configService.get<string>('MAIL_HOST'),
@@ -153,7 +159,28 @@ export class AuthService {
     }
 
     return {
-      redirectUrl: authorizeUrl,
+      authorizeUrl: authorizeUrl,
+    }
+  }
+
+  async authorizeDiscord(auth: string): Promise<AuthorizeDiscordGetResponseDto> {
+    this.logger.debug('attempting to authorize discord');
+    const sessionId = this.decodeToken<AccessToken>(this.getTokenFromHeader(auth)).sessionId;
+    const clientId = this.configService.get('DISCORD_BOT_APPLICATION_ID');
+    const scopes = 'email';
+    const redirectUri = encodeURIComponent(this.configService.get('DISCORD_REDIRECT_URI')!);
+    const state = crypto.randomBytes(16).toString('hex');
+    const authorizeUrl = `https://discord.com/api/oauth2/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&scope=${scopes}&state=${state}`;
+
+    try {
+      await this.cacheManager.set(redisAuthKeys.AUTH_REQUEST_DISCORD(sessionId), state, (1000 * 60 * 10));
+    } catch (error) {
+      this.logger.error(`Failed to set discord auth code for ${sessionId}`, error);
+      throw new InternalServerErrorException('Failed to set discord auth code');
+    }
+
+    return {
+      authorizeUrl: authorizeUrl,
     }
   }
 
@@ -165,7 +192,7 @@ export class AuthService {
    * @see https://tools.ietf.org/html/rfc6749#section-4.1.3
    */
   async generateClientToken(request: TokenGetRequestDto): Promise<TokenPostResponseDto> {
-    this.logger.debug(`Attempting to generate access token for client ${request.clientId} with auth code ${request.code}`);
+    this.logger.debug(`Attempting to generate access token for client ${request.clientId}`);
     const cacheAuthCode = await this.cacheManager.get<string>(redisAuthKeys.AUTH_REQUEST(request.clientId, request.code));
     if (!cacheAuthCode) {
       throw new NotFoundException('Auth code not found');
@@ -322,24 +349,7 @@ export class AuthService {
     const { accessToken, refreshToken } = this.generateTokens(clientId, user.id);
 
     this.logger.debug(`Logged in user ${user.id}`);
-    return {
-      user: {
-        id: user.id,
-        email: user.email!,
-        emailVerifiedOn: user.emailVerifiedOn!.toISOString(),
-        name: user.name ?? undefined,
-      },
-      accessToken: {
-        token: accessToken,
-        type: 'Bearer',
-        expiresIn: AuthService.ACCESS_TOKEN_EXPIRES_IN,
-      },
-      refreshToken: {
-        token: refreshToken,
-        type: 'Bearer',
-        expiresIn: AuthService.REFRESH_TOKEN_EXPIRES_IN,
-      }
-    };
+    return this.getLoginResponse(user, accessToken, refreshToken);
   }
 
   /**
@@ -388,31 +398,15 @@ export class AuthService {
 
     const clientId = this.decodeToken<AccessToken>(this.getTokenFromHeader(auth)).sub;
     const { accessToken, refreshToken } = this.generateTokens(clientId, user.id);
-
-    return {
-      user: {
-        id: user.id,
-        email: request.email,
-        emailVerifiedOn: user.emailVerifiedOn!.toISOString(),
-      },
-      accessToken: {
-        token: accessToken,
-        type: 'Bearer',
-        expiresIn: AuthService.ACCESS_TOKEN_EXPIRES_IN,
-      },
-      refreshToken: {
-        token: refreshToken,
-        type: 'Bearer',
-        expiresIn: AuthService.REFRESH_TOKEN_EXPIRES_IN,
-      }
-    };
+    return this.getLoginResponse(user, accessToken, refreshToken);
   }
 
-  async loginGoogle(clientToken: string, request: LoginGooglePostRequestDto): Promise<LoginGooglePostResponseDto> {
+  async loginGoogle(clientToken: string, {authCode}: LoginGooglePostRequestDto): Promise<LoginGooglePostResponseDto> {
     this.logger.debug(`Attempting to login user with google`);
     const client = this.getGoogleClient();
     const resultFromHeader = this.getTokenFromHeader(clientToken);
-    const sessionId = this.decodeToken<AccessToken>(resultFromHeader).sessionId;
+    const decodedClientToken = this.decodeToken<AccessToken>(resultFromHeader);
+    const sessionId = decodedClientToken.sessionId;
 
     if (!sessionId) {
       throw new InternalServerErrorException('Session id not found');
@@ -427,7 +421,7 @@ export class AuthService {
     let tokenResult;
     try {
       tokenResult = await client.getToken({
-        code: request.authCode,
+        code: authCode,
         codeVerifier: codeVerifier,
       });
     } catch (error) {
@@ -454,33 +448,123 @@ export class AuthService {
     }
 
     const user = await this.getOrInsertUser(idToken.email.trim());
-    const account = await this.insertAccountForUser(user.id, idToken.sub);
+    const account = await this.insertAccountForUser(user.id, idToken.sub, 'google');
     
     this.insertTokenForAccount(account.id, tokenResult.tokens.id_token!, 'id_token', idToken.exp, tokenResult.tokens.scope)
       .catch((error) => {
         this.logger.error(`Failed to insert id_token for ${user.id}`, error);
       });
 
-    const { accessToken, refreshToken } = this.generateTokens(idToken.azp, user.id);
+    const { accessToken, refreshToken } = this.generateTokens(decodedClientToken.sub, user.id);
     
     this.logger.debug(`Logged in user ${sessionId}`);
-    return {
-      user: {
-        id: user.id,
-        email: user.email!,
-        emailVerifiedOn: user.emailVerifiedOn!.toISOString(),
-      },
-      accessToken: {
-        token: accessToken,
-        type: 'Bearer',
-        expiresIn: AuthService.ACCESS_TOKEN_EXPIRES_IN,
-      },
-      refreshToken: {
-        token: refreshToken,
-        type: 'Bearer',
-        expiresIn: AuthService.REFRESH_TOKEN_EXPIRES_IN,
-      },
+    return this.getLoginResponse(user, accessToken, refreshToken);
+  }
+
+  async loginDiscord(clientToken: string, {authCode, state}: LoginDiscordPostRequestDto): Promise<LoginDiscordPostResponseDto> {
+    this.logger.debug(`Attempting to login user with discord`);
+    
+    const resultFromHeader = this.getTokenFromHeader(clientToken);
+    const decodedClientToken = this.decodeToken<AccessToken>(resultFromHeader);
+    const sessionId = decodedClientToken.sessionId;
+
+    if (!sessionId) {
+      throw new InternalServerErrorException('Session id not found');
     }
+
+    const storedState = await this.cacheManager.get<string>(redisAuthKeys.AUTH_REQUEST_DISCORD(sessionId));
+    
+    if (!storedState) {
+      throw new NotFoundException('Auth code not found');
+    }
+
+    if (storedState !== state) {
+      throw new UnauthorizedException('State invalid');
+    }
+
+    type DiscordToken = {
+      token_type: string,
+      access_token: string,
+      expires_in: number,
+      refresh_token: string,
+      scope: string,
+    };
+
+    type DiscordProfile = {
+      id: string,
+      username: string,
+      avatar: string,
+      discriminator: string,
+      public_flags: number,
+      premium_type: number,
+      flags: number,
+      global_name: string,
+      mfa_enabled: boolean,
+      locale: string,
+      email: string,
+      verified: boolean
+    }
+
+    let discordToken: DiscordToken;
+    let discordProfile: DiscordProfile;
+    try {
+      const tokenResult = (await firstValueFrom(this.httpService.post<DiscordToken>('https://discord.com/api/oauth2/token', {
+        client_id: this.configService.get('DISCORD_BOT_APPLICATION_ID'),
+        client_secret: this.configService.get('DISCORD_CLIENT_SECRET'),
+        grant_type: 'authorization_code',
+        code: authCode,
+        redirect_uri: encodeURIComponent(this.configService.get('DISCORD_REDIRECT_URI')!),
+      }, {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+      })));
+
+      if (tokenResult.status !== 200) {
+        throw new InternalServerErrorException('Failed to get discord token');
+      }
+
+      discordToken = tokenResult.data;
+
+      const profileResult = (await firstValueFrom(this.httpService.get<any>('https://discord.com/api/users/@me', {
+        headers: {
+          'Authorization': `${discordToken.token_type} ${discordToken.access_token}`,
+        },
+      })));
+
+      if (profileResult.status !== 200) {
+        throw new InternalServerErrorException('Failed to get profile');
+      }
+
+      discordProfile = profileResult.data;
+
+    } catch (error) {
+      this.logger.error(`Failed to get token for ${sessionId}`, error);
+      throw new InternalServerErrorException('Failed to get token from discord');
+    }
+    
+    if (!discordProfile.verified) {
+      //TODO: send out email confirmation, throw partial update exception
+      throw new NotImplementedException('Should send out email verification');
+    }
+
+    const user = await this.getOrInsertUser(discordProfile.email);
+    const account = await this.insertAccountForUser(user.id, discordProfile.id, 'discord');
+    
+    this.insertTokenForAccount(account.id, discordToken.access_token!, 'access_token', discordToken.expires_in, discordToken.scope).catch((error) => {this.logger.error(`Failed to insert access_token for ${user.id}`, error);});
+    this.insertTokenForAccount(account.id, discordToken.refresh_token!, 'refresh_token', undefined, discordToken.scope).catch((error) => {this.logger.error(`Failed to insert refresh_token for ${user.id}`, error);});
+
+    try {
+      const idToken = this.jwtService.sign(discordProfile);
+      this.insertTokenForAccount(account.id, idToken, 'id_token', new Date().getTime() + (1000*60*60*24)).catch((error) => {this.logger.error(`Failed to insert refresh_token for ${user.id}`, error);});
+    } catch(error) {
+      this.logger.error(`Failed to sign id_token for ${user.id}`, error);
+    }
+    
+    const { accessToken, refreshToken } = this.generateTokens(decodedClientToken.sub, user.id);
+    
+    this.logger.debug(`Logged in user ${sessionId}`);
+    return this.getLoginResponse(user, accessToken, refreshToken);
   }
 
   /**
@@ -519,14 +603,35 @@ export class AuthService {
     return user;
   }
 
-  private async insertAccountForUser(userId: string, providerAccountId: string): Promise<AccountEntity>{
+  private getLoginResponse(
+    user: UserEntity, accessToken: string, refreshToken: string): { user: any, accessToken: {token: string, type: string, expiresIn: number}, refreshToken: {token: string, type: string, expiresIn: number} } {
+    return {
+      user: {
+        id: user.id,
+        email: user.email!,
+        emailVerifiedOn: user.emailVerifiedOn!.toISOString(),
+      },
+      accessToken: {
+        token: accessToken,
+        type: 'Bearer',
+        expiresIn: AuthService.ACCESS_TOKEN_EXPIRES_IN,
+      },
+      refreshToken: {
+        token: refreshToken,
+        type: 'Bearer',
+        expiresIn: AuthService.REFRESH_TOKEN_EXPIRES_IN,
+      },
+    }
+  }
+
+  private async insertAccountForUser(userId: string, providerAccountId: string, provider: 'google' | 'discord'): Promise<AccountEntity>{
     this.logger.debug(`Attempting to insert account for user: ${userId}`);
 
     let account = await this.dataSource.createQueryBuilder()
       .select('account.id')
       .from(AccountEntity, 'account')
       .where('account.user_id = :id', { 'id': userId })
-      .andWhere('account.provider = :provider', { 'provider': 'google' })
+      .andWhere('account.provider = :provider', { 'provider': provider })
       .getOne();
 
     if (!account) {
@@ -536,26 +641,26 @@ export class AuthService {
         .into(AccountEntity)
         .values([{
           userId: userId,
-          provider: 'google',
+          provider: provider,
           providerAccountId: providerAccountId,
         }])
         .execute();
       if (accountResult.identifiers.length === 0) {
-        throw new InternalServerErrorException('Failed to insert account');
+        throw new InternalServerErrorException(`Failed to insert ${provider} account`);
       }
       account = {
         id: accountResult.identifiers[0].id,
         userId: userId,
-        provider: 'google',
+        provider: provider,
         providerAccountId: providerAccountId,
       } as AccountEntity;
-      this.logger.debug(`Linked google account for user ${userId}`);
+      this.logger.debug(`Linked ${provider} account for user ${userId}`);
     }
     return account;
   }
 
   private async insertTokenForAccount(
-    accountId: string, token: string, tokenType: TokenType, exp: number, scope?: string
+    accountId: string, token: string, tokenType: TokenType, exp?: number, scope?: string
   ): Promise<any> {
     this.logger.debug(`Attempting to insert token ${tokenType}`);
     try {
@@ -564,7 +669,7 @@ export class AuthService {
       .into(TokenEntity)
       .values({
         accountId: accountId,
-        expiresOn: new Date(exp),
+        expiresOn: exp ? new Date(exp) : undefined,
         scope: scope,
         token: token,
         type: tokenType
@@ -584,14 +689,15 @@ export class AuthService {
     );
   }
 
-  private generateTokens(clientId: string, userId: string): { accessToken: string, refreshToken: string } {
+  private generateTokens(sub: string, userId: string): { accessToken: string, refreshToken: string } {
     const sessionId = crypto.randomUUID().toString();
+    
     const accessToken = this.jwtService.sign({
       userId: userId,
       sessionId: sessionId,
     }, {
       expiresIn: '24h',
-      subject: clientId,
+      subject: sub,
     });
 
     const refreshToken = this.jwtService.sign({
@@ -599,7 +705,7 @@ export class AuthService {
       sessionId: sessionId,
     }, {
       expiresIn: '7d',
-      subject: clientId,
+      subject: sub,
     });
 
     this.cacheManager.set(redisAuthKeys.AUTH_REFRESH_TOKEN(userId), refreshToken, (AuthService.REFRESH_TOKEN_EXPIRES_IN * 1000)).then(() =>  {

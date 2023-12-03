@@ -4,6 +4,7 @@ import { AuthService } from './auth.service';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import Joi from 'joi';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import Joi from 'joi';
         issuer: process.env.AUTH_ISSUER,
       },
     }),
+    HttpModule
   ],
   controllers: [AuthController],
   providers: [

@@ -34,6 +34,9 @@ import { TokenPostResponseDto } from './dto/token-get-request/token-get-response
 import { LoginGooglePostResponseDto } from './dto/login-google-post-request/login-google-post-response-dto';
 import { AuthorizeGoogleGetResponseDto } from './dto/authorize-google-get-response/authorize-google-get-response.dto';
 import { AuthorizeEmailPostRequestDto } from './dto/authorize-email-post-request/authorize-email-post-request.dto';
+import { LoginDiscordPostRequestDto } from './dto/login-discord-post-request/login-discord-post-request.dto';
+import { LoginDiscordPostResponseDto } from './dto/login-discord-post-response/login-discord-post-response.dto';
+import { AuthorizeDiscordGetResponseDto } from './dto/authorize-discord-get-response/authorize-discord-get-response.dto';
 
 @Controller('auth')
 @ApiTags('auth')
@@ -82,6 +85,20 @@ export class AuthController {
     @Headers('Authorization') clientToken: string,
   ): Promise<AuthorizeGoogleGetResponseDto> {
     return this.authService.authorizeGoogle(clientToken);
+  }
+
+  @UseGuards(ClientTokenGuard)
+  @Get('/authorize/discord')
+  @ApiOperation({ summary: 'Authorize discord' })
+  @ApiResponse({
+    status: 200,
+    description: 'Success',
+    type: AuthorizeDiscordGetResponseDto,
+  })
+  authorizeDiscord(
+    @Headers('Authorization') clientToken: string,
+  ): Promise<AuthorizeDiscordGetResponseDto> {
+    return this.authService.authorizeDiscord(clientToken);
   }
 
   @UseGuards(ClientIdGuard)
@@ -177,6 +194,21 @@ export class AuthController {
     @Body() request: LoginGooglePostRequestDto,
   ): Promise<LoginGooglePostResponseDto> {
     return this.authService.loginGoogle(clientToken, request);
+  }
+
+  @UseGuards(ClientTokenGuard)
+  @Post('/login/discord')
+  @ApiOperation({ summary: 'Login user by discord' })
+  @ApiResponse({
+    status: 201,
+    description: 'Created auth token',
+    type: LoginDiscordPostResponseDto,
+  })
+  loginDiscord(
+    @Headers('Authorization') clientToken: string,
+    @Body() request: LoginDiscordPostRequestDto,
+  ): Promise<LoginDiscordPostResponseDto> {
+    return this.authService.loginDiscord(clientToken, request);
   }
 
 }
