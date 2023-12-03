@@ -38,7 +38,7 @@
     "sync": "git fetch && git pull && dotenv-vault pull"
   },
   "dependencies": {
-    "@badgebuddy/common": "1.2.0-8",
+    "@badgebuddy/common": "1.2.0-9",
     "@discord-nestjs/common": "^5.2.10",
     "@discord-nestjs/core": "^5.3.12",
     "@fastify/static": "^6.12.0",
@@ -54,6 +54,7 @@
     "@nestjs/swagger": "^7.1.16",
     "@nestjs/terminus": "^10.2.0",
     "@nestjs/typeorm": "^10.0.1",
+    "@types/qs": "^6.9.10",
     "axios": "^1.6.2",
     "base64url": "^3.0.1",
     "bcrypt": "^5.1.1",
@@ -71,6 +72,7 @@
     "mongoose": "^7.6.6",
     "mysql2": "^3.6.5",
     "nodemailer": "^6.9.7",
+    "qs": "^6.11.2",
     "redis": "^4.6.11",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1",

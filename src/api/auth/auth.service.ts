@@ -14,7 +14,7 @@ import { redisAuthKeys } from '../redis-keys.constant';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import {
-  DataSource,
+  DataSource, InsertResult,
 } from 'typeorm';
 import {
   AccountEntity,
@@ -47,6 +47,7 @@ import { LoginDiscordPostRequestDto } from './dto/login-discord-post-request/log
 import { LoginDiscordPostResponseDto } from './dto/login-discord-post-response/login-discord-post-response.dto';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
+import qs from 'qs';
 
 type RedisAuthCode = {
   codeChannelMethod: string;
@@ -174,6 +175,7 @@ export class AuthService {
 
     try {
       await this.cacheManager.set(redisAuthKeys.AUTH_REQUEST_DISCORD(sessionId), state, (1000 * 60 * 10));
+      this.logger.debug(`Stored discord state for ${sessionId}`);
     } catch (error) {
       this.logger.error(`Failed to set discord auth code for ${sessionId}`, error);
       throw new InternalServerErrorException('Failed to set discord auth code');
@@ -409,13 +411,15 @@ export class AuthService {
     const sessionId = decodedClientToken.sessionId;
 
     if (!sessionId) {
+      this.logger.warn(`Session id not used in request for ${sessionId}`)
       throw new InternalServerErrorException('Session id not found');
     }
 
     const codeVerifier = await this.cacheManager.get<string>(redisAuthKeys.AUTH_REQUEST_GOOGLE(sessionId));
     
     if (!codeVerifier) {
-      throw new NotFoundException('Auth code not found');
+      this.logger.warn(`Code verifier not found for ${sessionId}`)
+      throw new NotFoundException('Code verifier not found');
     }
 
     let tokenResult;
@@ -467,20 +471,25 @@ export class AuthService {
     const resultFromHeader = this.getTokenFromHeader(clientToken);
     const decodedClientToken = this.decodeToken<AccessToken>(resultFromHeader);
     const sessionId = decodedClientToken.sessionId;
+    this.logger.debug(`processing session ${sessionId} for discord login attempt`);
 
     if (!sessionId) {
+      this.logger.warn(`Session id not used in request for ${sessionId}`)
       throw new InternalServerErrorException('Session id not found');
     }
 
     const storedState = await this.cacheManager.get<string>(redisAuthKeys.AUTH_REQUEST_DISCORD(sessionId));
     
     if (!storedState) {
-      throw new NotFoundException('Auth code not found');
+      this.logger.warn(`State not found for ${sessionId}`)
+      throw new NotFoundException('Session ID for discord login not found');
     }
 
     if (storedState !== state) {
+      this.logger.warn(`State invalid for ${sessionId}`)
       throw new UnauthorizedException('State invalid');
     }
+    this.logger.debug(`found valid state ${storedState} for discord login attempt`)
 
     type DiscordToken = {
       token_type: string,
@@ -508,15 +517,15 @@ export class AuthService {
     let discordToken: DiscordToken;
     let discordProfile: DiscordProfile;
     try {
-      const tokenResult = (await firstValueFrom(this.httpService.post<DiscordToken>('https://discord.com/api/oauth2/token', {
-        client_id: this.configService.get('DISCORD_BOT_APPLICATION_ID'),
-        client_secret: this.configService.get('DISCORD_CLIENT_SECRET'),
+      const tokenResult = (await firstValueFrom(this.httpService.post<DiscordToken>('https://discord.com/api/oauth2/token', 
+      qs.stringify({
         grant_type: 'authorization_code',
         code: authCode,
-        redirect_uri: encodeURIComponent(this.configService.get('DISCORD_REDIRECT_URI')!),
-      }, {
+        redirect_uri: this.configService.get('DISCORD_REDIRECT_URI'),
+      }), {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
+          'Authorization': 'Basic ' + Buffer.from(`${this.configService.get('DISCORD_BOT_APPLICATION_ID')}:${this.configService.get('DISCORD_CLIENT_SECRET')}`).toString('base64'),
         },
       })));
 
@@ -555,8 +564,12 @@ export class AuthService {
     this.insertTokenForAccount(account.id, discordToken.refresh_token!, 'refresh_token', undefined, discordToken.scope).catch((error) => {this.logger.error(`Failed to insert refresh_token for ${user.id}`, error);});
 
     try {
-      const idToken = this.jwtService.sign(discordProfile);
-      this.insertTokenForAccount(account.id, idToken, 'id_token', new Date().getTime() + (1000*60*60*24)).catch((error) => {this.logger.error(`Failed to insert refresh_token for ${user.id}`, error);});
+      const idToken = this.jwtService.sign(discordProfile, {
+        expiresIn: '7d',
+        subject: discordProfile.id,
+      });
+      const sevenDaysTimestamp = (7 * 24 * 60 * 60 * 1000);
+      this.insertTokenForAccount(account.id, idToken, 'id_token', sevenDaysTimestamp).catch((error) => {this.logger.error(`Failed to insert id_token for ${user.id}`, error);});
     } catch(error) {
       this.logger.error(`Failed to sign id_token for ${user.id}`, error);
     }
@@ -661,22 +674,24 @@ export class AuthService {
 
   private async insertTokenForAccount(
     accountId: string, token: string, tokenType: TokenType, exp?: number, scope?: string
-  ): Promise<any> {
+  ): Promise<InsertResult> {
     this.logger.debug(`Attempting to insert token ${tokenType}`);
     try {
-      return await this.dataSource.createQueryBuilder()
+      const promise = await this.dataSource.createQueryBuilder()
       .insert()
       .into(TokenEntity)
       .values({
         accountId: accountId,
-        expiresOn: exp ? new Date(exp) : undefined,
+        expiresOn: exp ? new Date(new Date().getTime() + exp) : undefined,
         scope: scope,
         token: token,
         type: tokenType
       })
       .execute();
+      this.logger.debug(`Inserted token ${tokenType}`);
+      return promise;
     } catch (error) {
-      this.logger.error('Failed to insert token for account', error);
+      this.logger.error(`Failed to insert ${tokenType} for account`, error);
       throw new InternalServerErrorException('Failed to insert token');
     }
   }

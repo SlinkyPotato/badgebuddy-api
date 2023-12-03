@@ -6,8 +6,8 @@ settings:
 
 dependencies:
   '@badgebuddy/common':
-    specifier: 1.2.0-8
-    version: 1.2.0-8(@discord-nestjs/common@5.2.10)(@discord-nestjs/core@5.3.12)(@nestjs/bull@10.0.1)(@nestjs/cache-manager@2.1.1)(@nestjs/common@10.2.10)(@nestjs/config@3.1.1)(@nestjs/core@10.2.10)(@nestjs/mongoose@10.0.2)(@nestjs/schematics@10.0.3)(@nestjs/testing@10.2.10)(@nestjs/typeorm@10.0.1)(bull@4.11.5)(cache-manager-redis-yet@4.1.2)(cache-manager@5.3.1)(class-transformer@0.5.1)(class-validator@0.14.0)(discord.js@14.14.1)(joi@17.11.0)(mongoose@7.6.6)(mysql2@3.6.5)(redis@4.6.11)(reflect-metadata@0.1.13)(rxjs@7.8.1)(standard-version@9.5.0)(typeorm@0.3.17)
+    specifier: 1.2.0-9
+    version: 1.2.0-9(@discord-nestjs/common@5.2.10)(@discord-nestjs/core@5.3.12)(@nestjs/bull@10.0.1)(@nestjs/cache-manager@2.1.1)(@nestjs/common@10.2.10)(@nestjs/config@3.1.1)(@nestjs/core@10.2.10)(@nestjs/mongoose@10.0.2)(@nestjs/schematics@10.0.3)(@nestjs/testing@10.2.10)(@nestjs/typeorm@10.0.1)(bull@4.11.5)(cache-manager-redis-yet@4.1.2)(cache-manager@5.3.1)(class-transformer@0.5.1)(class-validator@0.14.0)(discord.js@14.14.1)(joi@17.11.0)(mongoose@7.6.6)(mysql2@3.6.5)(redis@4.6.11)(reflect-metadata@0.1.13)(rxjs@7.8.1)(standard-version@9.5.0)(typeorm@0.3.17)
   '@discord-nestjs/common':
     specifier: ^5.2.10
     version: 5.2.10(@discord-nestjs/core@5.3.12)(@nestjs/common@10.2.10)(@nestjs/core@10.2.10)(discord.js@14.14.1)(reflect-metadata@0.1.13)(rxjs@7.8.1)
@@ -53,6 +53,9 @@ dependencies:
   '@nestjs/typeorm':
     specifier: ^10.0.1
     version: 10.0.1(@nestjs/common@10.2.10)(@nestjs/core@10.2.10)(reflect-metadata@0.1.13)(rxjs@7.8.1)(typeorm@0.3.17)
+  '@types/qs':
+    specifier: ^6.9.10
+    version: 6.9.10
   axios:
     specifier: ^1.6.2
     version: 1.6.2
@@ -104,6 +107,9 @@ dependencies:
   nodemailer:
     specifier: ^6.9.7
     version: 6.9.7
+  qs:
+    specifier: ^6.11.2
+    version: 6.11.2
   redis:
     specifier: ^4.6.11
     version: 4.6.11
@@ -576,8 +582,8 @@ packages:
       to-fast-properties: 2.0.0
     dev: true
 
-  /@badgebuddy/common@1.2.0-8(@discord-nestjs/common@5.2.10)(@discord-nestjs/core@5.3.12)(@nestjs/bull@10.0.1)(@nestjs/cache-manager@2.1.1)(@nestjs/common@10.2.10)(@nestjs/config@3.1.1)(@nestjs/core@10.2.10)(@nestjs/mongoose@10.0.2)(@nestjs/schematics@10.0.3)(@nestjs/testing@10.2.10)(@nestjs/typeorm@10.0.1)(bull@4.11.5)(cache-manager-redis-yet@4.1.2)(cache-manager@5.3.1)(class-transformer@0.5.1)(class-validator@0.14.0)(discord.js@14.14.1)(joi@17.11.0)(mongoose@7.6.6)(mysql2@3.6.5)(redis@4.6.11)(reflect-metadata@0.1.13)(rxjs@7.8.1)(standard-version@9.5.0)(typeorm@0.3.17):
-    resolution: {integrity: sha512-CuxO5a3dBerAG4T/1zYboSCzR5Doxr2/8o+7zDlKLsird+aSWF5u0k/XW4/DMpeujSEVHHwfRVndr2qSrx17pQ==}
+  /@badgebuddy/common@1.2.0-9(@discord-nestjs/common@5.2.10)(@discord-nestjs/core@5.3.12)(@nestjs/bull@10.0.1)(@nestjs/cache-manager@2.1.1)(@nestjs/common@10.2.10)(@nestjs/config@3.1.1)(@nestjs/core@10.2.10)(@nestjs/mongoose@10.0.2)(@nestjs/schematics@10.0.3)(@nestjs/testing@10.2.10)(@nestjs/typeorm@10.0.1)(bull@4.11.5)(cache-manager-redis-yet@4.1.2)(cache-manager@5.3.1)(class-transformer@0.5.1)(class-validator@0.14.0)(discord.js@14.14.1)(joi@17.11.0)(mongoose@7.6.6)(mysql2@3.6.5)(redis@4.6.11)(reflect-metadata@0.1.13)(rxjs@7.8.1)(standard-version@9.5.0)(typeorm@0.3.17):
+    resolution: {integrity: sha512-pc9G4XNfAsQnjbHvQ67b2LmeCkgB7y0HX1HSYSxqho3SK3PQesOFTdDS/AOhbpIPDMCbJaJLyYvyhqkTVuEwxQ==}
     engines: {node: 20.9.0, pnpm: 8.10.5}
     peerDependencies:
       '@discord-nestjs/common': ^5.2.9
@@ -2316,6 +2322,10 @@ packages:
   /@types/normalize-package-data@2.4.4:
     resolution: {integrity: sha512-37i+OaWTh9qeK4LSHPsyRC7NahnGotNuZvjLSgcPzblpHB3rrCJxAOgI5gCdKm7coonsaX1Of0ILiTcnZjbfxA==}
 
+  /@types/qs@6.9.10:
+    resolution: {integrity: sha512-3Gnx08Ns1sEoCrWssEgTSJs/rsT2vhGP+Ja9cnnk9k4ALxinORlQneLXFeFKOTJMOeZUFD1s7w+w2AphTpvzZw==}
+    dev: false
+
   /@types/responselike@1.0.3:
     resolution: {integrity: sha512-H/+L+UkTV33uf49PH5pCAUBVPNj2nDBXTN+qS1dOwyyg24l3CcicicCA7ca+HMvJBZcFgl5r8e+RR6elsb4Lyw==}
     dependencies:
@@ -3189,7 +3199,6 @@ packages:
       function-bind: 1.1.2
       get-intrinsic: 1.2.2
       set-function-length: 1.1.1
-    dev: true
 
   /callsites@3.1.0:
     resolution: {integrity: sha512-P8BjAsXvZS+VIDUI11hHCQEv74YT67YUi5JJFNWIqL235sBmjX4+qx9Muvls5ivyNENctx46xQLQ3aTuE7ssaQ==}
@@ -3881,7 +3890,6 @@ packages:
       get-intrinsic: 1.2.2
       gopd: 1.0.1
       has-property-descriptors: 1.0.1
-    dev: true
 
   /delayed-stream@1.0.0:
     resolution: {integrity: sha512-ZySD7Nf91aLB0RxL4KGrKHBXl7Eds1DAmEdcoVawXnLD7SDhpNgtuII2aAkg7a7QS41jxPSZ17p4VdGnMHk3MQ==}
@@ -4793,7 +4801,6 @@ packages:
       has-proto: 1.0.1
       has-symbols: 1.0.3
       hasown: 2.0.0
-    dev: true
 
   /get-package-type@0.1.0:
     resolution: {integrity: sha512-pjzuKtY64GYfWizNAJ0fr9VqttZkNiK2iS430LtIHzjBEr6bX8Am2zm4sW4Ro5wjWW5cAlRL1qAMTcXbjNAO2Q==}
@@ -4963,7 +4970,6 @@ packages:
     resolution: {integrity: sha512-d65bNlIadxvpb/A2abVdlqKqV563juRnZ1Wtk6s1sIR8uNsXR70xqIzVqxVf1eTqDunwT2MkczEeaezCKTZhwA==}
     dependencies:
       get-intrinsic: 1.2.2
-    dev: true
 
   /got@11.8.6:
     resolution: {integrity: sha512-6tfZ91bOr7bOXnK7PRDCGBLa1H4U080YHNaAQ2KsMGlLEzRbk44nsZF2E1IeRc3vtJHPVbKCYgdFbaGO2ljd8g==}
@@ -5032,17 +5038,14 @@ packages:
     resolution: {integrity: sha512-VsX8eaIewvas0xnvinAe9bw4WfIeODpGYikiWYLH+dma0Jw6KHYqWiWfhQlgOVK8D6PvjubK5Uc4P0iIhIcNVg==}
     dependencies:
       get-intrinsic: 1.2.2
-    dev: true
 
   /has-proto@1.0.1:
     resolution: {integrity: sha512-7qE+iP+O+bgF9clE5+UoBFzE65mlBiVj3tKCrlNQ0Ogwm0BjpT/gK4SlLYDMybDh5I3TCTKnPPa0oMG7JDYrhg==}
     engines: {node: '>= 0.4'}
-    dev: true
 
   /has-symbols@1.0.3:
     resolution: {integrity: sha512-l3LCuF6MgDNwTDKkdYGEihYjt5pRPbEg46rtlmnSPlUbgmB8LOIrKJbYYFBSbnPaJexMKtiPO8hmeRjRz2Td+A==}
     engines: {node: '>= 0.4'}
-    dev: true
 
   /has-unicode@2.0.1:
     resolution: {integrity: sha512-8Rf9Y83NBReMnx0gFzA8JImQACstCYWUplepDa9xprwwtmgEZUF0h/i5xSA625zB/I37EtrswSST6OXxwaaIJQ==}
@@ -7212,7 +7215,6 @@ packages:
 
   /object-inspect@1.13.1:
     resolution: {integrity: sha512-5qoj1RUiKOMsCCNLV1CBiPYE10sziTsnmNxkAI/rZhiD63CF7IqdFGC/XzjWjpSgLf0LxXX3bDFIh0E18f6UhQ==}
-    dev: true
 
   /object-treeify@1.1.33:
     resolution: {integrity: sha512-EFVjAYfzWqWsBMRHPMAXLCDIJnpMhdWAqR7xG6M6a2cs6PMFpl/+Z20w9zDW4vkxOFfddegBKq9Rehd0bxWE7A==}
@@ -7631,7 +7633,6 @@ packages:
     engines: {node: '>=0.6'}
     dependencies:
       side-channel: 1.0.4
-    dev: true
 
   /queue-microtask@1.2.3:
     resolution: {integrity: sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==}
@@ -7987,7 +7988,6 @@ packages:
       get-intrinsic: 1.2.2
       gopd: 1.0.1
       has-property-descriptors: 1.0.1
-    dev: true
 
   /setprototypeof@1.2.0:
     resolution: {integrity: sha512-E5LDX7Wrp85Kil5bhZv46j8jOeboKq5JMmYM3gVGdGH8xFpPWXUMsNrlODCrkoxMEeNi/XZIwuRvY4XNwYMJpw==}
@@ -8039,7 +8039,6 @@ packages:
       call-bind: 1.0.5
       get-intrinsic: 1.2.2
       object-inspect: 1.13.1
-    dev: true
 
   /sift@16.0.1:
     resolution: {integrity: sha512-Wv6BjQ5zbhW7VFefWusVP33T/EM0vYikCaQ2qR8yULbsilAT8/wQaXvuQ3ptGLpoKx+lihJE3y2UTgKDyyNHZQ==}
