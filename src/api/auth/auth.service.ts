@@ -60,9 +60,6 @@ export type UserToken = {
   userId: string,
 } & AccessToken;
 
-// TODO: implement forgot/reset password
-// TODO: implement magic links login
-
 @Injectable()
 export class AuthService {
   private static readonly ACCESS_TOKEN_EXPIRES_IN = 86400;
