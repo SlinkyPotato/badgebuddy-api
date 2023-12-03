@@ -511,23 +511,25 @@ export class AuthService {
 
   private async insertAccountForUser(userId: string, providerAccountId: string): Promise<AccountEntity>{
     this.logger.debug(`Attempting to insert account for user: ${userId}`);
+
     let account = await this.dataSource.createQueryBuilder()
-      .select('account')
+      .select('account.id')
       .from(AccountEntity, 'account')
-      .where('account.userId = :userId', { userId: userId })
-      .andWhere('account.provider = :provider', { provider: 'google' })
+      .where('account.user_id = :id', { 'id': userId })
+      .andWhere('account.provider = :provider', { 'provider': 'google' })
       .getOne();
+    console.log(account);
 
     if (!account) {
       this.logger.debug(`Account not found, creating account for user: ${userId}`);
       const accountResult = await this.dataSource.createQueryBuilder()
         .insert()
         .into(AccountEntity)
-        .values({
+        .values([{
           userId: userId,
           provider: 'google',
           providerAccountId: providerAccountId,
-        })
+        }])
         .execute();
       if (accountResult.identifiers.length === 0) {
         throw new InternalServerErrorException('Failed to insert account');
@@ -560,7 +562,7 @@ export class AuthService {
       })
       .execute();
     } catch (error) {
-      this.logger.error(`Failed to insert token for account ${accountId}`, error);
+      this.logger.error('Failed to insert token for account', error);
       throw new InternalServerErrorException('Failed to insert token');
     }
   }
