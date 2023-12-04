@@ -13,11 +13,12 @@
   "packageManager": "pnpm@8.10.5",
   "scripts": {
     "build": "nest build",
-    "build:docker": "docker compose --profile local up --build",
+    "build:docker": "docker compose -f compose.local.yml build ",
     "clean": "rm -rf dist",
     "clean:dep": "rm -rf dist && rm -rf node_modules",
     "start": "nest start",
     "dev": "nest start --watch",
+    "dev:docker": "docker compose -f compose.local.yml up",
     "dev:debug": "nest start --debug --watch",
     "dev:api": "cd ../badge-buddy-api && pnpm dev",
     "dev:bot": "cd ../badge-buddy-bot && pnpm dev",
