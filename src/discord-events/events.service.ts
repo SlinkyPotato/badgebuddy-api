@@ -22,8 +22,7 @@ import PutEventResponseDto from './dto/event-put-response.dto';
 export class EventsService {
   constructor(
     private readonly logger: Logger,
-    @InjectModel(CommunityEvent.name)
-    private communityEventModel: Model<CommunityEvent>,
+    @InjectModel(CommunityEvent.name) private communityEventModel: Model<CommunityEvent>,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
     @InjectQueue('events') private eventsQueue: Queue,
   ) { }

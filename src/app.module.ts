@@ -8,7 +8,7 @@ import {
   CommonTypeOrmModule,
 } from '@badgebuddy/common';
 import { AuthModule } from './auth/auth.module';
-import { EventsModule } from './discord-events/events.module';
+import { DiscordEventsModule } from './discord-events/discord-events.module';
 import { DiscordGuildsModule } from './discord-guilds/discord-guilds.module';
 import { HealthModule } from './health/health.module';
 
@@ -21,7 +21,7 @@ import { HealthModule } from './health/health.module';
     MongooseConfigModule.forRootAsync(),
     DiscordConfigModule.forRootAsync(),
     AuthModule,
-    EventsModule,
+    DiscordEventsModule,
     DiscordGuildsModule,
     HealthModule,
   ],

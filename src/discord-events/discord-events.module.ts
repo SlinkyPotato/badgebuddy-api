@@ -12,6 +12,7 @@ import {
 } from '@badgebuddy/common';
 import { ValidateGetActiveEventsQueryPipe } from './pipes/validate-get-active-events-query.pipe';
 import { AuthGuard } from './guards/auth.guard';
+import { EventController } from './event.controller';
 
 @Module({
   imports: [
@@ -24,7 +25,7 @@ import { AuthGuard } from './guards/auth.guard';
       name: 'events',
     }),
   ],
-  controllers: [EventsController],
+  controllers: [EventsController, EventController],
   providers: [
     Logger,
     EventsService,
@@ -33,4 +34,4 @@ import { AuthGuard } from './guards/auth.guard';
     AuthGuard,
   ],
 })
-export class EventsModule {}
+export class DiscordEventsModule {}
