@@ -9,7 +9,7 @@ import {
 } from '@nestjs/terminus';
 
 @Controller('health')
-@ApiTags('health')
+@ApiTags('Healthcheck')
 export class HealthController {
   constructor(
     private health: HealthCheckService,

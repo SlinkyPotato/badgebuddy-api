@@ -22,12 +22,16 @@ async function bootstrap() {
     },
   );
 
-  app.setGlobalPrefix('/api/v1');
+  app.setGlobalPrefix('/api');
 
   const config = new DocumentBuilder()
     .setTitle('Badge Buddy API')
     .setDescription('API for Badge Buddy to management POAP Events.')
     .setVersion('1.0')
+    .addServer('http://localhost:3000', 'Local Development')
+    .addServer('https://api.badgebuddy.app', 'Production')
+    .addOAuth2({ type: 'oauth2' })
+    .setExternalDoc('Documentation', 'https://docs.badgebuddy.app')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

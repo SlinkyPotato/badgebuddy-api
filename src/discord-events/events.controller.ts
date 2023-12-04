@@ -16,7 +16,7 @@ import GetActiveEventsResponseDto from './dto/active-events-get-response.dto';
 
 
 @Controller('discord/events')
-@ApiTags('events')
+@ApiTags('Discord Events')
 @UseInterceptors(CacheInterceptor)
 @UsePipes(ValidationPipe)
 export class EventsController {

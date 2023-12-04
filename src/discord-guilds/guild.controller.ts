@@ -17,8 +17,8 @@ import GetGuildResponseDto from './dto/guild-get-response.dto';
 import PostGuildRequestDto from './dto/guild-post-request.dto';
 import PostGuildResponseDto from './dto/guild-post-response.dto';
 
-@ApiTags('guilds')
 @Controller('discord/guild')
+@ApiTags('Discord Guilds')
 @UseInterceptors(CacheInterceptor)
 export class GuildController {
   

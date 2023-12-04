@@ -1,6 +1,6 @@
 import { Body, Controller, HttpStatus, Patch, UseGuards } from '@nestjs/common';
 import { Post } from '@nestjs/common';
-import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import PostEventRequestDto from './dto/event-post-request.dto';
 import { AuthGuard } from './guards/auth.guard';
 import { EventsService } from './events.service';
@@ -8,7 +8,8 @@ import PostEventResponseDto from './dto/event-post-response.dto';
 import PutEventRequestDto from './dto/event-put-request.dto';
 import PutEventResponseDto from './dto/event-put-response.dto';
 
-@Controller('event')
+@Controller('discord/event')
+@ApiTags('Discord Events')
 export class EventController {
 
   constructor(

@@ -39,7 +39,7 @@ import { LoginDiscordPostResponseDto } from './dto/login-discord-post-response/l
 import { AuthorizeDiscordGetResponseDto } from './dto/authorize-discord-get-response/authorize-discord-get-response.dto';
 
 @Controller('auth')
-@ApiTags('auth')
+@ApiTags('Authentication')
 @UsePipes(ValidationPipe)
 export class AuthController {
   constructor(
