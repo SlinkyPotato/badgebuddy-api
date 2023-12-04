@@ -8,11 +8,11 @@ import {
 } from '@jest/globals';
 import { Logger } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
-import { GuildsService } from '../../api/guilds/guilds.service';
+import { GuildsService } from '../../discord-guilds/guilds.service';
 import { ConfigService } from '@nestjs/config';
 import { GuildCreateService } from './guild-create.service';
 import { ChannelType } from 'discord.js';
-import PostGuildResponseDto from '../../api/guilds/dto/post/guild.response.dto';
+import PostGuildResponseDto from '../../discord-guilds/dto/post/guild.response.dto';
 
 describe('GuildCreateService', () => {
   let service: GuildCreateService;

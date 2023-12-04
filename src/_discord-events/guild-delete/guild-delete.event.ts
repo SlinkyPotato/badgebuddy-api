@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { On } from '@discord-nestjs/core';
 import { Guild } from 'discord.js';
-import { GuildsService } from '../../api/guilds/guilds.service';
+import { GuildsService } from '../../discord-guilds/guilds.service';
 
 @Injectable()
 export class GuildDeleteEvent {

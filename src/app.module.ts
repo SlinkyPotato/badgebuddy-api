@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { ApiModule } from './api/api.module';
 import {
   CommonConfigModule,
   RedisConfigModule,
@@ -8,7 +7,10 @@ import {
   DiscordConfigModule,
   CommonTypeOrmModule,
 } from '@badgebuddy/common';
-import { DiscordEventsModule } from './discord-events/discord-events.module';
+import { AuthModule } from './auth/auth.module';
+import { EventsModule } from './discord-events/events.module';
+import { DiscordGuildsModule } from './discord-guilds/discord-guilds.module';
+import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
@@ -18,8 +20,10 @@ import { DiscordEventsModule } from './discord-events/discord-events.module';
     RedisBullConfigModule.forRootAsync(),
     MongooseConfigModule.forRootAsync(),
     DiscordConfigModule.forRootAsync(),
-    ApiModule,
-    DiscordEventsModule,
+    AuthModule,
+    EventsModule,
+    DiscordGuildsModule,
+    HealthModule,
   ],
 })
 export class AppModule { }

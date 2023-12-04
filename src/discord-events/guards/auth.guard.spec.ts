@@ -12,7 +12,7 @@ import { DiscordGuild } from '@badgebuddy/common';
 import { getModelToken } from '@nestjs/mongoose';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Logger } from '@nestjs/common';
-import GetGuildResponseDto from '../../guilds/dto/get/guild.response.dto';
+import GetGuildResponseDto from '../../discord-guilds/dto/get/guild.response.dto';
 
 describe('AuthGuard', () => {
   let service: AuthGuard;

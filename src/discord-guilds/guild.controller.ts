@@ -18,10 +18,13 @@ import PostGuildRequestDto from './dto/guild-post-request.dto';
 import PostGuildResponseDto from './dto/guild-post-response.dto';
 
 @ApiTags('guilds')
-@Controller('guilds')
+@Controller('discord/guild')
 @UseInterceptors(CacheInterceptor)
-export class GuildsController {
-  constructor(private readonly guildService: GuildsService) { }
+export class GuildController {
+  
+  constructor(
+    private readonly guildService: GuildsService
+  ) { }
 
   @Get(':id')
   @ApiParam({

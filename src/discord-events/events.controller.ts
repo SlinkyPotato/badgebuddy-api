@@ -23,7 +23,7 @@ import PostEventResponseDto from './dto/event-post-response.dto';
 import PutEventRequestDto from './dto/event-put-request.dto';
 import PutEventResponseDto from './dto/event-put-response.dto';
 
-@Controller('events')
+@Controller('discord/events')
 @ApiTags('events')
 @UseInterceptors(CacheInterceptor)
 @UsePipes(ValidationPipe)

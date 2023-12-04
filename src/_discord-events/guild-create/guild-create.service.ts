@@ -8,10 +8,10 @@ import {
   Role,
   TextChannel,
 } from 'discord.js';
-import { GuildsService } from '../../api/guilds/guilds.service';
+import { GuildsService } from '../../discord-guilds/guilds.service';
 import { ConfigService } from '@nestjs/config';
-import PostGuildRequestDto from 'src/api/guilds/dto/guild-post-request.dto';
-import PostGuildResponseDto from 'src/api/guilds/dto/guild-post-response.dto';
+import PostGuildRequestDto from 'src/discord-guilds/dto/guild-post-request.dto';
+import PostGuildResponseDto from 'src/discord-guilds/dto/guild-post-response.dto';
 
 @Injectable()
 export class GuildCreateService {

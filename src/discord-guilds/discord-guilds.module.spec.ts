@@ -7,7 +7,7 @@ import {
   afterAll,
 } from '@jest/globals';
 import { Test, TestingModule } from '@nestjs/testing';
-import { GuildsModule } from './guilds.module';
+import { DiscordGuildsModule } from './discord-guilds.module';
 
 jest.mock('./guilds.service', () => ({
   GuildsService: jest.fn().mockReturnThis(),
@@ -48,7 +48,7 @@ describe('GuildsModule', () => {
 
   beforeEach(async () => {
     module = await Test.createTestingModule({
-      imports: [GuildsModule],
+      imports: [DiscordGuildsModule],
     }).compile();
   });
 

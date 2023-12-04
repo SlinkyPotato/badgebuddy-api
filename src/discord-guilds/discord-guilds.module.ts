@@ -1,6 +1,6 @@
 import { Logger, Module } from '@nestjs/common';
 import { GuildsService } from './guilds.service';
-import { GuildsController } from './guilds.controller';
+import { GuildController } from './guild.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
 import { DiscordGuild, DiscordGuildSchema } from '@badgebuddy/common';
@@ -12,8 +12,7 @@ import { DiscordGuild, DiscordGuildSchema } from '@badgebuddy/common';
     ]),
     ConfigModule,
   ],
-  controllers: [GuildsController],
+  controllers: [GuildController],
   providers: [GuildsService, Logger],
-  exports: [GuildsService],
 })
-export class GuildsModule {}
+export class DiscordGuildsModule {}

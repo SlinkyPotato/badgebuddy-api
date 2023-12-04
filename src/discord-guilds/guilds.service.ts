@@ -17,9 +17,9 @@ import PostGuildResponseDto from './dto/guild-post-response.dto';
 
 @Injectable()
 export class GuildsService {
+  
   constructor(
-    @InjectModel(DiscordGuild.name)
-    private discordServerModel: Model<DiscordGuild>,
+    @InjectModel(DiscordGuild.name) private discordServerModel: Model<DiscordGuild>,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
     private readonly logger: Logger,
   ) { }

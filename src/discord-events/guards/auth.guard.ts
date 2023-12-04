@@ -14,7 +14,7 @@ import { Client } from 'discord.js';
 import { DiscordGuild } from '@badgebuddy/common';
 import CommonRequestDto from '../dto/common-request.dto';
 import { redisHttpKeys } from '../../redis-keys.constant';
-import GetGuildResponseDto from 'src/api/guilds/dto/guild-get-response.dto';
+import GetGuildResponseDto from 'src/discord-guilds/dto/guild-get-response.dto';
 
 /**
  * Auth guard to authenticate users based on whether they are a POAP manager.

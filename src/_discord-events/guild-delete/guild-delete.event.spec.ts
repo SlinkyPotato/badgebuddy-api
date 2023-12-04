@@ -1,7 +1,7 @@
 import { beforeEach, describe, it, expect, jest } from '@jest/globals';
 import { GuildDeleteEvent } from './guild-delete.event';
 import { Test } from '@nestjs/testing';
-import { GuildsService } from '../../api/guilds/guilds.service';
+import { GuildsService } from '../../discord-guilds/guilds.service';
 import { Logger } from '@nestjs/common';
 import { Guild } from 'discord.js';
 
