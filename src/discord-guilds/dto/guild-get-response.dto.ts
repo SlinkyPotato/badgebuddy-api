@@ -1,11 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-export default class GetGuildResponseDto {
+export default class GuildGetResponseDto {
   @ApiProperty({
     required: true,
     description: 'The ID of the document created in the database',
   })
-  _id: string;
+  id: string;
 
   @ApiProperty({ required: true, description: 'The ID of the guild' })
   guildId: string;

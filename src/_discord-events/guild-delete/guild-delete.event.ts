@@ -13,7 +13,7 @@ export class GuildDeleteEvent {
   @On('guildDelete')
   onGuild(guild: Guild): void {
     this.logger.log(`guild left, guildId: ${guild.id}, name: ${guild.name}`);
-    this.guildsApiService.remove(guild.id.toString()).catch((err) => {
+    this.guildsApiService.removeGuild(guild.id.toString()).catch((err) => {
       this.logger.error(err);
     });
   }

@@ -11,23 +11,23 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { DiscordGuild } from '@badgebuddy/common';
 import { redisHttpKeys } from '../redis-keys.constant';
-import GetGuildResponseDto from './dto/guild-get-response.dto';
+import GuildGetResponseDto from './dto/guild-get-response.dto';
 import PostGuildRequestDto from './dto/guild-post-request.dto';
-import PostGuildResponseDto from './dto/guild-post-response.dto';
+import GuildPostResponseDto from './dto/guild-post-response.dto';
 
 @Injectable()
 export class GuildsService {
   
   constructor(
-    @InjectModel(DiscordGuild.name) private discordServerModel: Model<DiscordGuild>,
+    // @InjectModel(DiscordGuild.name) private discordServerModel: Model<DiscordGuild>,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
     private readonly logger: Logger,
   ) { }
 
-  async create(
+  async addGuild(
     id: string,
     postGuildRequestDto: PostGuildRequestDto,
-  ): Promise<PostGuildResponseDto> {
+  ): Promise<GuildPostResponseDto> {
     this.logger.log('registering guild: ' + id);
     const retrievedDiscordServer = await this.discordServerModel
       .findOne({
@@ -52,7 +52,8 @@ export class GuildsService {
       _id: result._id.toString(),
     };
   }
-  async remove(guildId: string): Promise<any> {
+
+  async removeGuild(guildId: string): Promise<void> {
     this.logger.log(`removing guild: ${guildId}`);
     const result = await this.discordServerModel
       .findOneAndDelete({
@@ -65,10 +66,9 @@ export class GuildsService {
     this.logger.log(`removing guild from cache: ${guildId}`);
     await this.cacheManager.del(redisHttpKeys.GUILDS(guildId));
     this.logger.log(`removed guild from cache: ${guildId}`);
-    return;
   }
 
-  async get(id: string): Promise<GetGuildResponseDto> {
+  async getGuild(id: string): Promise<GuildGetResponseDto> {
     this.logger.verbose(`getting guild from db, guildId: ${id}`);
     const discordServer = await this.discordServerModel
       .findOne({ guildId: id })
@@ -76,7 +76,7 @@ export class GuildsService {
     if (!discordServer) {
       throw new NotFoundException('Guild not found');
     }
-    const getGuildResponseDto = new GetGuildResponseDto();
+    const getGuildResponseDto = new GuildGetResponseDto();
     getGuildResponseDto._id = discordServer._id.toString();
     getGuildResponseDto.guildId = discordServer.guildId;
     getGuildResponseDto.guildName = discordServer.guildName;
@@ -84,6 +84,13 @@ export class GuildsService {
     getGuildResponseDto.privateChannelId = discordServer.privateChannelId;
     getGuildResponseDto.newsChannelId = discordServer.newsChannelId;
     this.logger.verbose(`got guild from db, guildId: ${id}`);
-    return getGuildResponseDto;
+    return {
+      _id: getGuildResponseDto._id,
+      guildId: getGuildResponseDto.guildId,
+      guildName: getGuildResponseDto.guildName,
+      poapManagerRoleId: getGuildResponseDto.poapManagerRoleId,
+      privateChannelId: getGuildResponseDto.privateChannelId,
+      newsChannelId: getGuildResponseDto.newsChannelId,
+    };
   }
 }

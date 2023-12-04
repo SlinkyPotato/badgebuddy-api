@@ -13,7 +13,7 @@ import {
 import { GuildsService } from './guilds.service';
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CacheInterceptor } from '@nestjs/cache-manager';
-import GetGuildResponseDto from './dto/guild-get-response.dto';
+import GuildGetResponseDto from './dto/guild-get-response.dto';
 import PostGuildRequestDto from './dto/guild-post-request.dto';
 import PostGuildResponseDto from './dto/guild-post-response.dto';
 
@@ -36,14 +36,14 @@ export class GuildController {
   @ApiResponse({
     status: HttpStatus.FOUND,
     description: 'Guild found',
-    type: GetGuildResponseDto,
+    type: GuildGetResponseDto,
   })
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,
     description: 'Guild not found',
   })
-  async get(@Param('id') id: string): Promise<GetGuildResponseDto> {
-    return this.guildService.get(id);
+  async get(@Param('id') id: string): Promise<GuildGetResponseDto> {
+    return this.guildService.getGuild(id);
   }
 
   @Post(':id')
@@ -66,7 +66,7 @@ export class GuildController {
     @Param('id') id: string,
     @Body(ValidationPipe) postGuildRequestDto: PostGuildRequestDto,
   ): Promise<PostGuildResponseDto> {
-    return this.guildService.create(id, postGuildRequestDto);
+    return this.guildService.addGuild(id, postGuildRequestDto);
   }
 
   @Delete(':id')
@@ -83,6 +83,6 @@ export class GuildController {
     description: 'Guild not found',
   })
   remove(@Param('id') id: string) {
-    return this.guildService.remove(id);
+    return this.guildService.removeGuild(id);
   }
 }

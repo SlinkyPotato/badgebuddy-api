@@ -53,7 +53,7 @@ export class GuildCreateService {
       privateChannelId: privateChannel.id,
       newsChannelId: newsChannel?.id,
     };
-    const response = this.guildsApiService.create(guild.id, request);
+    const response = this.guildsApiService.addGuild(guild.id, request);
     this.logger.log('guild setup complete');
     return response;
   }

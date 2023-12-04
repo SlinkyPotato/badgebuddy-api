@@ -81,7 +81,7 @@ describe('GuildService', () => {
       spyDiscordGuildModelFindOne.mockReturnValue(Promise.reject(mockError));
 
       try {
-        await service.create('850840267082563596', mockPostGuildRequestDto);
+        await service.addGuild('850840267082563596', mockPostGuildRequestDto);
       } catch (e) {
         expect(e).toBeInstanceOf(MongooseError);
       }
@@ -105,7 +105,7 @@ describe('GuildService', () => {
       spyDiscordGuildModelFindOne.mockReturnValue(Promise.resolve(mockGuild));
 
       try {
-        await service.create('850840267082563596', mockPostGuildRequestDto);
+        await service.addGuild('850840267082563596', mockPostGuildRequestDto);
       } catch (e) {
         expect(e).toBeInstanceOf(ConflictException);
         expect(e).toHaveProperty('message', 'Guild already registered');
@@ -133,7 +133,7 @@ describe('GuildService', () => {
       spyDiscordGuildModelFindOne.mockReturnValue(Promise.resolve(null));
       spyDiscordGuildModelCreate.mockReturnValue(Promise.resolve(mockGuild));
 
-      const result = await service.create(
+      const result = await service.addGuild(
         '850840267082563596',
         mockPostGuildRequestDto,
       );
@@ -152,7 +152,7 @@ describe('GuildService', () => {
       spyDiscordGuildModelCreate.mockReturnValue(Promise.reject(mockError));
 
       try {
-        await service.create('850840267082563596', mockPostGuildRequestDto);
+        await service.addGuild('850840267082563596', mockPostGuildRequestDto);
       } catch (e) {
         expect(e).toBeInstanceOf(MongooseError);
       }
@@ -177,7 +177,7 @@ describe('GuildService', () => {
         Promise.reject(mockError),
       );
       try {
-        await service.remove('850840267082563596');
+        await service.removeGuild('850840267082563596');
       } catch (e) {
         expect(e).toBeInstanceOf(MongooseError);
       }
@@ -188,7 +188,7 @@ describe('GuildService', () => {
         Promise.resolve(null),
       );
       try {
-        await service.remove('850840267082563596');
+        await service.removeGuild('850840267082563596');
       } catch (e) {
         expect(e).toBeInstanceOf(NotFoundException);
         expect(e).toHaveProperty('message', 'Guild not found');
@@ -207,7 +207,7 @@ describe('GuildService', () => {
       spyDiscordGuildModelFindOneAndDelete.mockReturnValue(
         Promise.resolve(mockGuild),
       );
-      await service.remove('850840267082563596');
+      await service.removeGuild('850840267082563596');
       expect(spyCacheDel).toHaveBeenCalled();
     });
   });
@@ -226,7 +226,7 @@ describe('GuildService', () => {
       const mockError = new MongooseError('test');
       spyDiscordGuildModelFindOne.mockReturnValue(Promise.reject(mockError));
       try {
-        await service.get('850840267082563596');
+        await service.getGuild('850840267082563596');
       } catch (e) {
         expect(e).toBeInstanceOf(MongooseError);
       }
@@ -235,7 +235,7 @@ describe('GuildService', () => {
     it('should throw for guild not found', async () => {
       spyDiscordGuildModelFindOne.mockReturnValue(Promise.resolve(null));
       try {
-        await service.get('850840267082563596');
+        await service.getGuild('850840267082563596');
       } catch (e) {
         expect(e).toBeInstanceOf(NotFoundException);
         expect(e).toHaveProperty('message', 'Guild not found');
@@ -261,7 +261,7 @@ describe('GuildService', () => {
       };
 
       spyDiscordGuildModelFindOne.mockReturnValue(Promise.resolve(mockGuild));
-      const result = await service.get('850840267082563596');
+      const result = await service.getGuild('850840267082563596');
       expect(result).toEqual(mockResponse);
     });
   });
