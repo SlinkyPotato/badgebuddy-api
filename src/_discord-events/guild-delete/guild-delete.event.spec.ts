@@ -1,7 +1,7 @@
 import { beforeEach, describe, it, expect, jest } from '@jest/globals';
 import { GuildDeleteEvent } from './guild-delete.event';
 import { Test } from '@nestjs/testing';
-import { GuildsService } from '../../discord-guilds/guilds.service';
+import { DiscordGuildsService } from '../../discord-guilds/discord-guilds.service';
 import { Logger } from '@nestjs/common';
 import { Guild } from 'discord.js';
 
@@ -22,7 +22,7 @@ describe('GuildDeleteEvent', () => {
       providers: [
         GuildDeleteEvent,
         { provide: Logger, useValue: mockLogger },
-        { provide: GuildsService, useValue: mockGuildsService },
+        { provide: DiscordGuildsService, useValue: mockGuildsService },
       ],
     }).compile();
 

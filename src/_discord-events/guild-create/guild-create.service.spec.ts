@@ -8,7 +8,7 @@ import {
 } from '@jest/globals';
 import { Logger } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
-import { GuildsService } from '../../discord-guilds/guilds.service';
+import { DiscordGuildsService } from '../../discord-guilds/discord-guilds.service';
 import { ConfigService } from '@nestjs/config';
 import { GuildCreateService } from './guild-create.service';
 import { ChannelType } from 'discord.js';
@@ -37,7 +37,7 @@ describe('GuildCreateService', () => {
       providers: [
         GuildCreateService,
         { provide: Logger, useValue: mockLogger },
-        { provide: GuildsService, useValue: mockGuildsApiService },
+        { provide: DiscordGuildsService, useValue: mockGuildsApiService },
         { provide: ConfigService, useValue: mockConfigService },
       ],
     }).compile();

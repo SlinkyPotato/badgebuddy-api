@@ -5,24 +5,47 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
-import { DiscordGuild } from '@badgebuddy/common';
+import { DiscordGuildEntity } from '@badgebuddy/common';
 import { redisHttpKeys } from '../redis-keys.constant';
-import GuildGetResponseDto from './dto/guild-get-response.dto';
-import PostGuildRequestDto from './dto/guild-post-request.dto';
-import GuildPostResponseDto from './dto/guild-post-response.dto';
+import DiscordGuildGetResponseDto from './dto/discord-guild-get-response.dto';
+import PostGuildRequestDto from './dto/discord-guild-post-request.dto';
+import GuildPostResponseDto from './dto/discord-guild-post-response.dto';
+import { DataSource } from 'typeorm';
 
 @Injectable()
-export class GuildsService {
+export class DiscordGuildsService {
   
   constructor(
-    // @InjectModel(DiscordGuild.name) private discordServerModel: Model<DiscordGuild>,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
     private readonly logger: Logger,
+    private dataSource: DataSource,
   ) { }
+
+  async getGuild(id: string): Promise<DiscordGuildGetResponseDto> {
+    this.logger.verbose(`getting guild from db, guildId: ${id}`);
+    const discordGuild: DiscordGuildEntity | null = await this.dataSource.createQueryBuilder()
+      .select('discord')
+      .from(DiscordGuildEntity, 'discord')
+      .where('discord.guildId = :guildId', { guildId: id })
+      .getOne();
+    
+    if (!discordGuild) {
+      throw new NotFoundException('Guild not found');
+    }
+
+    this.logger.verbose(`got guild from db, guildId: ${id}`);
+
+    return {
+      id: discordGuild.id.toString(),
+      guildId: discordGuild.guildSId,
+      guildName: discordGuild.name,
+      poapManagerRoleId: discordGuild.poap,
+      privateChannelId: discordGuild.p,
+      newsChannelId: discordGuild.newsChannelId,
+    };
+  }
 
   async addGuild(
     id: string,
@@ -68,29 +91,4 @@ export class GuildsService {
     this.logger.log(`removed guild from cache: ${guildId}`);
   }
 
-  async getGuild(id: string): Promise<GuildGetResponseDto> {
-    this.logger.verbose(`getting guild from db, guildId: ${id}`);
-    const discordServer = await this.discordServerModel
-      .findOne({ guildId: id })
-      .exec();
-    if (!discordServer) {
-      throw new NotFoundException('Guild not found');
-    }
-    const getGuildResponseDto = new GuildGetResponseDto();
-    getGuildResponseDto._id = discordServer._id.toString();
-    getGuildResponseDto.guildId = discordServer.guildId;
-    getGuildResponseDto.guildName = discordServer.guildName;
-    getGuildResponseDto.poapManagerRoleId = discordServer.poapManagerRoleId;
-    getGuildResponseDto.privateChannelId = discordServer.privateChannelId;
-    getGuildResponseDto.newsChannelId = discordServer.newsChannelId;
-    this.logger.verbose(`got guild from db, guildId: ${id}`);
-    return {
-      _id: getGuildResponseDto._id,
-      guildId: getGuildResponseDto.guildId,
-      guildName: getGuildResponseDto.guildName,
-      poapManagerRoleId: getGuildResponseDto.poapManagerRoleId,
-      privateChannelId: getGuildResponseDto.privateChannelId,
-      newsChannelId: getGuildResponseDto.newsChannelId,
-    };
-  }
 }

@@ -10,12 +10,12 @@ import {
   UseInterceptors,
   ValidationPipe,
 } from '@nestjs/common';
-import { GuildsService } from './guilds.service';
+import { DiscordGuildsService } from './discord-guilds.service';
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CacheInterceptor } from '@nestjs/cache-manager';
-import GuildGetResponseDto from './dto/guild-get-response.dto';
-import PostGuildRequestDto from './dto/guild-post-request.dto';
-import PostGuildResponseDto from './dto/guild-post-response.dto';
+import DiscordGuildGetResponseDto from './dto/discord-guild-get-response.dto';
+import PostGuildRequestDto from './dto/discord-guild-post-request.dto';
+import PostGuildResponseDto from './dto/discord-guild-post-response.dto';
 
 @Controller('discord/guild')
 @ApiTags('Discord Guilds')
@@ -23,7 +23,7 @@ import PostGuildResponseDto from './dto/guild-post-response.dto';
 export class GuildController {
   
   constructor(
-    private readonly guildService: GuildsService
+    private readonly guildService: DiscordGuildsService
   ) { }
 
   @Get(':id')
@@ -36,13 +36,13 @@ export class GuildController {
   @ApiResponse({
     status: HttpStatus.FOUND,
     description: 'Guild found',
-    type: GuildGetResponseDto,
+    type: DiscordGuildGetResponseDto,
   })
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,
     description: 'Guild not found',
   })
-  async get(@Param('id') id: string): Promise<GuildGetResponseDto> {
+  async get(@Param('id') id: string): Promise<DiscordGuildGetResponseDto> {
     return this.guildService.getGuild(id);
   }
 

@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { GuildsService } from './guilds.service';
+import { DiscordGuildsService } from './discord-guilds.service';
 import { getModelToken } from '@nestjs/mongoose';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { ConflictException, Logger, NotFoundException } from '@nestjs/common';
@@ -12,7 +12,7 @@ import GetGuildResponseDto from './dto/get/guild.response.dto';
 import PostGuildResponseDto from './dto/post/guild.response.dto';
 
 describe('GuildService', () => {
-  let service: GuildsService;
+  let service: DiscordGuildsService;
 
   const mockModel = {
     create: jest.fn().mockReturnThis(),
@@ -40,14 +40,14 @@ describe('GuildService', () => {
     // https://docs.nestjs.com/techniques/mongodb#testing
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        GuildsService,
+        DiscordGuildsService,
         { provide: getModelToken(DiscordGuild.name), useValue: mockModel },
         { provide: CACHE_MANAGER, useValue: mockCacheManager },
         { provide: Logger, useValue: mockLogger },
       ],
     }).compile();
 
-    service = module.get<GuildsService>(GuildsService);
+    service = module.get<DiscordGuildsService>(DiscordGuildsService);
   });
 
   it('should be defined', () => {

@@ -14,7 +14,7 @@ import { Client } from 'discord.js';
 import { DiscordGuild } from '@badgebuddy/common';
 import CommonRequestDto from '../dto/common-request.dto';
 import { redisHttpKeys } from '../../redis-keys.constant';
-import GuildGetResponseDto from 'src/discord-guilds/dto/guild-get-response.dto';
+import DiscordGuildGetResponseDto from 'src/discord-guilds/dto/discord-guild-get-response.dto';
 
 /**
  * Auth guard to authenticate users based on whether they are a POAP manager.
@@ -39,7 +39,7 @@ export class AuthGuard implements CanActivate {
     this.logger.verbose(
       `Checking auth request for guildId: ${guildId} and organizerId: ${organizerId}`,
     );
-    let guild: GuildGetResponseDto | DiscordGuild | undefined | null =
+    let guild: DiscordGuildGetResponseDto | DiscordGuild | undefined | null =
       await this.cacheManager.get(redisHttpKeys.GUILDS(guildId));
 
     if (!guild) {
