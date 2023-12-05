@@ -9,7 +9,7 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { DiscordGuildEntity } from '@badgebuddy/common';
 import { redisHttpKeys } from '../redis-keys.constant';
-import DiscordGuildGetResponseDto from './dto/discord-guild-get-response.dto';
+import DiscordGuildBotSettingsResponseDto from './dto/discord-guild-get-response.dto';
 import PostGuildRequestDto from './dto/discord-guild-post-request.dto';
 import GuildPostResponseDto from './dto/discord-guild-post-response.dto';
 import { DataSource } from 'typeorm';
@@ -23,7 +23,7 @@ export class DiscordGuildsService {
     private dataSource: DataSource,
   ) { }
 
-  async getGuild(id: string): Promise<DiscordGuildGetResponseDto> {
+  async getGuild(id: string): Promise<DiscordGuildBotSettingsResponseDto> {
     this.logger.verbose(`getting guild from db, guildId: ${id}`);
     const discordGuild: DiscordGuildEntity | null = await this.dataSource.createQueryBuilder()
       .select('discord')

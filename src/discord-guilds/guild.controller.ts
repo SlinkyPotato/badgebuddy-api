@@ -13,7 +13,7 @@ import {
 import { DiscordGuildsService } from './discord-guilds.service';
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CacheInterceptor } from '@nestjs/cache-manager';
-import DiscordGuildGetResponseDto from './dto/discord-guild-get-response.dto';
+import DiscordGuildBotSettingsResponseDto from './dto/discord-guild-get-response.dto';
 import PostGuildRequestDto from './dto/discord-guild-post-request.dto';
 import PostGuildResponseDto from './dto/discord-guild-post-response.dto';
 
@@ -26,7 +26,7 @@ export class GuildController {
     private readonly guildService: DiscordGuildsService
   ) { }
 
-  @Get(':id')
+  @Get(':id/bot/settings')
   @ApiParam({
     name: 'id',
     description: 'The identifier of the guild given from discord.',
@@ -36,13 +36,13 @@ export class GuildController {
   @ApiResponse({
     status: HttpStatus.FOUND,
     description: 'Guild found',
-    type: DiscordGuildGetResponseDto,
+    type: DiscordGuildBotSettingsResponseDto,
   })
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,
     description: 'Guild not found',
   })
-  async get(@Param('id') id: string): Promise<DiscordGuildGetResponseDto> {
+  async get(@Param('id') id: string): Promise<DiscordGuildBotSettingsResponseDto> {
     return this.guildService.getGuild(id);
   }
 
