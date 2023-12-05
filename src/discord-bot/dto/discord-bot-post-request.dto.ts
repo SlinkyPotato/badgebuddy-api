@@ -1,33 +1,33 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { IsString, IsNumberString, IsOptional } from 'class-validator';
 
-export default class DiscordGuildBotSettingsResponseDto {
+export class DiscordBotPostRequestDto {
+  @IsString()
   @ApiProperty({
     required: true,
-    description: 'The ID of the document created in the database',
+    description: 'The ID of the guild given from discord.',
   })
-  id: string;
-
-  @ApiProperty({ required: true, description: 'The ID of the guild' })
-  guildId: string;
-
-  @ApiProperty({ required: true, description: 'The name of the guild' })
-  guildName: string;
+  guildSId: string;
 
   @ApiProperty({
     required: true,
     description: 'The ID of the authorized POAP Management role',
   })
+  @IsNumberString()
   poapManagerRoleId: string;
 
   @ApiProperty({
     required: true,
     description: 'The ID of the private channel',
   })
+  @IsNumberString()
   privateChannelId: string;
 
   @ApiProperty({
     required: false,
     description: 'The ID of the announcement channel',
   })
+  @IsNumberString()
+  @IsOptional()
   newsChannelId?: string;
 }
