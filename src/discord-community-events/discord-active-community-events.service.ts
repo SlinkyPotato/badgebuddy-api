@@ -58,10 +58,10 @@ export class DiscordActiveCommunityEventsService {
         where: {
           botSettings: {
             guildSId: guildSId,
+          },
+          communityEvent: {
+            endDate: LessThan(currentDate),
           }
-          // communityEvent: {
-          //   endDate: LessThan(currentDate),
-          // }
         }
       });
     } catch (e) {
