@@ -10,13 +10,17 @@ import {
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import crypto from 'crypto';
-import { redisAuthKeys } from '../redis-keys.constant';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import {
   DataSource, InsertResult,
 } from 'typeorm';
 import {
+  AUTH_EMAIL_VERIFY,
+  AUTH_REFRESH_TOKEN,
+  AUTH_REQUEST,
+  AUTH_REQUEST_DISCORD,
+  AUTH_REQUEST_GOOGLE,
   AccountEntity,
   TokenEntity,
   TokenType,
@@ -102,7 +106,7 @@ export class AuthService {
   async authorize(request: AuthorizeGetRequestDto): Promise<AuthorizeGetResponseDto> {
     this.logger.debug(`Attempting to generate auth token for client: ${request.clientId}`);
     const authCode = crypto.randomBytes(20).toString('hex');
-    await this.cacheManager.del(redisAuthKeys.AUTH_REQUEST(request.clientId, authCode));
+    await this.cacheManager.del(AUTH_REQUEST(request.clientId, authCode));
 
     const stored: RedisAuthCode = {
       codeChannelMethod: request.codeChallengeMethod,
@@ -114,7 +118,7 @@ export class AuthService {
       subject: request.clientId,
     })
 
-    await this.cacheManager.set(redisAuthKeys.AUTH_REQUEST(request.clientId, authCode), signed);
+    await this.cacheManager.set(AUTH_REQUEST(request.clientId, authCode), signed);
     this.logger.debug(`Generated auth code ${authCode} for client ${request.clientId}`);
     return {
       code: authCode,
@@ -153,7 +157,7 @@ export class AuthService {
     });
 
     try {
-      await this.cacheManager.set(redisAuthKeys.AUTH_REQUEST_GOOGLE(sessionId), veriferValues.codeVerifier, (1000 * 60 * 10));
+      await this.cacheManager.set(AUTH_REQUEST_GOOGLE(sessionId), veriferValues.codeVerifier, (1000 * 60 * 10));
     } catch (error) {
       this.logger.error(`Failed to set google auth code for ${sessionId}`, error);
       throw new InternalServerErrorException('Failed to set google auth code');
@@ -174,7 +178,7 @@ export class AuthService {
     const authorizeUrl = `https://discord.com/api/oauth2/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&scope=${scopes}&state=${state}`;
 
     try {
-      await this.cacheManager.set(redisAuthKeys.AUTH_REQUEST_DISCORD(sessionId), state, (1000 * 60 * 10));
+      await this.cacheManager.set(AUTH_REQUEST_DISCORD(sessionId), state, (1000 * 60 * 10));
       this.logger.debug(`Stored discord state for ${sessionId}`);
     } catch (error) {
       this.logger.error(`Failed to set discord auth code for ${sessionId}`, error);
@@ -195,7 +199,7 @@ export class AuthService {
    */
   async generateClientToken(request: TokenGetRequestDto): Promise<TokenPostResponseDto> {
     this.logger.debug(`Attempting to generate access token for client ${request.clientId}`);
-    const cacheAuthCode = await this.cacheManager.get<string>(redisAuthKeys.AUTH_REQUEST(request.clientId, request.code));
+    const cacheAuthCode = await this.cacheManager.get<string>(AUTH_REQUEST(request.clientId, request.code));
     if (!cacheAuthCode) {
       throw new NotFoundException('Auth code not found');
     }
@@ -203,7 +207,7 @@ export class AuthService {
     try {
       verifiedStored = this.jwtService.verify<RedisAuthCode>(cacheAuthCode);
     } catch (error) {
-      await this.cacheManager.del(redisAuthKeys.AUTH_REQUEST(request.clientId, request.code));
+      await this.cacheManager.del(AUTH_REQUEST(request.clientId, request.code));
       throw new UnprocessableEntityException('Auth code invalid');
     }
 
@@ -221,7 +225,7 @@ export class AuthService {
     }
 
     // Must be after verification
-    await this.cacheManager.del(redisAuthKeys.AUTH_REQUEST(request.clientId, request.code));
+    await this.cacheManager.del(AUTH_REQUEST(request.clientId, request.code));
 
     const accessToken = this.jwtService.sign({
       sessionId: crypto.randomUUID().toString(),
@@ -260,7 +264,7 @@ export class AuthService {
     } catch (error) {
       throw new UnprocessableEntityException('Invalid token invalid');
     }
-    const cacheRefreshToken = await this.cacheManager.get<string>(redisAuthKeys.AUTH_REFRESH_TOKEN(decodedRefresh.userId));
+    const cacheRefreshToken = await this.cacheManager.get<string>(AUTH_REFRESH_TOKEN(decodedRefresh.userId));
     if (!cacheRefreshToken || cacheRefreshToken !== request.refreshToken) {
       throw new NotFoundException('Invalid refresh token');
     }
@@ -363,7 +367,7 @@ export class AuthService {
   async loginEmail(auth: string, request: EmailCode): Promise<LoginEmailPostResponseDto> {
     this.logger.debug(`Attempting to verify email code`);
     
-    const encoding = await this.cacheManager.get<string>(redisAuthKeys.AUTH_EMAIL_VERIFY(request.email));
+    const encoding = await this.cacheManager.get<string>(AUTH_EMAIL_VERIFY(request.email));
     if (!encoding) {
       throw new NotFoundException('Email verification not found');
     }
@@ -396,7 +400,7 @@ export class AuthService {
       throw new InternalServerErrorException('Failed update db');
     }
 
-    await this.cacheManager.del(redisAuthKeys.AUTH_EMAIL_VERIFY(request.email));
+    await this.cacheManager.del(AUTH_EMAIL_VERIFY(request.email));
 
     const clientId = this.decodeToken<AccessToken>(this.getTokenFromHeader(auth)).sub;
     const { accessToken, refreshToken } = this.generateTokens(clientId, user.id);
@@ -415,7 +419,7 @@ export class AuthService {
       throw new InternalServerErrorException('Session id not found');
     }
 
-    const codeVerifier = await this.cacheManager.get<string>(redisAuthKeys.AUTH_REQUEST_GOOGLE(sessionId));
+    const codeVerifier = await this.cacheManager.get<string>(AUTH_REQUEST_GOOGLE(sessionId));
     
     if (!codeVerifier) {
       this.logger.warn(`Code verifier not found for ${sessionId}`)
@@ -478,7 +482,7 @@ export class AuthService {
       throw new InternalServerErrorException('Session id not found');
     }
 
-    const storedState = await this.cacheManager.get<string>(redisAuthKeys.AUTH_REQUEST_DISCORD(sessionId));
+    const storedState = await this.cacheManager.get<string>(AUTH_REQUEST_DISCORD(sessionId));
     
     if (!storedState) {
       this.logger.warn(`State not found for ${sessionId}`)
@@ -723,7 +727,7 @@ export class AuthService {
       subject: sub,
     });
 
-    this.cacheManager.set(redisAuthKeys.AUTH_REFRESH_TOKEN(userId), refreshToken, (AuthService.REFRESH_TOKEN_EXPIRES_IN * 1000)).then(() =>  {
+    this.cacheManager.set(AUTH_REFRESH_TOKEN(userId), refreshToken, (AuthService.REFRESH_TOKEN_EXPIRES_IN * 1000)).then(() =>  {
       this.logger.debug(`Set refresh token for ${userId} in cache`);
     }).catch((error) => {
       this.logger.error(`Failed to store refresh token for ${userId}`, error);
@@ -756,7 +760,7 @@ export class AuthService {
     const encoding = base64url(`${email}:${randomHash}`);
     const CODE_EXPIRES_IN = 1000 * 60 * 60 * 24; // 24 hours
     
-    this.cacheManager.set(redisAuthKeys.AUTH_EMAIL_VERIFY(email), encoding, (CODE_EXPIRES_IN))
+    this.cacheManager.set(AUTH_EMAIL_VERIFY(email), encoding, (CODE_EXPIRES_IN))
       .then(() =>  {
         this.logger.debug(`Set email verification in cache`);
       }).catch((error) => {

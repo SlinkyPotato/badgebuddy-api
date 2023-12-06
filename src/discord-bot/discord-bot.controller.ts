@@ -17,7 +17,7 @@ export class DiscordBotController {
   ) {}
 
   @Get('settings')
-  @ApiOperation({ summary: 'Retrieve discord bot settings' })
+  @ApiOperation({ summary: 'Retrieve discord bot settings by guildSId' })
   @ApiResponse({
     status: HttpStatus.FOUND,
     description: 'Discord bot settings found',
@@ -28,9 +28,9 @@ export class DiscordBotController {
     description: 'Settings not found',
   })
   getBotSettings(
-    @Query() { guildSId: guildId }: DiscordBoSettingsGetRequestDto,
+    @Query() request: DiscordBoSettingsGetRequestDto,
   ): Promise<DiscordBotSettingsGetResponseDto> {
-    return this.discordBotService.getBotSettingsForGuild(guildId);
+    return this.discordBotService.getBotSettingsForGuild(request);
   }
 
   @Post()
@@ -51,7 +51,7 @@ export class DiscordBotController {
   }
 
   @Delete()
-  @ApiOperation({ summary: 'Remove a guild by ID.' })
+  @ApiOperation({ summary: 'Remove a guild by guildSId.' })
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiResponse({ status: HttpStatus.NO_CONTENT, description: 'Guild removed' })
   @ApiResponse({
@@ -59,8 +59,8 @@ export class DiscordBotController {
     description: 'Guild not found',
   })
   removeBot(
-    @Body() { guildSId, botSettingsId }: DiscordBotDeleteRequestDto,
+    @Body() request: DiscordBotDeleteRequestDto,
   ) {
-    return this.discordBotService.removeBotFromGuild(guildSId, botSettingsId);
+    return this.discordBotService.removeBotFromGuild(request);
   }
 }

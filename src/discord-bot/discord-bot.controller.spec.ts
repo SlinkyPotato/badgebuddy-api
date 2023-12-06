@@ -38,9 +38,9 @@ describe('DiscordBotController', () => {
   it('should call create', async () => {
     const request: DiscordBotPostRequestDto = {
       guildSId: '850840267082563596',
-      poapManagerRoleId: '1130525129131167786',
-      privateChannelId: '1100470846490951790',
-      newsChannelId: '1130525131937161286',
+      poapManagerRoleSId: '1130525129131167786',
+      privateChannelSId: '1100470846490951790',
+      newsChannelSId: '1130525131937161286',
     };
     await controller.addBot(request);
     expect(mockService.create).toBeCalledWith(
@@ -52,8 +52,8 @@ describe('DiscordBotController', () => {
   it('should call create without newsChannelId', async () => {
     const request: DiscordBotPostRequestDto = {
       guildSId: '850840267082563596',
-      poapManagerRoleId: '1130525129131167786',
-      privateChannelId: '1100470846490951790',
+      poapManagerRoleSId: '1130525129131167786',
+      privateChannelSId: '1100470846490951790',
     };
     await controller.addBot(request);
     expect(mockService.create).toBeCalledWith(

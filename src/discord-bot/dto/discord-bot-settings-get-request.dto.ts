@@ -4,17 +4,19 @@ import { IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
 export class DiscordBoSettingsGetRequestDto {
   @IsString()
   @IsNotEmpty()
+  @IsOptional()
   @ApiProperty({
-    name: 'guildId',
-    required: true,
+    name: 'guildSId',
     description: 'The snowflake ID of the guild',    
   })
-  guildSId: string;
+  guildSId?: string;
 
   @IsString()
+  @IsNotEmpty()
   @IsOptional()
   @IsUUID()
   @ApiProperty({
+    name: 'botSettingsId',
     description: 'The UUID of the discord bot settings for the guild',
     type: String,
   })

@@ -14,14 +14,14 @@ export class DiscordBotPostRequestDto {
     description: 'The ID of the authorized POAP Management role',
   })
   @IsNumberString()
-  poapManagerRoleId: string;
+  poapManagerRoleSId: string;
 
   @ApiProperty({
     required: true,
     description: 'The ID of the private channel',
   })
   @IsNumberString()
-  privateChannelId: string;
+  privateChannelSId: string;
 
   @ApiProperty({
     required: false,
@@ -29,5 +29,5 @@ export class DiscordBotPostRequestDto {
   })
   @IsNumberString()
   @IsOptional()
-  newsChannelId?: string;
+  newsChannelSId?: string;
 }

@@ -8,9 +8,9 @@ import {
   CommonTypeOrmModule,
 } from '@badgebuddy/common';
 import { AuthModule } from './auth/auth.module';
-import { DiscordEventsModule } from './community-events/discord-events.module';
 import { HealthModule } from './health/health.module';
 import { DiscordBotModule } from './discord-bot/discord-bot.module';
+import { DiscordCommunityEventModule } from './discord-community-events/discord-community-event.module';
 
 @Module({
   imports: [
@@ -20,11 +20,10 @@ import { DiscordBotModule } from './discord-bot/discord-bot.module';
     RedisBullConfigModule.forRootAsync(),
     MongooseConfigModule.forRootAsync(),
     DiscordConfigModule.forRootAsync(),
+    HealthModule,
     AuthModule,
     DiscordBotModule,
-    DiscordEventsModule,
-    HealthModule,
-    DiscordBotModule,
+    DiscordCommunityEventModule,
   ],
 })
 export class AppModule { }
