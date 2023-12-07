@@ -3,7 +3,6 @@ import {
   CommonConfigModule,
   RedisConfigModule,
   RedisBullConfigModule,
-  MongooseConfigModule,
   DiscordConfigModule,
   CommonTypeOrmModule,
 } from '@badgebuddy/common';
@@ -18,7 +17,6 @@ import { DiscordCommunityEventModule } from './discord-community-events/discord-
     CommonConfigModule.forRoot(),
     RedisConfigModule.forRootAsync(),
     RedisBullConfigModule.forRootAsync(),
-    MongooseConfigModule.forRootAsync(),
     DiscordConfigModule.forRootAsync(),
     HealthModule,
     AuthModule,

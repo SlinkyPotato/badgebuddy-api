@@ -27,11 +27,6 @@ jest.mock('@badgebuddy/common', () => ({
       return Test.createTestingModule({});
     }),
   },
-  MongooseConfigModule: {
-    forRootAsync: jest.fn().mockImplementation(() => {
-      return Test.createTestingModule({});
-    }),
-  },
   DiscordConfigModule: {
     forRootAsync: jest.fn().mockImplementation(() => {
       return Test.createTestingModule({});
@@ -62,18 +57,6 @@ jest.mock('@nestjs/cache-manager', () => ({
   CacheModule: {
     registerAsync: jest.fn().mockImplementation((config: any) => {
       config.useFactory();
-      return Test.createTestingModule({});
-    }),
-  },
-}));
-
-jest.mock('@nestjs/mongoose', () => ({
-  MongooseModule: {
-    forRootAsync: jest.fn().mockImplementation((config: any) => {
-      const mockConfigService = {
-        get: jest.fn().mockReturnValue('mongodb://localhost:27017'),
-      };
-      config.useFactory(mockConfigService);
       return Test.createTestingModule({});
     }),
   },
