@@ -8,7 +8,7 @@ import {
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { InjectDiscordClient } from '@discord-nestjs/core';
-import { Client } from 'discord.js';
+import { Client, GuildMember } from 'discord.js';
 import { DISCORD_BOT_SETTINGS_GUILDSID } from '@badgebuddy/common';
 import { Repository } from 'typeorm';
 import { CommonManagementRequestDto } from '../dto/common-management-request.dto';
@@ -41,7 +41,7 @@ export class PoapManagerGuard implements CanActivate {
     );
     
     let poapManagerRoleSId: string | undefined;
-    const botSettingsCache = await this.cacheManager.get<DiscordBotSettingsGetResponseDto>(DISCORD_BOT_SETTINGS_GUILDSID(guildSId));
+    const botSettingsCache = await this.getBotSettingsFromCache(guildSId);
     let botSettingsDb: DiscordBotSettingsEntity | null = null;
 
     if (botSettingsCache) {
@@ -50,19 +50,12 @@ export class PoapManagerGuard implements CanActivate {
 
     if (!botSettingsCache) {
       this.logger.verbose(`Bot settings not found in cache for guildId: ${guildSId}, attempting to pull from db`);
-      botSettingsDb = await this.discordBotSetttingsRepo.findOne({
-        where: {
-          guildSId: guildSId,
-        },
-      });
+      botSettingsDb = await this.getBotSettingsFromDb(guildSId);
+      
       if (botSettingsDb) {
         poapManagerRoleSId = botSettingsDb.poapManagerRoleSId;
         this.logger.verbose(`Bot settings found in db for guildId: ${guildSId}, storing in cache`);
-        this.storeBotSettingsInCache(botSettingsDb).then(() => {
-          this.logger.verbose(`Bot settings stored in cache for guildId: ${guildSId}`);
-        }).catch((error) => {
-          this.logger.error(`Failed to store bot settings in cache for guildId: ${guildSId}`, error);
-        });
+        this.storeBotSettingsInCache(botSettingsDb);
       }
     }
 
@@ -73,12 +66,9 @@ export class PoapManagerGuard implements CanActivate {
       return false;
     }
     
-
     try {
-      const guildMember = await (
-        await this.discordClient.guilds.fetch(guildSId)
-      ).members.fetch(organizerSId);
-
+      const guildMember = await this.fetchGuildMember(guildSId, organizerSId);
+      
       if (!guildMember.roles.cache.has(poapManagerRoleSId)) {
         this.logger.warn(
           `Auth request rejected. User is not a POAP manager for organizerId: ${organizerSId}`,
@@ -98,7 +88,7 @@ export class PoapManagerGuard implements CanActivate {
     return true;
   }
 
-  private storeBotSettingsInCache(botSettings: DiscordBotSettingsEntity) {
+  private async storeBotSettingsInCache(botSettings: DiscordBotSettingsEntity) {
     return this.cacheManager.set(
       DISCORD_BOT_SETTINGS_GUILDSID(botSettings.guildSId),
       {
@@ -109,6 +99,29 @@ export class PoapManagerGuard implements CanActivate {
         privateChannelId: botSettings.privateChannelSId,
         newsChannelId: botSettings.newsChannelSId,
       } as DiscordBotSettingsGetResponseDto,
+    ).then(() => {
+      this.logger.verbose(`Bot settings stored in cache for guildId: ${botSettings.guildSId}`);
+    }).catch((error) => {
+      this.logger.error(`Failed to store bot settings in cache for guildId: ${botSettings.guildSId}`, error);
+    });
+  }
+
+  private async getBotSettingsFromCache(guildSId: string) {
+    return this.cacheManager.get<DiscordBotSettingsGetResponseDto>(
+      DISCORD_BOT_SETTINGS_GUILDSID(guildSId),
     );
   }
+
+  private async getBotSettingsFromDb(guildSId: string) {
+    return await this.discordBotSetttingsRepo.findOne({
+      where: {
+        guildSId: guildSId,
+      },
+    });
+  }
+
+  private async fetchGuildMember(guildSId: string, organizerSId: string): Promise<GuildMember> {
+    return await (await this.discordClient.guilds.fetch(guildSId)).members.fetch(organizerSId);
+  }
+
 }
