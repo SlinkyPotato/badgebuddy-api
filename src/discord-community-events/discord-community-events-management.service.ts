@@ -1,4 +1,4 @@
-import { ConflictException, Inject, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
+import { ConflictException, Inject, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { InjectQueue } from '@nestjs/bull';
@@ -12,6 +12,8 @@ import {
   DISCORD_COMMUNITY_EVENTS_ACTIVE_VOICE_CHANNEL,
   TRACKING_EVENTS_ACTIVE_VOICE_CHANNEL,
   DISCORD_COMMUNITY_EVENTS_QUEUE,
+  DiscordUserEntity,
+  DiscordBotSettingsEntity,
 } from '@badgebuddy/common';
 import { LessThan, Repository } from 'typeorm';
 import { DiscordCommunityEventPostRequestDto } from './dto/discord-community-event-post-request/discord-community-event-post-request.dto';
@@ -20,24 +22,27 @@ import { DiscordCommunityEventPatchRequestDto } from './dto/discord-community-ev
 import { DiscordCommunityEventPatchResponseDto } from './dto/discord-community-event-patch-response/discord-community-event-patch-response.dto';
 import { DiscordActiveCommunityEventDto } from './dto/active-community-events-get-response.dto';
 import { InjectRepository } from '@nestjs/typeorm';
+import { InjectDiscordClient } from '@discord-nestjs/core';
+import { Client } from 'discord.js';
 
 @Injectable()
 export class DiscordCommunityEventsManagementService {
   constructor(
     private readonly logger: Logger,
     @InjectRepository(CommunityEventDiscordEntity) private discordEventRepo: Repository<CommunityEventDiscordEntity>,
+    @InjectRepository(DiscordUserEntity) private discordUserRepo: Repository<DiscordUserEntity>,
+    @InjectRepository(DiscordBotSettingsEntity) private discordBotSettingsRepo: Repository<DiscordBotSettingsEntity>,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
     @InjectQueue(DISCORD_COMMUNITY_EVENTS_QUEUE) private eventsQueue: Queue,
+    @InjectDiscordClient() private discordClient: Client,
   ) { }
 
   async startEvent(
     {title, voiceChannelSId, endDate, guildSId, description, organizerSId}: DiscordCommunityEventPostRequestDto
   ): Promise<DiscordCommunityEventPostResponseDto> {
-    this.logger.log(
-      `Starting community event for guild: ${guildSId}, voiceChannelSId: ${voiceChannelSId}, organizer: ${organizerSId}`,
-    );
-
-    const existingEvent = await this.discordEventRepo.findOne({
+    this.logger.verbose('checking if event already exists before starting');
+    
+    const eventExists = await this.discordEventRepo.exist({
       relations: {
         botSettings: true,
         organizer: true,
@@ -57,34 +62,73 @@ export class DiscordCommunityEventsManagementService {
       },
     });
 
-    if (existingEvent) {
+    if (eventExists) {
       throw new ConflictException('Event in this channel is already active');
     }
+
+    this.logger.log(
+      `Starting community event for guild: ${guildSId}, voiceChannelSId: ${voiceChannelSId}, organizer: ${organizerSId}`,
+    );
 
     const currentDate = new Date();
     this.logger.log(`startDate: ${currentDate}, endDate: ${endDate}, guildSId: ${guildSId}`,);
 
-    let newEvent: CommunityEventDiscordEntity;
+    let discordOrganizer: DiscordUserEntity | null = null;
     try {
-      newEvent = await this.discordEventRepo.save({
-        guild: {
-          guildSId: guildSId,
-        },
-        voiceChannelSId: voiceChannelSId,
-        organizer: {
+      discordOrganizer = await this.discordUserRepo.findOne({
+        where: {
           userSId: organizerSId,
-        },
-        communityEvent: {
-          eventName: title,
-          description: description,
-          startDate: currentDate,
-          endDate: endDate,
         },
       });
     } catch (e) {
       this.logger.log(`Error saving event for guild: ${guildSId}, voiceChannelSId: ${voiceChannelSId}, organizer: ${organizerSId}`);
       throw new InternalServerErrorException('Failed to create event');
     }
+
+    if (!discordOrganizer) {
+      this.logger.debug(`Organizer not found, fetching from discord, organizerSId: ${organizerSId}`);
+      const organizer = await this.discordClient.guilds.cache.get(guildSId)?.members.fetch(organizerSId);
+      if (!organizer) {
+        throw new NotFoundException('Organizer not found');
+      }
+      discordOrganizer = await this.discordUserRepo.save({
+        userSId: organizerSId,
+        username: organizer.user.username,
+        discriminator: organizer.user.discriminator,
+        avatar: organizer.user.avatar,
+      } as DiscordUserEntity);
+    }
+
+    this.logger.debug(`Organizer found, organizerSId: ${organizerSId}`);
+    let discordBotSettings: DiscordBotSettingsEntity | null = null;
+    try {
+      this.logger.debug(`Fetching bot settings for guild: ${guildSId}`);
+      discordBotSettings = await this.discordBotSettingsRepo.findOne({
+        where: {
+          guildSId: guildSId,
+        },
+      });
+      this.logger.debug(`Fetched bot settings for guild: ${guildSId}`);
+      console.log(discordBotSettings);
+    } catch (e) {
+      this.logger.error(`Error fetching bot settings for guild: ${guildSId}`, e);
+    }
+
+    if (!discordBotSettings) {
+      throw new NotFoundException('Bot settings not found');
+    }
+      
+    const newEvent: CommunityEventDiscordEntity = await this.discordEventRepo.save({
+      botSettingsId: discordBotSettings.id,
+      voiceChannelSId: voiceChannelSId,
+      organizerId: discordOrganizer.id,
+      communityEvent: {
+        title: title,
+        description: description,
+        startDate: currentDate,
+        endDate: endDate,
+      },
+    } as CommunityEventDiscordEntity);
 
     this.logger.log(`Stored communityEvent in db id: ${newEvent.communityEventId}`);
 

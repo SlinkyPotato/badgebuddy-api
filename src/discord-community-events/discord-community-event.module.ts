@@ -1,7 +1,7 @@
 import { Logger, Module, ValidationPipe } from '@nestjs/common';
 import { DiscordModule } from '@discord-nestjs/core';
 import { BullModule } from '@nestjs/bull';
-import { CommunityEventDiscordEntity, DISCORD_COMMUNITY_EVENTS_QUEUE } from '@badgebuddy/common';
+import { CommunityEventDiscordEntity, DISCORD_COMMUNITY_EVENTS_QUEUE, DiscordUserEntity } from '@badgebuddy/common';
 import { PoapManagerGuard } from './guards/poap-manager.guard';
 import { DiscordCommunityEventsManagementController } from './discord-community-events-management.controller';
 import { DiscordActiveCommunityEventsService } from './discord-active-community-events.service';
@@ -16,7 +16,11 @@ import { DiscordCommunityEventsActiveController } from './discord-community-even
     BullModule.registerQueue({
       name: DISCORD_COMMUNITY_EVENTS_QUEUE,
     }),
-    TypeOrmModule.forFeature([CommunityEventDiscordEntity, DiscordBotSettingsEntity]),
+    TypeOrmModule.forFeature([
+      CommunityEventDiscordEntity,
+      DiscordBotSettingsEntity,
+      DiscordUserEntity,
+    ]),
   ],
   controllers: [
     DiscordCommunityEventsActiveController,

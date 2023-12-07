@@ -22,6 +22,7 @@ import { InjectRepository } from '@nestjs/typeorm';
  */
 @Injectable()
 export class PoapManagerGuard implements CanActivate {
+
   constructor(
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
     @InjectRepository(DiscordBotSettingsEntity) private discordBotSetttingsRepo: Repository<DiscordBotSettingsEntity>,
@@ -56,11 +57,17 @@ export class PoapManagerGuard implements CanActivate {
       });
       if (botSettingsDb) {
         poapManagerRoleSId = botSettingsDb.poapManagerRoleSId;
+        this.logger.verbose(`Bot settings found in db for guildId: ${guildSId}, storing in cache`);
+        this.storeBotSettingsInCache(botSettingsDb).then(() => {
+          this.logger.verbose(`Bot settings stored in cache for guildId: ${guildSId}`);
+        }).catch((error) => {
+          this.logger.error(`Failed to store bot settings in cache for guildId: ${guildSId}`, error);
+        });
       }
     }
 
     if (!poapManagerRoleSId) {
-      this.logger.error(
+      this.logger.warn(
         `Auth request rejected. Guild not found in cache or db for guildId: ${guildSId}`,
       );
       return false;
@@ -73,7 +80,7 @@ export class PoapManagerGuard implements CanActivate {
       ).members.fetch(organizerSId);
 
       if (!guildMember.roles.cache.has(poapManagerRoleSId)) {
-        this.logger.error(
+        this.logger.warn(
           `Auth request rejected. User is not a POAP manager for organizerId: ${organizerSId}`,
         );
         return false;
@@ -89,5 +96,19 @@ export class PoapManagerGuard implements CanActivate {
       `Auth request accepted for guildId: ${guildSId} and organizerId: ${organizerSId}`,
     );
     return true;
+  }
+
+  private storeBotSettingsInCache(botSettings: DiscordBotSettingsEntity) {
+    return this.cacheManager.set(
+      DISCORD_BOT_SETTINGS_GUILDSID(botSettings.guildSId),
+      {
+        id: botSettings.id,
+        guildSId: botSettings.guildSId,
+        guildName: botSettings.name,
+        poapManagerRoleId: botSettings.poapManagerRoleSId,
+        privateChannelId: botSettings.privateChannelSId,
+        newsChannelId: botSettings.newsChannelSId,
+      } as DiscordBotSettingsGetResponseDto,
+    );
   }
 }

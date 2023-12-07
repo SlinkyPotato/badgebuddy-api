@@ -3,7 +3,6 @@ import {
   Get,
   HttpStatus,
   Param,
-  Query,
   UseInterceptors,
   UsePipes,
   ValidationPipe,
@@ -18,7 +17,7 @@ import { DiscordActiveCommunityEventsGetResponseDto } from './dto/active-communi
 import { DiscordActiveCommunityEventsService } from './discord-active-community-events.service';
 import { DiscordCommunityEventsActiveByOrganizerGetRequestDto } from './dto/discord-community-events-active-by-organizer-get-request/discord-community-events-active-by-organizer-get-request.dto';
 
-@Controller('discord/community-events/active')
+@Controller('discord/events/active')
 @ApiTags('Active Discord Community Events')
 @UseInterceptors(CacheInterceptor)
 @UsePipes(ValidationPipe)
@@ -27,6 +26,17 @@ export class DiscordCommunityEventsActiveController {
   constructor(
     private readonly activeEventsService: DiscordActiveCommunityEventsService,
   ) { }
+
+  @Get()
+  @ApiOperation({ summary: 'Retrieve active events.' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Active events retrieved.',
+    type: DiscordActiveCommunityEventsGetResponseDto,
+  })
+  getActiveEvents(): Promise<DiscordActiveCommunityEventsGetResponseDto> {
+    return this.activeEventsService.getActiveEvents();
+  }
 
   @Get('id/:id')
   @ApiOperation({ summary: 'Retrieve active events by ID.' })

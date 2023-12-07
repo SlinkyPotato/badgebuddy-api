@@ -17,6 +17,28 @@ export class DiscordActiveCommunityEventsService {
     private readonly logger: Logger,
   ) {}
   
+  async getActiveEvents() {
+    this.logger.log('Getting all active events');
+    let activeEvents: CommunityEventDiscordEntity[] = [];
+    try {
+      const currentDate = new Date();
+      activeEvents = await this.communityEventRepo.find({
+        relations: {
+          communityEvent: true,
+        },
+        where: {
+          communityEvent: {
+            endDate: LessThan(currentDate),
+          }
+        }
+      });
+    } catch (e) {
+      this.logger.log('Error getting all active events');
+      throw e;
+    }
+    return this.mapEventToResponse(activeEvents);
+  }
+  
   async getActiveEventsById(
     {communityEventId}: DiscordCommunityEventsActiveByIdGetRequestDto
   ): Promise<DiscordActiveCommunityEventsGetResponseDto> {

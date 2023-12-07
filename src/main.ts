@@ -22,8 +22,6 @@ async function bootstrap() {
     },
   );
 
-  app.setGlobalPrefix('/api');
-
   const config = new DocumentBuilder()
     .setTitle('Badge Buddy API')
     .setDescription('API for Badge Buddy to management POAP Events.')
