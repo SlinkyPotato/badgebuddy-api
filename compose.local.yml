@@ -1,0 +1,45 @@
+name: badge-buddy-api_local
+services:
+  
+  api:
+    container_name: api
+    depends_on:
+      - redis_local
+      - mariadb_local
+    build:
+      context: .
+      tags:
+        - solidchain/badge-buddy-api:dev
+      args:
+        NODE_VERSION: 20.9.0
+    env_file:
+      - .env
+    networks:
+      - local_server
+    ports:
+      - 3011:3000
+    volumes:
+      - ./logs:/app/logs
+  
+  redis_local:
+    container_name: redis_local
+    image: redis:latest
+    networks:
+      - local_server
+    ports:
+      - 6389:6379
+  
+  mariadb_local:
+    container_name: mariadb_local
+    image: mariadb:latest
+    networks:
+      - local_server
+    environment:
+      - MARIADB_ROOT_USER=root
+      - MARIADB_ROOT_PASSWORD=some-password-for-root
+    ports:
+      - 3316:3306
+
+networks:
+  local_server:
+    external: true

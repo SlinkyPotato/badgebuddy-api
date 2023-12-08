@@ -1,14 +1,15 @@
 import { Module } from '@nestjs/common';
-import { ApiModule } from './api/api.module';
 import {
   CommonConfigModule,
   RedisConfigModule,
   RedisBullConfigModule,
-  MongooseConfigModule,
   DiscordConfigModule,
   CommonTypeOrmModule,
 } from '@badgebuddy/common';
-import { DiscordEventsModule } from './discord-events/discord-events.module';
+import { AuthModule } from './auth/auth.module';
+import { HealthModule } from './health/health.module';
+import { DiscordBotModule } from './discord-bot/discord-bot.module';
+import { DiscordCommunityEventModule } from './discord-community-events/discord-community-event.module';
 
 @Module({
   imports: [
@@ -16,10 +17,11 @@ import { DiscordEventsModule } from './discord-events/discord-events.module';
     CommonConfigModule.forRoot(),
     RedisConfigModule.forRootAsync(),
     RedisBullConfigModule.forRootAsync(),
-    MongooseConfigModule.forRootAsync(),
     DiscordConfigModule.forRootAsync(),
-    ApiModule,
-    DiscordEventsModule,
+    HealthModule,
+    AuthModule,
+    DiscordBotModule,
+    DiscordCommunityEventModule,
   ],
 })
 export class AppModule { }

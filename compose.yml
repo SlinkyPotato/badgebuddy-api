@@ -1,40 +1,5 @@
 name: badge-buddy-api
 services:
-  badge_buddy_api_local:
-    container_name: badge_buddy_api_local
-    depends_on:
-      - redis_local
-    build:
-      context: .
-      tags:
-        - solidchain/badge-buddy-api:dev
-      args:
-        NODE_VERSION: ${NODE_VERSION}
-    environment:
-      DOTENV_KEY: ${DOTENV_KEY}
-      REDIS_HOST: redis_local
-      REDIS_PORT: 6379
-    env_file:
-      - .env
-    networks:
-      - local_server
-    ports:
-      - 3002:3000
-    profiles:
-      - local
-    volumes:
-      - ./logs:/app/logs
-
-  redis_local:
-    container_name: redis_local
-    image: redis:latest
-    restart: always
-    ports:
-      - 6379:6379
-    networks:
-      - local_server
-    profiles:
-      - local
 
   badge_buddy_api_qa:
     container_name: badge_buddy_api_qa

@@ -21,21 +21,17 @@ async function bootstrap() {
       logger: pinoLoggerService,
     },
   );
-  
-  // app.enableCors({
-  //   origin: process.env.CORS_ORIGIN?.split(',') ?? [],
-  // });
-  // app.enableCors({
-  //   origin: '*',
-  //   // methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-  //   // allowedHeaders: 'Content-Type, Accept, Authorization',
-  // })
 
   const config = new DocumentBuilder()
     .setTitle('Badge Buddy API')
     .setDescription('API for Badge Buddy to management POAP Events.')
     .setVersion('1.0')
+    .addServer('http://localhost:3000', 'Local Development')
+    .addServer('https://api.badgebuddy.app', 'Production')
+    .addOAuth2({ type: 'oauth2' })
+    .setExternalDoc('Documentation', 'https://docs.badgebuddy.app')
     .build();
+
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('swagger', app, document);
 
