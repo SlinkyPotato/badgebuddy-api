@@ -16,7 +16,7 @@ import {
   DiscordBotSettingsEntity,
   CommunityEventEntity,
 } from '@badgebuddy/common';
-import { LessThan, Repository } from 'typeorm';
+import { LessThan, MoreThan, Repository } from 'typeorm';
 import { DiscordCommunityEventPostRequestDto } from './dto/discord-community-event-post-request/discord-community-event-post-request.dto';
 import { DiscordCommunityEventPostResponseDto } from './dto/discord-community-event-post-response/discord-community-event-post-response.dto';
 import { DiscordCommunityEventPatchRequestDto } from './dto/discord-community-event-patch-request/discord-community-event-patch-request.dto';
@@ -58,7 +58,7 @@ export class DiscordCommunityEventsManagementService {
           userSId: organizerSId,
         },
         communityEvent: {
-          endDate: LessThan(new Date()),
+          endDate: MoreThan(new Date()),
         },
       },
     });
@@ -187,6 +187,7 @@ export class DiscordCommunityEventsManagementService {
       relations: {
         botSettings: true,
         organizer: true,
+        communityEvent: true,
       },
       where: {
         botSettings: {
@@ -196,11 +197,14 @@ export class DiscordCommunityEventsManagementService {
         organizer: {
           userSId: organizerSId,
         },
+        communityEvent: {
+          endDate: MoreThan(new Date()),
+        },
       }
     });
 
     if (!discordEvent) {
-      throw new ConflictException('Active event not found');
+      throw new NotFoundException('Active event not found');
     }
 
     discordEvent.communityEvent.endDate = new Date();
@@ -233,7 +237,7 @@ export class DiscordCommunityEventsManagementService {
     await this.cacheManager.del(TRACKING_EVENTS_ACTIVE_VOICE_CHANNEL(voiceChannelSId));
     return {
       id: discordEvent.communityEventId,
-      endDate: discordEvent.communityEvent.endDate.toDateString(),
+      endDate: discordEvent.communityEvent.endDate.toISOString(),
     };
   }
 

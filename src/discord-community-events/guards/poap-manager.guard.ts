@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   CanActivate,
   ExecutionContext,
   Inject,
@@ -34,9 +35,16 @@ export class PoapManagerGuard implements CanActivate {
     context: ExecutionContext,
   ): Promise<boolean> {
     const { guildSId, organizerSId }: T = context.switchToHttp().getRequest().body;
+
+    if (!guildSId || !organizerSId) {
+      this.logger.warn(
+        `Auth request rejected. Missing guildSId or organizerSId. guildSId: ${guildSId}, organizerSId: ${organizerSId}`,
+      );
+      throw new BadRequestException('Missing guildSId or organizerSId');
+    }
   
     this.logger.log(
-      `Checking auth request for guildId: ${guildSId} and organizerId: ${organizerSId}`
+      `Checking auth request for guildSId: ${guildSId} and organizerSId: ${organizerSId}`
     );
     
     let poapManagerRoleSId: string | undefined;
@@ -45,29 +53,30 @@ export class PoapManagerGuard implements CanActivate {
 
     if (botSettingsCache) {
       poapManagerRoleSId = botSettingsCache.poapManagerRoleId;
+      this.logger.verbose(`found poapManagerRoleSId in cache for guildSId: ${guildSId}, poapManagerRoleSId: ${poapManagerRoleSId}`)
     }
 
     if (!botSettingsCache) {
-      this.logger.verbose(`Bot settings not found in cache for guildId: ${guildSId}, attempting to pull from db`);
+      this.logger.verbose(`Bot settings not found in cache for guildSId: ${guildSId}, attempting to pull from db`);
       botSettingsDb = await this.getBotSettingsFromDb(guildSId);
       
       if (botSettingsDb) {
         poapManagerRoleSId = botSettingsDb.poapManagerRoleSId;
-        this.logger.verbose(`Bot settings found in db for guildId: ${guildSId}, storing in cache`);
+        this.logger.verbose(`poapManagerRoleSId found in db for guildSId: ${guildSId}, poapManagerRoleSId: ${poapManagerRoleSId}`);
         this.storeBotSettingsInCache(botSettingsDb);
       }
     }
 
     if (!poapManagerRoleSId) {
       this.logger.warn(
-        `Auth request rejected. Guild not found in cache or db for guildId: ${guildSId}`,
+        `Auth request rejected. Guild not found in cache or db for guildSId: ${guildSId}`,
       );
       return false;
     }
     
     try {
       const guildMember = await this.fetchGuildMember(guildSId, organizerSId);
-      
+      this.logger.verbose(`Guild member found for guildSId: ${guildSId} and organizerSId: ${organizerSId}`);
       if (!guildMember.roles.cache.has(poapManagerRoleSId)) {
         this.logger.warn(
           `Auth request rejected. User is not a POAP manager for organizerId: ${organizerSId}`,
@@ -76,13 +85,13 @@ export class PoapManagerGuard implements CanActivate {
       }
     } catch (error) {
       this.logger.error(
-        `Failed to fetch guildId: ${guildSId}, organizerId: ${organizerSId}`,
+        `Failed to fetch guildSId: ${guildSId}, organizerSId: ${organizerSId}`,
         error,
       );
       return false;
     }
     this.logger.log(
-      `Auth request accepted for guildId: ${guildSId} and organizerId: ${organizerSId}`,
+      `Auth request accepted for guildSId: ${guildSId} and organizerSId: ${organizerSId}`,
     );
     return true;
   }
@@ -99,9 +108,9 @@ export class PoapManagerGuard implements CanActivate {
         newsChannelId: botSettings.newsChannelSId,
       } as DiscordBotSettingsGetResponseDto,
     ).then(() => {
-      this.logger.verbose(`Bot settings stored in cache for guildId: ${botSettings.guildSId}`);
+      this.logger.verbose(`Bot settings stored in cache for guildSId: ${botSettings.guildSId}`);
     }).catch((error) => {
-      this.logger.error(`Failed to store bot settings in cache for guildId: ${botSettings.guildSId}`, error);
+      this.logger.error(`Failed to store bot settings in cache for guildSId: ${botSettings.guildSId}`, error);
     });
   }
 
@@ -120,7 +129,7 @@ export class PoapManagerGuard implements CanActivate {
   }
 
   private async fetchGuildMember(guildSId: string, organizerSId: string): Promise<GuildMember> {
-    return await (await this.discordClient.guilds.fetch(guildSId)).members.fetch(organizerSId);
+    return (await this.discordClient.guilds.fetch(guildSId)).members.fetch(organizerSId);
   }
 
 }

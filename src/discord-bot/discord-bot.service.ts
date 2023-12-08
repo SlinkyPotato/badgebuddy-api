@@ -47,6 +47,7 @@ export class DiscordBotService {
   async getBotSettingsForGuild(
     { guildSId, botSettingsId }: DiscordBoSettingsGetRequestDto,
   ): Promise<DiscordBotSettingsGetResponseDto> {
+    this.logger.log(`getting guild from db, guildSId: ${guildSId}, botSettingsId: ${botSettingsId}`);
     let result: DiscordBotSettingsEntity | null = null;
     if (botSettingsId) {
       this.logger.verbose(`getting guild from db, botSettingsId: ${botSettingsId}`);
@@ -68,7 +69,7 @@ export class DiscordBotService {
       throw new NotFoundException('Guild not found');
     }
     
-    this.logger.verbose(`found bot settings from db, guildSId: ${guildSId}, botSettingsId: ${botSettingsId}`);
+    this.logger.log(`found bot settings from db, guildSId: ${guildSId}, botSettingsId: ${botSettingsId}`);
 
     return {
       id: result.id.toString(),
