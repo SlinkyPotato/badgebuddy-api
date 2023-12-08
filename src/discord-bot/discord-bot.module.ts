@@ -6,6 +6,7 @@ import { DiscordModule } from '@discord-nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { DiscordBotSettingsEntity } from '@badgebuddy/common/dist/common-typeorm/entities/discord/discord-bot-settings.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AuthService } from 'src/auth/auth.service';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
   providers: [
     DiscordBotService,
     Logger,
+    AuthService,
   ],
 })
 export class DiscordBotModule {}

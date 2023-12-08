@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Delete, UseInterceptors, Query, HttpStatus, HttpCode, UsePipes, ValidationPipe, Patch } from '@nestjs/common';
+import { Controller, Get, Post, Body, Delete, UseInterceptors, Query, HttpStatus, HttpCode, UsePipes, ValidationPipe, Patch, UseGuards } from '@nestjs/common';
 import { DiscordBotService } from './discord-bot.service';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CacheInterceptor } from '@nestjs/cache-manager';
@@ -7,7 +7,10 @@ import { DiscordBotSettingsGetResponseDto } from './dto/discord-bot-settings-get
 import { DiscordBotPostRequestDto } from './dto/discord-bot-post-request.dto';
 import { DiscordBotPostResponseDto } from './dto/discord-bot-post-response.dto';
 import { DiscordBotDeleteRequestDto } from './dto/discord-bot-delete-request.dto';
-
+import { DiscordBotPermissionsPatchRequestDto } from './dto/discord-bot-permissions-patch-request/discord-bot-permissions-patch-request.dto';
+import { Headers } from '@nestjs/common';
+import { UserTokenGuard } from 'src/auth/guards/user-token.guard';
+import { ProcessorTokenGuard } from 'src/auth/guards/processor-token/processor-token.guard';
 @Controller('discord/bot')
 @ApiTags('Discord Bot')
 @UseInterceptors(CacheInterceptor)
@@ -18,6 +21,7 @@ export class DiscordBotController {
   ) {}
 
   @Get('settings')
+  @UseGuards(UserTokenGuard || ProcessorTokenGuard)
   @ApiOperation({ summary: 'Retrieve discord bot settings by guildSId' })
   @ApiResponse({
     status: HttpStatus.FOUND,
@@ -35,6 +39,7 @@ export class DiscordBotController {
   }
 
   @Post()
+  @UseGuards(ProcessorTokenGuard)
   @ApiOperation({ summary: 'Add discord bot to guild' })
   @ApiResponse({
     status: HttpStatus.CREATED,
@@ -52,6 +57,7 @@ export class DiscordBotController {
   }
 
   @Patch('/permissions')
+  @UseGuards(UserTokenGuard)
   @ApiOperation({ summary: 'Update discord bot permissions' })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -63,12 +69,14 @@ export class DiscordBotController {
     description: 'Discord bot not found',
   })
   updateBotPermissions(
-    @Body() request: any
+    @Headers('Authorization') userToken: string,
+    @Body() request: DiscordBotPermissionsPatchRequestDto,
   ): Promise<any> {
-    return this.discordBotService.updateBotPermissions();
+    return this.discordBotService.updateBotPermissions(userToken, request);
   }
 
   @Delete()
+  @UseGuards(ProcessorTokenGuard)
   @ApiOperation({ summary: 'Remove a guild by guildSId.' })
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiResponse({ status: HttpStatus.NO_CONTENT, description: 'Guild removed' })

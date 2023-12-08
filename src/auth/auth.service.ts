@@ -172,7 +172,7 @@ export class AuthService {
     this.logger.debug('attempting to authorize discord');
     const sessionId = this.decodeToken<AccessToken>(this.getTokenFromHeader(auth)).sessionId;
     const clientId = this.configService.get('DISCORD_BOT_APPLICATION_ID');
-    const scopes = 'email';
+    const scopes = 'email%20applications.commands.permissions.update';
     const redirectUri = encodeURIComponent(this.configService.get('DISCORD_REDIRECT_URI')!);
     const state = crypto.randomBytes(16).toString('hex');
     const authorizeUrl = `https://discord.com/api/oauth2/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&scope=${scopes}&state=${state}`;
@@ -747,12 +747,16 @@ export class AuthService {
    * @param authorizationHeader the authorization header
    * @returns the token
    */
-  private getTokenFromHeader(authorizationHeader: string): string {
+  public getTokenFromHeader(authorizationHeader: string): string {
     return authorizationHeader.split(' ')[1];
   }
 
-  private decodeToken<T>(token: string): T {
+  public decodeToken<T>(token: string): T {
     return this.jwtService.decode<T>(token);
+  }
+
+  public decodeTokenFromRawString<T>(token: string): T {
+    return this.decodeToken<T>(this.getTokenFromHeader(token));
   }
 
   private genMagicEmailCode(email: string): string {
