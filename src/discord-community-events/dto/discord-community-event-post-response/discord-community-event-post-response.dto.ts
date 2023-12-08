@@ -15,12 +15,12 @@ export class DiscordCommunityEventPostResponseDto {
     description: 'The start date of the event',
   })
   @IsISO8601()
-  startDate: Date;
+  startDate: string;
 
   @ApiProperty({
     required: true,
     description: 'The end date of the event',
   })
   @IsISO8601()
-  endDate: Date;
+  endDate: string;
 }

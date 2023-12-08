@@ -17,7 +17,7 @@ import { DiscordActiveCommunityEventsGetResponseDto } from './dto/active-communi
 import { DiscordActiveCommunityEventsService } from './discord-active-community-events.service';
 import { DiscordCommunityEventsActiveByOrganizerGetRequestDto } from './dto/discord-community-events-active-by-organizer-get-request/discord-community-events-active-by-organizer-get-request.dto';
 
-@Controller('discord/events/active')
+@Controller('discord/community-events/active')
 @ApiTags('Active Discord Community Events')
 @UseInterceptors(CacheInterceptor)
 @UsePipes(ValidationPipe)

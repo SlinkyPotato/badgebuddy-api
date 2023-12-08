@@ -14,6 +14,7 @@ import {
   DISCORD_COMMUNITY_EVENTS_QUEUE,
   DiscordUserEntity,
   DiscordBotSettingsEntity,
+  CommunityEventEntity,
 } from '@badgebuddy/common';
 import { LessThan, Repository } from 'typeorm';
 import { DiscordCommunityEventPostRequestDto } from './dto/discord-community-event-post-request/discord-community-event-post-request.dto';
@@ -40,7 +41,7 @@ export class DiscordCommunityEventsManagementService {
   async startEvent(
     {title, voiceChannelSId, endDate, guildSId, description, organizerSId}: DiscordCommunityEventPostRequestDto
   ): Promise<DiscordCommunityEventPostResponseDto> {
-    this.logger.verbose('checking if event already exists before starting');
+    this.logger.log('checking if event already exists before attempting start of new events');
     
     const eventExists = await this.discordEventRepo.exist({
       relations: {
@@ -66,27 +67,26 @@ export class DiscordCommunityEventsManagementService {
       throw new ConflictException('Event in this channel is already active');
     }
 
-    this.logger.log(
+    this.logger.verbose(
       `Starting community event for guild: ${guildSId}, voiceChannelSId: ${voiceChannelSId}, organizer: ${organizerSId}`,
     );
 
-    const currentDate = new Date();
-    this.logger.log(`startDate: ${currentDate}, endDate: ${endDate}, guildSId: ${guildSId}`,);
-
     let discordOrganizer: DiscordUserEntity | null = null;
     try {
+      this.logger.verbose(`Fetching organizer from db, organizerSId: ${organizerSId}`);
       discordOrganizer = await this.discordUserRepo.findOne({
         where: {
           userSId: organizerSId,
         },
       });
+      this.logger.verbose(`Fetched organizer from db, organizerSId: ${organizerSId}`);
     } catch (e) {
-      this.logger.log(`Error saving event for guild: ${guildSId}, voiceChannelSId: ${voiceChannelSId}, organizer: ${organizerSId}`);
+      this.logger.error(`Error saving event for guild: ${guildSId}, voiceChannelSId: ${voiceChannelSId}, organizer: ${organizerSId}`);
       throw new InternalServerErrorException('Failed to create event');
     }
 
     if (!discordOrganizer) {
-      this.logger.debug(`Organizer not found, fetching from discord, organizerSId: ${organizerSId}`);
+      this.logger.verbose(`Organizer not found, fetching from discord, organizerSId: ${organizerSId}`);
       const organizer = await this.discordClient.guilds.cache.get(guildSId)?.members.fetch(organizerSId);
       if (!organizer) {
         throw new NotFoundException('Organizer not found');
@@ -99,17 +99,16 @@ export class DiscordCommunityEventsManagementService {
       } as DiscordUserEntity);
     }
 
-    this.logger.debug(`Organizer found, organizerSId: ${organizerSId}`);
+    this.logger.verbose(`Organizer found, organizerSId: ${organizerSId}`);
     let discordBotSettings: DiscordBotSettingsEntity | null = null;
     try {
-      this.logger.debug(`Fetching bot settings for guild: ${guildSId}`);
+      this.logger.verbose(`Fetching bot settings for guild: ${guildSId}`);
       discordBotSettings = await this.discordBotSettingsRepo.findOne({
         where: {
           guildSId: guildSId,
         },
       });
-      this.logger.debug(`Fetched bot settings for guild: ${guildSId}`);
-      console.log(discordBotSettings);
+      this.logger.verbose(`Bot settings found, guildSId: ${guildSId}`);
     } catch (e) {
       this.logger.error(`Error fetching bot settings for guild: ${guildSId}`, e);
     }
@@ -117,7 +116,8 @@ export class DiscordCommunityEventsManagementService {
     if (!discordBotSettings) {
       throw new NotFoundException('Bot settings not found');
     }
-      
+
+    this.logger.verbose(`attempting to store event in db, guildSId: ${guildSId}, voiceChannelSId: ${voiceChannelSId}, organizerId: ${organizerSId}`);
     const newEvent: CommunityEventDiscordEntity = await this.discordEventRepo.save({
       botSettingsId: discordBotSettings.id,
       voiceChannelSId: voiceChannelSId,
@@ -125,34 +125,33 @@ export class DiscordCommunityEventsManagementService {
       communityEvent: {
         title: title,
         description: description,
-        startDate: currentDate,
-        endDate: endDate,
-      },
+        startDate: new Date(),
+        endDate: new Date(endDate),
+      } as CommunityEventEntity,
     } as CommunityEventDiscordEntity);
-
-    this.logger.log(`Stored communityEvent in db id: ${newEvent.communityEventId}`);
+    this.logger.verbose(`Stored communityEvent in db id: ${newEvent.communityEventId}, startDate: ${newEvent.communityEvent.startDate}, endDate: ${newEvent.communityEvent.endDate}`);
 
     this.removeEventsFromCacheInterceptor(
-      newEvent.botSettings.guildSId,
+      guildSId,
       newEvent.voiceChannelSId,
-      newEvent.organizer.userSId,
+      organizerSId,
       newEvent.communityEventId,
     ).then(() => {
-      this.logger.log(`Removed active event from cache, communityEventId: ${newEvent.communityEventId}, voiceChannelSId: ${newEvent.voiceChannelSId}`);
+      this.logger.verbose(`Removed active event from cache, communityEventId: ${newEvent.communityEventId}, voiceChannelSId: ${newEvent.voiceChannelSId}`);
     }).catch((e) => {
       this.logger.error(`Error removing active event from cache, eventId: ${newEvent.communityEventId}, voiceChannelSId: ${newEvent.voiceChannelSId}`, e);
     });
 
-    this.logger.log(`Adding event to start cache queue, eventId: ${newEvent.communityEventId}`);
+    this.logger.verbose(`Adding event to start cache queue, eventId: ${newEvent.communityEventId}`);
     this.eventsQueue.add('start', {
       eventId: newEvent.communityEventId,
     }).then(() => {
-      this.logger.log('Added event to queue');
+      this.logger.verbose('Added event to queue');
     }).catch((e) => {
       this.logger.error(`Error adding event to start queue, eventId: ${newEvent.communityEventId}`, e);
     });
 
-    this.logger.log(`Adding active event to cache by voiceChannelSId: ${voiceChannelSId}`);
+    this.logger.verbose(`Adding active event to cache by voiceChannelSId: ${voiceChannelSId}`);
     this.cacheManager.set(TRACKING_EVENTS_ACTIVE_VOICE_CHANNEL(voiceChannelSId),
       {
         id: newEvent.communityEventId,
@@ -166,14 +165,14 @@ export class DiscordCommunityEventsManagementService {
       } as DiscordActiveCommunityEventDto,
       0,
     ).then(() => {
-      this.logger.log(`Added active event to cache, eventId: ${newEvent.communityEventId}`);
+      this.logger.verbose(`Added active event to cache, eventId: ${newEvent.communityEventId}`);
     }).catch((e) => {
       this.logger.error(`Error adding active event to cache, eventId: ${newEvent.communityEventId}`, e);
     });
     return {
       communityEventId: newEvent.communityEventId,
-      startDate: newEvent.communityEvent.startDate,
-      endDate: newEvent.communityEvent.endDate,
+      startDate: newEvent.communityEvent.startDate.toISOString(),
+      endDate: newEvent.communityEvent.endDate.toISOString(),
     };
   }
 
@@ -234,7 +233,7 @@ export class DiscordCommunityEventsManagementService {
     await this.cacheManager.del(TRACKING_EVENTS_ACTIVE_VOICE_CHANNEL(voiceChannelSId));
     return {
       id: discordEvent.communityEventId,
-      endDate: discordEvent.communityEvent.endDate,
+      endDate: discordEvent.communityEvent.endDate.toDateString(),
     };
   }
 

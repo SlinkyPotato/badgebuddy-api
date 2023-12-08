@@ -25,15 +25,16 @@ export class DiscordActiveCommunityEventsService {
       activeEvents = await this.communityEventRepo.find({
         relations: {
           communityEvent: true,
+          botSettings: true,
         },
-        where: {
-          communityEvent: {
-            endDate: LessThan(currentDate),
-          }
-        }
+        // where: {
+        //   communityEvent: {
+        //     endDate: LessThan(currentDate),
+        //   }
+        // }
       });
     } catch (e) {
-      this.logger.log('Error getting all active events');
+      this.logger.error('Error getting all active events');
       throw e;
     }
     return this.mapEventToResponse(activeEvents);
@@ -191,6 +192,7 @@ export class DiscordActiveCommunityEventsService {
         endDate: event.communityEvent.endDate,
       }
     });
+    this.logger.log(`Found ${events.length} active events`);
     return {
       events: events,
     }

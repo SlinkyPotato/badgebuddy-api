@@ -30,5 +30,5 @@ export class DiscordCommunityEventPostRequestDto extends CommonManagementRequest
     description: 'The end date of the event',
   })
   @IsISO8601()
-  endDate: Date;
+  endDate: string;
 }

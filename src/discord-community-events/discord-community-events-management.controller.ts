@@ -8,7 +8,7 @@ import { DiscordCommunityEventPatchRequestDto } from './dto/discord-community-ev
 import { DiscordCommunityEventPatchResponseDto } from './dto/discord-community-event-patch-response/discord-community-event-patch-response.dto';
 import { PoapManagerGuard } from './guards/poap-manager.guard';
 
-@Controller('discord/events/manage')
+@Controller('discord/community-events/manage')
 @ApiTags('Discord Community Events Management')
 @UsePipes(ValidationPipe)
 @UseGuards(PoapManagerGuard)

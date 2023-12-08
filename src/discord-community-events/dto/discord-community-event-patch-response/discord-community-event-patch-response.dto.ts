@@ -14,7 +14,6 @@ export class DiscordCommunityEventPatchResponseDto {
     required: true,
     description: 'The endDate of the event',
   })
-  @IsString()
   @IsISO8601()
-  endDate: Date;
+  endDate: string;
 }

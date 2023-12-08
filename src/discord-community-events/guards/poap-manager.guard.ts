@@ -33,10 +33,9 @@ export class PoapManagerGuard implements CanActivate {
   async canActivate<T extends CommonManagementRequestDto>(
     context: ExecutionContext,
   ): Promise<boolean> {
-    this.logger.verbose('Pulling request from auth guard');
     const { guildSId, organizerSId }: T = context.switchToHttp().getRequest().body;
-
-    this.logger.verbose(
+  
+    this.logger.log(
       `Checking auth request for guildId: ${guildSId} and organizerId: ${organizerSId}`
     );
     
@@ -82,7 +81,7 @@ export class PoapManagerGuard implements CanActivate {
       );
       return false;
     }
-    this.logger.verbose(
+    this.logger.log(
       `Auth request accepted for guildId: ${guildSId} and organizerId: ${organizerSId}`,
     );
     return true;

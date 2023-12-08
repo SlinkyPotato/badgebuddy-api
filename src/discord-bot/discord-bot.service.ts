@@ -1,4 +1,4 @@
-import { ConflictException, Inject, Injectable, Logger, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
+import { ConflictException, Inject, Injectable, InternalServerErrorException, Logger, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
 import { DiscordBotSettingsGetResponseDto } from './dto/discord-bot-settings-get-response.dto';
 import { Repository } from 'typeorm';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
@@ -91,9 +91,21 @@ export class DiscordBotService {
    * @returns Promise<DiscordBotPostResponseDto>
    */
   async addBotToGuild(
-    {guildSId, poapManagerRoleSId, privateChannelSId, newsChannelSId}: DiscordBotPostRequestDto
+    {guildSId}: DiscordBotPostRequestDto
   ): Promise<DiscordBotPostResponseDto> {
-    this.logger.log('attempting to setup guild');
+    this.logger.log('starting discord bot setup process');
+
+    const botSettings = await this.botSettingsRepo.findOne({
+      where: {
+        guildSId: guildSId,
+      }
+    });
+
+    if (botSettings) {
+      this.logger.warn(`discord bot already exists in guild: ${guildSId}`);
+      throw new ConflictException('Discord bot already exists');
+    }
+
     const guild = await this.discordClient.guilds.fetch(guildSId);
     
     const poapManagerRole: Role = await this.createPoapManagerRole(guild);
@@ -115,15 +127,6 @@ export class DiscordBotService {
     });
 
     this.logger.verbose(`settings up bot in db: ${guildSId}`);
-    const botSettings = await this.botSettingsRepo.findOne({
-      where: {
-        guildSId: guildSId,
-      }
-    });
-
-    if (botSettings) {
-      throw new ConflictException('Discord bot already exists');
-    }
 
     const discordGuild = await this.discordClient.guilds.fetch(guildSId);
 
@@ -136,9 +139,9 @@ export class DiscordBotService {
       name: discordGuild.name,
       ownerSid: discordGuild.ownerId,
       description: discordGuild.description ?? undefined,
-      poapManagerRoleSId,
-      privateChannelSId,
-      newsChannelSId,
+      poapManagerRoleSId: poapManagerRole.id,
+      privateChannelSId: privateChannel.id,
+      newsChannelSId: newsChannel?.id ?? undefined,
     } as DiscordBotSettingsEntity;
 
     let result;
@@ -149,10 +152,14 @@ export class DiscordBotService {
       throw new UnprocessableEntityException('Invalid guildId');
     }
 
-    this.logger.debug(`bot added to guild: ${guildSId}`);
+    this.logger.log(`bot added to guild: ${guildSId}`);
     return {
       discordBotSettingsId: result.id,
     };
+  }
+
+  async updateBotPermissions() {
+    throw new InternalServerErrorException('Method not implemented.');
   }
 
   /**
@@ -177,7 +184,10 @@ export class DiscordBotService {
       return;
     }
 
-    const result = await this.botSettingsRepo.delete({guildSId});
+    const result = await this.botSettingsRepo.delete({
+      guildSId: guildSId,
+    })
+
     if (result.affected === 0) {
       throw new NotFoundException('Bot settings not found');
     }
@@ -208,7 +218,7 @@ export class DiscordBotService {
       return role;
     } catch (err) {
       this.logger.error(err);
-      throw new Error(
+      throw new InternalServerErrorException(
         `failed to create poap manager role, guildId: ${guild.id}, guildName: ${guild.name}`,
       );
     }
@@ -226,7 +236,7 @@ export class DiscordBotService {
       return botMember;
     } catch (err) {
       this.logger.error(err);
-      throw new Error(
+      throw new InternalServerErrorException(
         `failed to assign role to bot, guildId: ${guild.id}, guildName: ${guild.name}`,
       );
     }
@@ -248,7 +258,7 @@ export class DiscordBotService {
     return channel;
     } catch (err) {
       this.logger.error(err);
-      throw new Error(
+      throw new InternalServerErrorException(
         `failed to create private channel, guildId: ${guild.id}, guildName: ${guild.name}`,
       );
     }
@@ -297,7 +307,7 @@ export class DiscordBotService {
       return newsChannel;
     } catch (err) {
       this.logger.error(err);
-      throw new Error(
+      throw new InternalServerErrorException(
         `failed to create news channel, guildId: ${guild.id}, guildName: ${guild.name}`,
       );
     }

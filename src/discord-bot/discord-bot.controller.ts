@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Delete, UseInterceptors, Query, HttpStatus, HttpCode } from '@nestjs/common';
+import { Controller, Get, Post, Body, Delete, UseInterceptors, Query, HttpStatus, HttpCode, UsePipes, ValidationPipe, Patch } from '@nestjs/common';
 import { DiscordBotService } from './discord-bot.service';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CacheInterceptor } from '@nestjs/cache-manager';
@@ -11,6 +11,7 @@ import { DiscordBotDeleteRequestDto } from './dto/discord-bot-delete-request.dto
 @Controller('discord/bot')
 @ApiTags('Discord Bot')
 @UseInterceptors(CacheInterceptor)
+@UsePipes(ValidationPipe)
 export class DiscordBotController {
   constructor(
     private readonly discordBotService: DiscordBotService
@@ -48,6 +49,23 @@ export class DiscordBotController {
     @Body() request: DiscordBotPostRequestDto
   ): Promise<DiscordBotPostResponseDto> {
     return this.discordBotService.addBotToGuild(request);
+  }
+
+  @Patch('/permissions')
+  @ApiOperation({ summary: 'Update discord bot permissions' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Discord bot permissions updated',
+    type: DiscordBotPostResponseDto,
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Discord bot not found',
+  })
+  updateBotPermissions(
+    @Body() request: any
+  ): Promise<any> {
+    return this.discordBotService.updateBotPermissions();
   }
 
   @Delete()
