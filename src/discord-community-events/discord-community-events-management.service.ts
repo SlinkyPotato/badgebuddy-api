@@ -1,4 +1,4 @@
-import { ConflictException, Inject, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
+import { ConflictException, Inject, Injectable, InternalServerErrorException, Logger, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { InjectQueue } from '@nestjs/bull';
@@ -7,6 +7,7 @@ import {
   CommunityEventDiscordEntity,
   DISCORD_COMMUNITY_EVENTS_ACTIVE_GUILD,
   DISCORD_COMMUNITY_EVENTS_ACTIVE_GUILD_ORGANIZER,
+  DISCORD_COMMUNITY_EVENTS_ACTIVE,
   DISCORD_COMMUNITY_EVENTS_ACTIVE_ID,
   DISCORD_COMMUNITY_EVENTS_ACTIVE_ORGANIZER,
   DISCORD_COMMUNITY_EVENTS_ACTIVE_VOICE_CHANNEL,
@@ -16,7 +17,7 @@ import {
   DiscordBotSettingsEntity,
   CommunityEventEntity,
 } from '@badgebuddy/common';
-import { LessThan, MoreThan, Repository } from 'typeorm';
+import { MoreThan, Repository } from 'typeorm';
 import { DiscordCommunityEventPostRequestDto } from './dto/discord-community-event-post-request/discord-community-event-post-request.dto';
 import { DiscordCommunityEventPostResponseDto } from './dto/discord-community-event-post-response/discord-community-event-post-response.dto';
 import { DiscordCommunityEventPatchRequestDto } from './dto/discord-community-event-patch-request/discord-community-event-patch-request.dto';
@@ -41,14 +42,16 @@ export class DiscordCommunityEventsManagementService {
   async startEvent(
     {title, voiceChannelSId, endDate, guildSId, description, organizerSId}: DiscordCommunityEventPostRequestDto
   ): Promise<DiscordCommunityEventPostResponseDto> {
-    this.logger.log('checking if event already exists before attempting start of new events');
+    this.logger.log('Attempting to start new event.');
     
+    const endDateObj: Date = new Date(endDate);
+    if (endDateObj < new Date(new Date().getTime() + (1000 * 60 * 30))) {
+      this.logger.warn(`Event end date is in the past, endDate: ${endDate}`);
+      throw new UnprocessableEntityException('Event end date is in the past and must be greater than 30 minutes from now');
+    }
+
+    this.logger.verbose(`checking if active event exists for guild: ${guildSId}, voiceChannelSId: ${voiceChannelSId}, organizer: ${organizerSId}`);
     const eventExists = await this.discordEventRepo.exist({
-      relations: {
-        botSettings: true,
-        organizer: true,
-        communityEvent: true,
-      },
       where: {
         botSettings: {
           guildSId: guildSId,
@@ -260,6 +263,7 @@ export class DiscordCommunityEventsManagementService {
     communnityEventId: string,
   ) {
     this.logger.log('Removing active events from cache');
+    await this.cacheManager.del(DISCORD_COMMUNITY_EVENTS_ACTIVE);
     await this.cacheManager.del(DISCORD_COMMUNITY_EVENTS_ACTIVE_ID(communnityEventId));
     await this.cacheManager.del(DISCORD_COMMUNITY_EVENTS_ACTIVE_GUILD(guildSId));
     await this.cacheManager.del(DISCORD_COMMUNITY_EVENTS_ACTIVE_VOICE_CHANNEL(voiceChannelSId));

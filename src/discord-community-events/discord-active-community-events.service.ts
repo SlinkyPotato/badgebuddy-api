@@ -6,7 +6,7 @@ import { DiscordCommunityEventsActiveByVoiceChannelGetRequestDto } from './dto/d
 import { DiscordCommunityEventsActiveByGuildAndOrganizerGetRequestDto } from './dto/discord-community-events-active-by-guild-and-organizer-get-request/discord-community-events-active-by-guild-and-organizer-get-request.dto';
 import { DiscordActiveCommunityEventDto, DiscordActiveCommunityEventsGetResponseDto } from './dto/active-community-events-get-response.dto';
 import { CommunityEventDiscordEntity } from '@badgebuddy/common';
-import { LessThan, Repository } from 'typeorm';
+import { MoreThan, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
@@ -27,11 +27,11 @@ export class DiscordActiveCommunityEventsService {
           communityEvent: true,
           botSettings: true,
         },
-        // where: {
-        //   communityEvent: {
-        //     endDate: LessThan(currentDate),
-        //   }
-        // }
+        where: {
+          communityEvent: {
+            endDate: MoreThan(currentDate),
+          }
+        }
       });
     } catch (e) {
       this.logger.error('Error getting all active events');
@@ -54,7 +54,7 @@ export class DiscordActiveCommunityEventsService {
         where: {
           communityEventId,
           communityEvent: {
-            endDate: LessThan(currentDate),
+            endDate: MoreThan(currentDate),
           }
         }
       });
@@ -83,7 +83,7 @@ export class DiscordActiveCommunityEventsService {
             guildSId: guildSId,
           },
           communityEvent: {
-            endDate: LessThan(currentDate),
+            endDate: MoreThan(currentDate),
           }
         }
       });
@@ -111,7 +111,7 @@ export class DiscordActiveCommunityEventsService {
             userSId: organizerSId,
           },
           communityEvent: {
-            endDate: LessThan(currentDate),
+            endDate: MoreThan(currentDate),
           }
         }
       });
@@ -136,7 +136,7 @@ export class DiscordActiveCommunityEventsService {
         where: {
           voiceChannelSId: voiceChannelSId,
           communityEvent: {
-            endDate: LessThan(currentDate),
+            endDate: MoreThan(currentDate),
           }
         }
       });
@@ -168,7 +168,7 @@ export class DiscordActiveCommunityEventsService {
             userSId: organizerSId,
           },
           communityEvent: {
-            endDate: LessThan(currentDate),
+            endDate: MoreThan(currentDate),
           }
         }
       });
@@ -184,10 +184,10 @@ export class DiscordActiveCommunityEventsService {
       return {
         id: event.id,
         title: event.communityEvent.title,
-        description: event.communityEvent.description,
+        description: event.communityEvent.description ?? undefined,
         guildSId: event.botSettings.guildSId,
         voiceChannelSId: event.voiceChannelSId,
-        organizerSId: event.organizerId,
+        organizerSId: event.organizer.userSId,
         startDate: event.communityEvent.startDate,
         endDate: event.communityEvent.endDate,
       }

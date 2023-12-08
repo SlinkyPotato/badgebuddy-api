@@ -38,7 +38,7 @@ export class DiscordCommunityEventsActiveController {
     return this.activeEventsService.getActiveEvents();
   }
 
-  @Get('id/:id')
+  @Get('id/:communityEventId')
   @ApiOperation({ summary: 'Retrieve active events by ID.' })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -48,6 +48,7 @@ export class DiscordCommunityEventsActiveController {
   getActiveEventsById(
     @Param() params: DiscordCommunityEventsActiveByIdGetRequestDto,
   ): Promise<DiscordActiveCommunityEventsGetResponseDto> {
+    console.log('called');
     return this.activeEventsService.getActiveEventsById(params);
   }
 
