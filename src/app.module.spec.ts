@@ -8,6 +8,10 @@ import {
 } from '@jest/globals';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppModule } from './app.module';
+import { AuthModule } from './auth/auth.module';
+import {
+  DiscordCommunityEventsModule
+} from './discord-community-events/discord-community-events.module';
 
 jest.mock('@badgebuddy/common', () => ({
   CommonConfigModule: {
@@ -28,6 +32,11 @@ jest.mock('@badgebuddy/common', () => ({
     }),
   },
   DiscordConfigModule: {
+    forRootAsync: jest.fn().mockImplementation(() => {
+      return Test.createTestingModule({});
+    }),
+  },
+  CommonTypeOrmModule: {
     forRootAsync: jest.fn().mockImplementation(() => {
       return Test.createTestingModule({});
     }),
@@ -71,12 +80,16 @@ jest.mock('@discord-nestjs/core', () => ({
   },
 }));
 
-jest.mock('./api/api.module', () => ({
-  ApiModule: jest.fn().mockReturnValue(Test.createTestingModule({})),
+jest.mock('./discord-bot/discord-bot.module', () => ({
+  DiscordBotModule: jest.fn().mockReturnValue(Test.createTestingModule({})),
 }));
 
-jest.mock('./discord-events/discord-events.module', () => ({
-  DiscordEventsModule: jest.fn().mockReturnValue(Test.createTestingModule({})),
+jest.mock('./discord-community-events/discord-community-events.module', () => ({
+  DiscordCommunityEventsModule: jest.fn().mockReturnValue(Test.createTestingModule({})),
+}));
+
+jest.mock('./auth/auth.module', () => ({
+  AuthModule: jest.fn().mockReturnValue(Test.createTestingModule({})),
 }));
 
 describe('AppModule', () => {

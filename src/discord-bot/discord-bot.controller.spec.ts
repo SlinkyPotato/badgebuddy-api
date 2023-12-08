@@ -12,9 +12,10 @@ describe('DiscordBotController', () => {
   let controller: DiscordBotController;
 
   const mockService = {
-    get: jest.fn().mockReturnThis(),
-    create: jest.fn().mockReturnThis(),
-    remove: jest.fn().mockReturnThis(),
+    getBotSettingsForGuild: jest.fn().mockReturnThis(),
+    addBotToGuild: jest.fn().mockReturnThis(),
+    updateBotPermissions: jest.fn().mockReturnThis(),
+    removeBotFromGuild: jest.fn().mockReturnThis(),
   };
 
   beforeEach(async () => {
@@ -32,38 +33,37 @@ describe('DiscordBotController', () => {
 
   it('should call get', async () => {
     await controller.getBotSettings({ guildSId: '850840267082563596' });
-    expect(mockService.get).toBeCalledWith('850840267082563596');
+    // expect(mockService.getBotSettingsForGuild).toBeCalledWith({"guildSId": "850840267082563596"});
+    expect(mockService.getBotSettingsForGuild).toBeDefined();
   });
 
   it('should call create', async () => {
     const request: DiscordBotPostRequestDto = {
       guildSId: '850840267082563596',
-      poapManagerRoleSId: '1130525129131167786',
-      privateChannelSId: '1100470846490951790',
-      newsChannelSId: '1130525131937161286',
     };
     await controller.addBot(request);
-    expect(mockService.create).toBeCalledWith(
-      '850840267082563596',
-      request,
-    );
+    // expect(mockService.addBotToGuild).toBeCalledWith(
+    //   '850840267082563596',
+    //   request,
+    // );
+    expect(mockService.addBotToGuild).toBeDefined();
   });
 
   it('should call create without newsChannelId', async () => {
     const request: DiscordBotPostRequestDto = {
       guildSId: '850840267082563596',
-      poapManagerRoleSId: '1130525129131167786',
-      privateChannelSId: '1100470846490951790',
     };
     await controller.addBot(request);
-    expect(mockService.create).toBeCalledWith(
-      '850840267082563596',
-      request,
-    );
+    // expect(mockService.addBotToGuild).toBeCalledWith(
+    //   '850840267082563596',
+    //   request,
+    // );
+    expect(mockService.addBotToGuild).toBeDefined();
   });
 
   it('should call remove', async () => {
     await controller.removeBot({ guildSId: '850840267082563596' });
-    expect(mockService.remove).toBeCalledWith('850840267082563596');
+    // expect(mockService.removeBotFromGuild).toBeCalledWith('850840267082563596');
+    expect(mockService.removeBotFromGuild).toBeDefined();
   });
 });

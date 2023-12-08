@@ -9,7 +9,7 @@ import {
 import { AuthModule } from './auth/auth.module';
 import { HealthModule } from './health/health.module';
 import { DiscordBotModule } from './discord-bot/discord-bot.module';
-import { DiscordCommunityEventModule } from './discord-community-events/discord-community-event.module';
+import { DiscordCommunityEventsModule } from './discord-community-events/discord-community-events.module';
 
 @Module({
   imports: [
@@ -21,7 +21,7 @@ import { DiscordCommunityEventModule } from './discord-community-events/discord-
     HealthModule,
     AuthModule,
     DiscordBotModule,
-    DiscordCommunityEventModule,
+    DiscordCommunityEventsModule,
   ],
 })
 export class AppModule { }

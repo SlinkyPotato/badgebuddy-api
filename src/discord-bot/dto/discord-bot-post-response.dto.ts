@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsUUID } from 'class-validator';
+import { IsOptional, IsString, IsUUID } from 'class-validator';
 
 export class DiscordBotPostResponseDto {
   @IsString()
@@ -8,4 +8,25 @@ export class DiscordBotPostResponseDto {
     description: 'ID of discord bot settings',
   })
   discordBotSettingsId: string;
+
+  @IsString()
+  @ApiProperty({
+    description: 'The snowflake ID of the poapManagerRoleSId'
+  })
+  poapManagerRoleSId: string;
+
+  @IsString()
+  @ApiProperty({
+    description: 'The snowflake ID of the privateChannelSId'
+  })
+  privateChannelSId: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    description: 'The snowflake ID of the newsChannelSId',
+    required: false,
+  })
+  newsChannelSId?: string;
+
 }

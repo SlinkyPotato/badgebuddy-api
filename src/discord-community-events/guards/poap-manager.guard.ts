@@ -26,7 +26,7 @@ export class PoapManagerGuard implements CanActivate {
 
   constructor(
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
-    @InjectRepository(DiscordBotSettingsEntity) private discordBotSetttingsRepo: Repository<DiscordBotSettingsEntity>,
+    @InjectRepository(DiscordBotSettingsEntity) private discordBotSettingsRepo: Repository<DiscordBotSettingsEntity>,
     @InjectDiscordClient() private readonly discordClient: Client,
     private readonly logger: Logger,
   ) { }
@@ -42,11 +42,11 @@ export class PoapManagerGuard implements CanActivate {
       );
       throw new BadRequestException('Missing guildSId or organizerSId');
     }
-  
+
     this.logger.log(
       `Checking auth request for guildSId: ${guildSId} and organizerSId: ${organizerSId}`
     );
-    
+
     let poapManagerRoleSId: string | undefined;
     const botSettingsCache = await this.getBotSettingsFromCache(guildSId);
     let botSettingsDb: DiscordBotSettingsEntity | null = null;
@@ -59,7 +59,7 @@ export class PoapManagerGuard implements CanActivate {
     if (!botSettingsCache) {
       this.logger.verbose(`Bot settings not found in cache for guildSId: ${guildSId}, attempting to pull from db`);
       botSettingsDb = await this.getBotSettingsFromDb(guildSId);
-      
+
       if (botSettingsDb) {
         poapManagerRoleSId = botSettingsDb.poapManagerRoleSId;
         this.logger.verbose(`poapManagerRoleSId found in db for guildSId: ${guildSId}, poapManagerRoleSId: ${poapManagerRoleSId}`);
@@ -73,7 +73,7 @@ export class PoapManagerGuard implements CanActivate {
       );
       return false;
     }
-    
+
     try {
       const guildMember = await this.fetchGuildMember(guildSId, organizerSId);
       this.logger.verbose(`Guild member found for guildSId: ${guildSId} and organizerSId: ${organizerSId}`);
@@ -121,7 +121,7 @@ export class PoapManagerGuard implements CanActivate {
   }
 
   private async getBotSettingsFromDb(guildSId: string) {
-    return await this.discordBotSetttingsRepo.findOne({
+    return await this.discordBotSettingsRepo.findOne({
       where: {
         guildSId: guildSId,
       },

@@ -34,4 +34,4 @@ import { DiscordCommunityEventsActiveController } from './discord-community-even
     PoapManagerGuard,
   ],
 })
-export class DiscordCommunityEventModule {}
+export class DiscordCommunityEventsModule {}

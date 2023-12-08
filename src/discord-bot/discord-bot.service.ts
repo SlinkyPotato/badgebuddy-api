@@ -7,8 +7,8 @@ import { DiscordBotPostRequestDto } from './dto/discord-bot-post-request.dto';
 import { InjectDiscordClient } from '@discord-nestjs/core';
 import { ChannelType, Client, Colors, Guild, NewsChannel, PermissionsBitField, Role, TextChannel } from 'discord.js';
 import { Cache } from 'cache-manager';
-import { 
-  DISCORD_BOT_SETTINGS, DISCORD_BOT_SETTINGS_GUILDSID, DISCORD_BOT_SETTINGS_REPOSITORY 
+import {
+  DISCORD_BOT_SETTINGS, DISCORD_BOT_SETTINGS_GUILDSID,
 } from '@badgebuddy/common';
 import { ConfigService } from '@nestjs/config';
 import { DiscordBotDeleteRequestDto } from './dto/discord-bot-delete-request.dto';
@@ -68,7 +68,7 @@ export class DiscordBotService {
     if (!result) {
       throw new NotFoundException('Guild not found');
     }
-    
+
     this.logger.log(`found bot settings from db, guildSId: ${guildSId}, botSettingsId: ${botSettingsId}`);
 
     return {
@@ -83,16 +83,13 @@ export class DiscordBotService {
 
   /**
    * Setup the discord bot in a guild
-   * 
+   *
    * @param guildSId guild snowflake ID
-   * @param poapManagerRoleSId poap manager role snowflake ID
-   * @param privateChannelSId private channel snowflake ID
-   * @param newsChannelSId news channel snowflake ID
-   * 
+   *
    * @returns Promise<DiscordBotPostResponseDto>
    */
   async addBotToGuild(
-    {guildSId}: DiscordBotPostRequestDto
+    { guildSId }: DiscordBotPostRequestDto
   ): Promise<DiscordBotPostResponseDto> {
     this.logger.log('starting discord bot setup process');
 
@@ -108,7 +105,7 @@ export class DiscordBotService {
     }
 
     const guild = await this.discordClient.guilds.fetch(guildSId);
-    
+
     const poapManagerRole: Role = await this.createPoapManagerRole(guild);
 
     await this.assignRoleToBot(guild, poapManagerRole);
@@ -122,7 +119,7 @@ export class DiscordBotService {
         this.logger.error(`failed to send news to channel, guildId: ${guild.id}, guildName: ${guild.name}`, err);
       });
     }
-    
+
     this.sendIntroductionToChannel(privateChannel, poapManagerRole).catch((err) => {
       this.logger.error(`failed to send introduction to private channel, guildId: ${guild.id}, guildName: ${guild.name}`, err);
     });
@@ -156,6 +153,9 @@ export class DiscordBotService {
     this.logger.log(`bot added to guild: ${guildSId}`);
     return {
       discordBotSettingsId: result.id,
+      poapManagerRoleSId: result.poapManagerRoleSId,
+      privateChannelSId: result.privateChannelSId,
+      newsChannelSId: result.newsChannelSId ?? undefined,
     };
   }
 
@@ -196,7 +196,7 @@ export class DiscordBotService {
     this.logger.verbose(`removing guild from cache: ${guildSId}`);
     await this.cacheManager.del(DISCORD_BOT_SETTINGS_GUILDSID(guildSId));
     this.logger.verbose(`removed guild from cache: ${guildSId}`);
-    
+
     this.logger.log(`removed bot settings: ${guildSId}`)
   }
 
@@ -312,7 +312,7 @@ export class DiscordBotService {
         `failed to create news channel, guildId: ${guild.id}, guildName: ${guild.name}`,
       );
     }
-  
+
   }
 
   private async sendNewsToChannel(announcementsChannel: NewsChannel) {
