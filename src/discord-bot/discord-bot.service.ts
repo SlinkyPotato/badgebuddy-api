@@ -23,13 +23,12 @@ export class DiscordBotService {
 
   private readonly allowedPermissions = [
     PermissionsBitField.Flags.ViewChannel,
-    PermissionsBitField.Flags.SendMessagesInThreads,
     PermissionsBitField.Flags.SendMessages,
-    PermissionsBitField.Flags.AttachFiles,
-    PermissionsBitField.Flags.CreatePrivateThreads,
     PermissionsBitField.Flags.ManageMessages,
-    PermissionsBitField.Flags.ManageThreads,
-    PermissionsBitField.Flags.UseApplicationCommands,
+    PermissionsBitField.Flags.EmbedLinks,
+    PermissionsBitField.Flags.AttachFiles,
+    PermissionsBitField.Flags.ReadMessageHistory,
+    PermissionsBitField.Flags.AddReactions,
   ] as const;
 
   constructor(
@@ -102,17 +101,19 @@ export class DiscordBotService {
         guildSId: guildSId,
       }
     });
-
+    this.logger.verbose(`checking if bot already exists in guild: ${guildSId}`);
     if (botSettings) {
       this.logger.warn(`discord bot already exists in guild: ${guildSId}`);
       throw new ConflictException('Discord bot already exists');
     }
-
+    this.logger.verbose(`discord bot does not exist, proceeding with setup`);
     const guild = await this.discordClient.guilds.fetch(guildSId);
 
     if (!guild.available) {
       throw new UnprocessableEntityException('Bot not available in guild');
     }
+
+    this.logger.verbose(`found guild in discord: ${guildSId}`);
 
     const poapManagerRole: Role = await this.createPoapManagerRole(guild);
 
