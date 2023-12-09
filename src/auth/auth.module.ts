@@ -36,6 +36,10 @@ import { HttpModule } from '@nestjs/axios';
     Logger,
     AuthService,
   ],
+  exports: [
+    AuthService,
+    JwtModule,
+  ]
 })
 export class AuthModule {
 

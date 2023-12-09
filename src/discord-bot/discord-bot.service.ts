@@ -8,7 +8,7 @@ import { InjectDiscordClient } from '@discord-nestjs/core';
 import { ApplicationCommandPermissionType, ChannelType, Client, Colors, Guild, NewsChannel, PermissionsBitField, Role, TextChannel } from 'discord.js';
 import { Cache } from 'cache-manager';
 import {
-  DISCORD_BOT_SETTINGS, DISCORD_BOT_SETTINGS_GUILDSID,
+  DISCORD_BOT_SETTINGS, DISCORD_BOT_SETTINGS_GUILDSID, TokenEntity,
 } from '@badgebuddy/common';
 import { ConfigService } from '@nestjs/config';
 import { DiscordBotDeleteRequestDto } from './dto/discord-bot-delete-request.dto';
@@ -16,7 +16,7 @@ import { DiscordBoSettingsGetRequestDto } from './dto/discord-bot-settings-get-r
 import { DiscordBotSettingsEntity } from '@badgebuddy/common/dist/common-typeorm/entities/discord/discord-bot-settings.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DiscordBotPermissionsPatchRequestDto } from './dto/discord-bot-permissions-patch-request/discord-bot-permissions-patch-request.dto';
-import { AuthService, UserToken } from 'src/auth/auth.service';
+import { AuthService, UserToken } from '@/auth/auth.service';
 
 @Injectable()
 export class DiscordBotService {
@@ -36,6 +36,7 @@ export class DiscordBotService {
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
     private readonly logger: Logger,
     @InjectRepository(DiscordBotSettingsEntity) private botSettingsRepo: Repository<DiscordBotSettingsEntity>,
+    @InjectRepository(TokenEntity) private tokenRepo: Repository<TokenEntity>,
     @InjectDiscordClient() private readonly discordClient: Client,
     private configService: ConfigService,
     private authService: AuthService,
@@ -109,6 +110,10 @@ export class DiscordBotService {
 
     const guild = await this.discordClient.guilds.fetch(guildSId);
 
+    if (!guild.available) {
+      throw new UnprocessableEntityException('Bot not available in guild');
+    }
+
     const poapManagerRole: Role = await this.createPoapManagerRole(guild);
 
     await this.assignRoleToBot(guild, poapManagerRole);
@@ -163,27 +168,83 @@ export class DiscordBotService {
   }
 
   async updateBotPermissions(userToken: string, { guildSId }: DiscordBotPermissionsPatchRequestDto) {
-    const decodedUserToken = this.authService.decodeTokenFromRawString<UserToken>(userToken);
-    decodedUserToken.userId
+    this.logger.log(`attemtping to update bot permissions for guild: ${guildSId}`);
 
-    const accessToken = 'XzlxYyqF522JoqqC9gjjYUkewM2XaS';
-    try {
-      (await this.discordClient.guilds.fetch(guildSId)).commands.permissions.set({
-        command: '1151499752651886652',
-        token: accessToken,
-        permissions: [
-          {
-            id: '159014522542096384',
-            type: ApplicationCommandPermissionType.User,
-            permission: true,
-          },
-        ],
-      });
-      console.log('successfully executed setting permissions');
-    } catch (e) {
-      console.error(e);
+    const botSettings = await this.botSettingsRepo.findOne({
+      where: {
+        guildSId: guildSId,
+      }
+    });
+
+    if (!botSettings) {
+      this.logger.warn(`discord bot does not exist in guild: ${guildSId}`);
+      throw new NotFoundException('Discord bot does not exist');
     }
-    throw new InternalServerErrorException('Method not implemented.');
+    this.logger.verbose(`found bot settings in db: ${guildSId}`);
+
+    const guild = await this.discordClient.guilds.fetch(guildSId);
+
+    if (!guild.available) {
+      throw new UnprocessableEntityException('Bot not available in guild');
+    }
+
+    this.logger.verbose(`found guild in discord: ${guildSId}`);
+
+    const decodedUserToken = this.authService.decodeTokenFromRawString<UserToken>(userToken);
+
+    this.logger.verbose(`decoded user token for userId: ${decodedUserToken.userId}`);
+
+    let storedToken: TokenEntity | null;
+    try {
+      storedToken = await this.tokenRepo.findOne({
+        relations: {
+          account: true,
+        },
+        where: {
+          type: 'access_token',
+          account: {
+            userId: decodedUserToken.userId,
+            provider: 'discord',
+          },
+        }
+      });
+      if (!storedToken) {
+        throw new NotFoundException('Token not found');
+      }
+    } catch (err) {
+      this.logger.error('failed to retrieve token from db', err);
+      throw new InternalServerErrorException('Failed to retrieve token');
+    }
+
+    this.logger.verbose(`found discord token in db for userId: ${decodedUserToken.userId}`);
+    const globalCommands = await this.discordClient.application!.commands.fetch();
+    this.logger.verbose(`found global commands in discord for userId: ${decodedUserToken.userId}`);
+    try {
+      for (const command of globalCommands.values()) {
+        if (command.name === ('start' || 'end' || 'distribute') ) {
+          await guild.commands.permissions.set({
+            command: command.id,
+            token: storedToken?.token,
+            permissions: [
+              {
+                id: guild.roles.everyone.id,
+                type: ApplicationCommandPermissionType.Role,
+                permission: false,
+              },
+              {
+                id: botSettings.poapManagerRoleSId,
+                type: ApplicationCommandPermissionType.Role,
+                permission: true,
+              },
+            ],
+          });
+        }
+      }
+    } catch (e) {
+      this.logger.error('failed to update bot permissions with discord api', e);
+      throw new InternalServerErrorException('Failed to update bot permissions');
+    }
+    this.logger.log(`successfully updated discord bot permissions for guild: ${guildSId}`);
   }
 
   /**
@@ -402,6 +463,4 @@ export class DiscordBotService {
         ],
       });
   }
-
-  private 
 }

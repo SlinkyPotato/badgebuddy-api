@@ -9,8 +9,8 @@ import { DiscordBotPostResponseDto } from './dto/discord-bot-post-response.dto';
 import { DiscordBotDeleteRequestDto } from './dto/discord-bot-delete-request.dto';
 import { DiscordBotPermissionsPatchRequestDto } from './dto/discord-bot-permissions-patch-request/discord-bot-permissions-patch-request.dto';
 import { Headers } from '@nestjs/common';
-import { UserTokenGuard } from 'src/auth/guards/user-token.guard';
-import { ProcessorTokenGuard } from 'src/auth/guards/processor-token/processor-token.guard';
+import { UserTokenGuard } from '@/auth/guards/user-token.guard';
+import { ProcessorTokenGuard } from '@/auth/guards/processor-token/processor-token.guard';
 @Controller('discord/bot')
 @ApiTags('Discord Bot')
 @UseInterceptors(CacheInterceptor)
