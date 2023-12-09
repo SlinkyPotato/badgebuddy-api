@@ -3,6 +3,8 @@ import { DiscordBotController } from './discord-bot.controller';
 import { DiscordBotService } from './discord-bot.service';
 import { describe, it, expect, beforeEach, jest } from '@jest/globals';
 import { DiscordBotPostRequestDto } from './dto/discord-bot-post-request.dto';
+import { JwtService } from '@nestjs/jwt';
+import { Logger } from '@nestjs/common';
 
 jest.mock('@nestjs/cache-manager', () => ({
   CacheInterceptor: jest.fn().mockImplementation(() => ({})),
@@ -21,7 +23,11 @@ describe('DiscordBotController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [DiscordBotController],
-      providers: [{ provide: DiscordBotService, useValue: mockService }],
+      providers: [
+        { provide: DiscordBotService, useValue: mockService },
+        { provide: JwtService, useValue: mockService },
+        { provide: Logger, useValue: mockService },
+      ],
     }).compile();
 
     controller = module.get<DiscordBotController>(DiscordBotController);

@@ -4,8 +4,9 @@ import { describe, it, jest, beforeEach, expect } from '@jest/globals';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { AuthService } from '@/auth/auth.service';
 
-describe('GuildService', () => {
+describe('DiscordBotService', () => {
   let service: DiscordBotService;
 
   const mockCacheManager = {
@@ -27,8 +28,11 @@ describe('GuildService', () => {
         { provide: CACHE_MANAGER, useValue: mockCacheManager },
         { provide: Logger, useValue: mockLogger },
         { provide: 'DiscordBotSettingsEntityRepository', useValue: jest.fn() },
+        { provide: 'TokenEntityRepository', useValue: jest.fn() },
         { provide: '__inject_discord_client__', useValue: jest.fn() },
         { provide: ConfigService, useValue: jest.fn() },
+        { provide: AuthService, useValue: jest.fn() },
+        
       ],
     }).compile();
 
