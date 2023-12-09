@@ -168,6 +168,14 @@ export class DiscordBotService {
     };
   }
 
+  /**
+   * Update the bot slash command permissions
+   * 
+   * This sets the permissions for the bot slash commands so that only 
+   * guild members with the poap manager role can use them
+   * @param userToken userAccessToken
+   * @param { guildSId } guild snowflake ID 
+   */
   async updateBotPermissions(userToken: string, { guildSId }: DiscordBotPermissionsPatchRequestDto) {
     this.logger.log(`attemtping to update bot permissions for guild: ${guildSId}`);
 
