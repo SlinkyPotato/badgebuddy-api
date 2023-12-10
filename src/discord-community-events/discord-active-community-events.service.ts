@@ -4,8 +4,7 @@ import { DiscordCommunityEventsActiveByGuildGetRequestDto } from './dto/discord-
 import { DiscordCommunityEventsActiveByOrganizerGetRequestDto } from './dto/discord-community-events-active-by-organizer-get-request/discord-community-events-active-by-organizer-get-request.dto';
 import { DiscordCommunityEventsActiveByVoiceChannelGetRequestDto } from './dto/discord-community-events-active-by-voice-channel-get-request/discord-community-events-active-by-voice-channel-get-request.dto';
 import { DiscordCommunityEventsActiveByGuildAndOrganizerGetRequestDto } from './dto/discord-community-events-active-by-guild-and-organizer-get-request/discord-community-events-active-by-guild-and-organizer-get-request.dto';
-import { DiscordActiveCommunityEventDto, DiscordActiveCommunityEventsGetResponseDto } from './dto/active-community-events-get-response.dto';
-import { CommunityEventDiscordEntity } from '@badgebuddy/common';
+import { CommunityEventDiscordEntity, DiscordActiveCommunityEventsGetResponseDto, DiscordActiveCommunityEventDto } from '@badgebuddy/common';
 import { MoreThan, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 

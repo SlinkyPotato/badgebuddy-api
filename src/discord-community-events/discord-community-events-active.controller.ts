@@ -13,9 +13,9 @@ import { DiscordCommunityEventsActiveByGuildGetRequestDto } from './dto/discord-
 import { DiscordCommunityEventsActiveByIdGetRequestDto } from './dto/discord-community-events-active-by-id-get-request/discord-community-events-active-by-id-get-request.dto';
 import { DiscordCommunityEventsActiveByVoiceChannelGetRequestDto } from './dto/discord-community-events-active-by-voice-channel-get-request/discord-community-events-active-by-voice-channel-get-request.dto';
 import { DiscordCommunityEventsActiveByGuildAndOrganizerGetRequestDto } from './dto/discord-community-events-active-by-guild-and-organizer-get-request/discord-community-events-active-by-guild-and-organizer-get-request.dto';
-import { DiscordActiveCommunityEventsGetResponseDto } from './dto/active-community-events-get-response.dto';
 import { DiscordActiveCommunityEventsService } from './discord-active-community-events.service';
 import { DiscordCommunityEventsActiveByOrganizerGetRequestDto } from './dto/discord-community-events-active-by-organizer-get-request/discord-community-events-active-by-organizer-get-request.dto';
+import { DiscordActiveCommunityEventsGetResponseDto } from '@badgebuddy/common';
 
 @Controller('discord/community-events/active')
 @ApiTags('Active Discord Community Events')
