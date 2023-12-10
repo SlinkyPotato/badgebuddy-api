@@ -11,7 +11,7 @@ import {
   DISCORD_COMMUNITY_EVENTS_ACTIVE_ID,
   DISCORD_COMMUNITY_EVENTS_ACTIVE_ORGANIZER,
   DISCORD_COMMUNITY_EVENTS_ACTIVE_VOICE_CHANNEL,
-  TRACKING_EVENTS_ACTIVE_VOICE_CHANNEL,
+  TRACKING_EVENTS_ACTIVE,
   DISCORD_COMMUNITY_EVENTS_QUEUE,
   DiscordUserEntity,
   DiscordBotSettingsEntity,
@@ -229,7 +229,7 @@ export class DiscordCommunityEventsManagementService {
     });
 
     this.logger.debug(`Removing active event from processor cache, eventId: ${discordEvent.communityEventId}, voiceChannelSId: ${voiceChannelSId}`)
-    await this.cacheManager.del(TRACKING_EVENTS_ACTIVE_VOICE_CHANNEL(voiceChannelSId));
+    await this.cacheManager.del(TRACKING_EVENTS_ACTIVE(voiceChannelSId));
     return {
       id: discordEvent.communityEventId,
       endDate: discordEvent.communityEvent.endDate.toISOString(),
@@ -267,9 +267,9 @@ export class DiscordCommunityEventsManagementService {
   private async addEventToCacheTracking(
     newEvent: CommunityEventDiscordEntity, voiceChannelSId: string, organizerSId: string, guildSId: string
   ): Promise<void> {
-    return this.cacheManager.set(TRACKING_EVENTS_ACTIVE_VOICE_CHANNEL(voiceChannelSId),
+    return this.cacheManager.set(TRACKING_EVENTS_ACTIVE(voiceChannelSId),
       {
-        id: newEvent.communityEventId,
+        communityEventId: newEvent.communityEventId,
         title: newEvent.communityEvent.title,
         description: newEvent.communityEvent.description,
         voiceChannelSId,

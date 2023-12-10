@@ -181,7 +181,7 @@ export class DiscordActiveCommunityEventsService {
   private mapEventToResponse(activeEvents: CommunityEventDiscordEntity[]): DiscordActiveCommunityEventsGetResponseDto {
     const events = activeEvents.map<DiscordActiveCommunityEventDto>((event) => {
       return {
-        id: event.id,
+        communityEventId: event.id,
         title: event.communityEvent.title,
         description: event.communityEvent.description ?? undefined,
         guildSId: event.botSettings.guildSId,
@@ -189,7 +189,7 @@ export class DiscordActiveCommunityEventsService {
         organizerSId: event.organizer.userSId,
         startDate: event.communityEvent.startDate,
         endDate: event.communityEvent.endDate,
-      }
+      } as DiscordActiveCommunityEventDto;
     });
     this.logger.log(`Found ${events.length} active events`);
     return {
