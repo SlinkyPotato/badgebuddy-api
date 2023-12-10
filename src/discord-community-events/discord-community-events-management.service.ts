@@ -155,23 +155,15 @@ export class DiscordCommunityEventsManagementService {
     });
 
     this.logger.verbose(`Adding active event to cache by voiceChannelSId: ${voiceChannelSId}`);
-    this.cacheManager.set(TRACKING_EVENTS_ACTIVE_VOICE_CHANNEL(voiceChannelSId),
-      {
-        id: newEvent.communityEventId,
-        title: newEvent.communityEvent.title,
-        description: newEvent.communityEvent.description,
-        voiceChannelSId,
-        organizerSId,
-        guildSId,
-        startDate: newEvent.communityEvent.startDate,
-        endDate: newEvent.communityEvent.endDate,
-      } as DiscordActiveCommunityEventDto,
-      0,
+
+    this.addEventToCacheTracking(
+      newEvent, voiceChannelSId, organizerSId, guildSId
     ).then(() => {
       this.logger.verbose(`Added active event to cache, eventId: ${newEvent.communityEventId}`);
     }).catch((e) => {
       this.logger.error(`Error adding active event to cache, eventId: ${newEvent.communityEventId}`, e);
     });
+
     return {
       communityEventId: newEvent.communityEventId,
       startDate: newEvent.communityEvent.startDate.toISOString(),
@@ -270,5 +262,23 @@ export class DiscordCommunityEventsManagementService {
     await this.cacheManager.del(DISCORD_COMMUNITY_EVENTS_ACTIVE_ORGANIZER(organizerSId));
     await this.cacheManager.del(DISCORD_COMMUNITY_EVENTS_ACTIVE_GUILD_ORGANIZER({ organizerSId, guildSId }));
     this.logger.log('Removed active event from cache');
+  }
+
+  private async addEventToCacheTracking(
+    newEvent: CommunityEventDiscordEntity, voiceChannelSId: string, organizerSId: string, guildSId: string
+  ): Promise<void> {
+    return this.cacheManager.set(TRACKING_EVENTS_ACTIVE_VOICE_CHANNEL(voiceChannelSId),
+      {
+        id: newEvent.communityEventId,
+        title: newEvent.communityEvent.title,
+        description: newEvent.communityEvent.description,
+        voiceChannelSId,
+        organizerSId,
+        guildSId,
+        startDate: newEvent.communityEvent.startDate,
+        endDate: newEvent.communityEvent.endDate,
+      } as DiscordActiveCommunityEventDto,
+      0
+    );
   }
 }
