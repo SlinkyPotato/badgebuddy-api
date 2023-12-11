@@ -9,8 +9,9 @@ import {
 import { AuthModule } from './auth/auth.module';
 import { HealthModule } from './health/health.module';
 import { DiscordBotModule } from './discord-bot/discord-bot.module';
-import { DiscordCommunityEventsModule } from './discord-community-events/discord-community-events.module';
 import Joi from 'joi';
+import { DiscordCommunityEventsActiveModule } from './discord-community-events-active/discord-community-events-active.module';
+import { DiscordCommunityEventsManageModule } from './discord-community-events-manage/discord-community-events-manage.module';
 
 @Module({
   imports: [
@@ -41,7 +42,8 @@ import Joi from 'joi';
     HealthModule,
     AuthModule,
     DiscordBotModule,
-    DiscordCommunityEventsModule,
+    DiscordCommunityEventsManageModule,
+    DiscordCommunityEventsActiveModule,
   ],
 })
 export class AppModule { }

@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CacheInterceptor } from '@nestjs/cache-manager';
-import { DiscordActiveCommunityEventsService } from './discord-active-community-events.service';
+import { DiscordCommunityEventsActiveService } from './discord-community-events-active.service';
 import { DiscordActiveCommunityEventsGetResponseDto } from '@badgebuddy/common';
 import {
   DiscordCommunityEventsActiveByIdGetRequestDto,
@@ -26,7 +26,7 @@ import {
 export class DiscordCommunityEventsActiveController {
 
   constructor(
-    private readonly activeEventsService: DiscordActiveCommunityEventsService,
+    private readonly activeEventsService: DiscordCommunityEventsActiveService,
   ) { }
 
   @Get()

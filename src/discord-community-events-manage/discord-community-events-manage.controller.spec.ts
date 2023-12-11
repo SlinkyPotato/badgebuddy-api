@@ -1,21 +1,21 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { DiscordCommunityEventsManagementController } from './discord-community-events-management.controller';
+import { DiscordCommunityEventsManageController } from './discord-community-events-manage.controller';
 import { describe, beforeEach, it, expect, jest } from '@jest/globals';
 import {
-  DiscordCommunityEventsManagementService
-} from './discord-community-events-management.service';
+  DiscordCommunityEventsManageService
+} from './discord-community-events-manage.service';
 import { PoapManagerGuard } from './guards/poap-manager.guard';
 import { Logger } from '@nestjs/common';
 
-describe('DiscordCommunityEventsManagementController', () => {
-  let controller: DiscordCommunityEventsManagementController;
+describe('DiscordCommunityEventsManageController', () => {
+  let controller: DiscordCommunityEventsManageController;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [DiscordCommunityEventsManagementController],
+      controllers: [DiscordCommunityEventsManageController],
       providers: [
         { provide: PoapManagerGuard, useValue: jest.fn() },
-        { provide: DiscordCommunityEventsManagementService, useValue: jest.fn() },
+        { provide: DiscordCommunityEventsManageService, useValue: jest.fn() },
         { provide: 'CACHE_MANAGER', useValue: jest.fn() },
         { provide: '__inject_discord_client__', useValue: jest.fn() },
         { provide: Logger, useValue: jest.fn() },
@@ -23,7 +23,7 @@ describe('DiscordCommunityEventsManagementController', () => {
       ]
     }).compile();
 
-    controller = module.get<DiscordCommunityEventsManagementController>(DiscordCommunityEventsManagementController);
+    controller = module.get<DiscordCommunityEventsManageController>(DiscordCommunityEventsManageController);
   });
 
   it('should be defined', () => {

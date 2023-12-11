@@ -1,7 +1,7 @@
 import { Body, Controller, HttpStatus, Patch, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
 import { Post } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { DiscordCommunityEventsManagementService } from './discord-community-events-management.service';
+import { DiscordCommunityEventsManageService } from './discord-community-events-manage.service';
 import { PoapManagerGuard } from './guards/poap-manager.guard';
 import {
   DiscordCommunityEventPostResponseDto,
@@ -9,15 +9,17 @@ import {
   DiscordCommunityEventPatchResponseDto,
   DiscordCommunityEventPatchRequestDto
 } from '@badgebuddy/common';
+import { DiscordBotTokenGuard } from '@/auth/guards/discord-bot-token/discord-bot-token.guard';
+import { UserTokenGuard } from '@/auth/guards/user-token/user-token.guard';
 
 @Controller('discord/community-events/manage')
 @ApiTags('Discord Community Events Management')
 @UsePipes(ValidationPipe)
-@UseGuards(PoapManagerGuard)
-export class DiscordCommunityEventsManagementController {
+@UseGuards((DiscordBotTokenGuard || UserTokenGuard), PoapManagerGuard)
+export class DiscordCommunityEventsManageController {
 
   constructor(
-    private readonly managementService: DiscordCommunityEventsManagementService
+    private readonly discordCommunityEventsManageService: DiscordCommunityEventsManageService
   ) { }
   
   @Post()
@@ -34,7 +36,7 @@ export class DiscordCommunityEventsManagementController {
   startEvent(
     @Body() request: DiscordCommunityEventPostRequestDto
   ): Promise<DiscordCommunityEventPostResponseDto> {
-    return this.managementService.startEvent(request);
+    return this.discordCommunityEventsManageService.startEvent(request);
   }
 
   @Patch()
@@ -55,7 +57,7 @@ export class DiscordCommunityEventsManagementController {
   stopEvent(
     @Body() request: DiscordCommunityEventPatchRequestDto
   ): Promise<DiscordCommunityEventPatchResponseDto> {
-    return this.managementService.stopEvent(request);
+    return this.discordCommunityEventsManageService.stopEvent(request);
   }
 
 }

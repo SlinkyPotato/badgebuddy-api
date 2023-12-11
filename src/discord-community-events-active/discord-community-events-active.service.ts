@@ -11,7 +11,7 @@ import {
 } from '@badgebuddy/common';
 
 @Injectable()
-export class DiscordActiveCommunityEventsService {
+export class DiscordCommunityEventsActiveService {
 
   constructor(
     @InjectRepository(CommunityEventDiscordEntity) private communityEventRepo: Repository<CommunityEventDiscordEntity>,

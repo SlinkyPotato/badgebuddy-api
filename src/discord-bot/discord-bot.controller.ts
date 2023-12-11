@@ -3,8 +3,7 @@ import { DiscordBotService } from './discord-bot.service';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CacheInterceptor } from '@nestjs/cache-manager';
 import { Headers } from '@nestjs/common';
-import { UserTokenGuard } from '@/auth/guards/user-token.guard';
-import { ProcessorTokenGuard } from '@/auth/guards/processor-token/processor-token.guard';
+import { UserTokenGuard } from '@/auth/guards/user-token/user-token.guard';
 import {
   DiscordBotSettingsGetResponseDto,
   DiscordBoSettingsGetRequestDto,
@@ -14,18 +13,18 @@ import {
   DiscordBotDeleteRequestDto
 } from '@badgebuddy/common';
 
-
 @Controller('discord/bot')
 @ApiTags('Discord Bot')
 @UseInterceptors(CacheInterceptor)
 @UsePipes(ValidationPipe)
 export class DiscordBotController {
+  
   constructor(
     private readonly discordBotService: DiscordBotService
   ) {}
 
   @Get('settings')
-  @UseGuards(UserTokenGuard || ProcessorTokenGuard)
+  @UseGuards(UserTokenGuard)
   @ApiOperation({ summary: 'Retrieve discord bot settings by guildSId' })
   @ApiResponse({
     status: HttpStatus.FOUND,
@@ -43,7 +42,7 @@ export class DiscordBotController {
   }
 
   @Post()
-  @UseGuards(ProcessorTokenGuard)
+  @UseGuards(UserTokenGuard)
   @ApiOperation({ summary: 'Add discord bot to guild' })
   @ApiResponse({
     status: HttpStatus.CREATED,
@@ -79,8 +78,8 @@ export class DiscordBotController {
     return this.discordBotService.updateBotPermissions(userToken, request);
   }
 
+  // TODO: add admin guard
   @Delete()
-  @UseGuards(ProcessorTokenGuard)
   @ApiOperation({ summary: 'Remove a guild by guildSId.' })
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiResponse({ status: HttpStatus.NO_CONTENT, description: 'Guild removed' })

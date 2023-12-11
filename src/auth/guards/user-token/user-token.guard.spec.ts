@@ -1,12 +1,11 @@
-import { describe, it, expect, beforeEach, jest } from '@jest/globals';
-import { ClientTokenGuard } from './client-token.guard';
-import { Logger } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
+import { UserTokenGuard } from '../user-token/user-token.guard';
+import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { Test } from '@nestjs/testing';
+import { JwtService } from '@nestjs/jwt';
+import { Logger } from '@nestjs/common';
 
-describe('ClientTokenGuard', () => {
-  let guard: ClientTokenGuard;
-
+describe('UserTokenGuard', () => {
+  let guard: UserTokenGuard;
   const mockJwtService = {
     verify: jest.fn(),
   };
@@ -18,7 +17,7 @@ describe('ClientTokenGuard', () => {
   beforeEach(async () => {
     const module = await Test.createTestingModule({
       providers: [
-        ClientTokenGuard,
+        UserTokenGuard,
         {
           provide: JwtService,
           useValue: mockJwtService,
@@ -30,8 +29,8 @@ describe('ClientTokenGuard', () => {
       ],
     }).compile();
 
-    guard = module.get<ClientTokenGuard>(ClientTokenGuard);
-  })
+    guard = module.get<UserTokenGuard>(UserTokenGuard);
+  });
 
   it('should be defined', () => {
     expect(guard).toBeDefined();

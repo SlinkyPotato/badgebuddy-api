@@ -30,7 +30,8 @@ import { InjectDiscordClient } from '@discord-nestjs/core';
 import { Client } from 'discord.js';
 
 @Injectable()
-export class DiscordCommunityEventsManagementService {
+export class DiscordCommunityEventsManageService {
+  
   constructor(
     private readonly logger: Logger,
     @InjectRepository(CommunityEventDiscordEntity) private discordEventRepo: Repository<CommunityEventDiscordEntity>,
@@ -173,17 +174,23 @@ export class DiscordCommunityEventsManagementService {
     };
   }
 
+  /**
+   * Ends the community event
+   * @param guildSId
+   * @param organizerSId
+   * @param voiceChannelSId 
+   * @returns 
+   */
   async stopEvent(
-    {guildSId, organizerSId, voiceChannelSId}: DiscordCommunityEventPatchRequestDto,
+    {guildSId, voiceChannelSId}: DiscordCommunityEventPatchRequestDto,
   ): Promise<DiscordCommunityEventPatchResponseDto> {
     this.logger.log(
-      `Stopping event for guildSId: ${guildSId}, voiceChannelSId: ${voiceChannelSId}, organizerSId: ${organizerSId}`,
+      `Stopping event for guildSId: ${guildSId}, voiceChannelSId: ${voiceChannelSId}`,
     );
 
     let discordEvent = await this.discordEventRepo.findOne({
       relations: {
         botSettings: true,
-        organizer: true,
         communityEvent: true,
       },
       where: {
@@ -191,9 +198,6 @@ export class DiscordCommunityEventsManagementService {
           guildSId: guildSId,
         },
         voiceChannelSId: voiceChannelSId,
-        organizer: {
-          userSId: organizerSId,
-        },
         communityEvent: {
           endDate: MoreThan(new Date()),
         },
@@ -208,7 +212,7 @@ export class DiscordCommunityEventsManagementService {
     try {
       discordEvent = await this.discordEventRepo.save(discordEvent);
     } catch (error) {
-      this.logger.error(`Error saving event for guildSId: ${guildSId}, voiceChannelSId: ${voiceChannelSId}, organizerId: ${organizerSId}`);
+      this.logger.error(`Error saving event for guildSId: ${guildSId}, voiceChannelSId: ${voiceChannelSId}`);
       throw new InternalServerErrorException('Failed to update event');
     }
 
@@ -234,7 +238,11 @@ export class DiscordCommunityEventsManagementService {
     await this.cacheManager.del(TRACKING_EVENTS_ACTIVE(voiceChannelSId));
     return {
       communityEventId: discordEvent.communityEventId,
+      title: discordEvent.communityEvent.title,
+      description: discordEvent.communityEvent.description,
       endDate: discordEvent.communityEvent.endDate.toISOString(),
+      organizerUsername: discordEvent.organizer.username,
+      startDate: discordEvent.communityEvent.startDate.toISOString(),
     };
   }
 

@@ -1,0 +1,1 @@
+export const ENV_AUTH_ALLOWED_CLIENT_IDS = 'AUTH_ALLOWED_CLIENT_IDS' as const;

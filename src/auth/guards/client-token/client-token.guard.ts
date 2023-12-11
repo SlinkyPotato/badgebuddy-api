@@ -7,13 +7,17 @@ import {
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { JwtService } from '@nestjs/jwt';
+import { AccessTokenDto } from '@badgebuddy/common';
+import { ConfigService } from '@nestjs/config';
+import { ENV_AUTH_ALLOWED_CLIENT_IDS } from '@/app.constants';
 
 @Injectable()
 export class ClientTokenGuard implements CanActivate {
 
   constructor(
-    private jwtService: JwtService,
-    private logger: Logger,
+    private readonly jwtService: JwtService,
+    private readonly logger: Logger,
+    private readonly configService: ConfigService,
   ) {}
 
   canActivate(
@@ -37,12 +41,17 @@ export class ClientTokenGuard implements CanActivate {
       throw new UnauthorizedException();
     }
     try {
-      const decoded = this.jwtService.verify(accessToken);
+      const decoded: AccessTokenDto = this.jwtService.verify<AccessTokenDto>(accessToken);
       if (!decoded || !decoded.sessionId) {
         throw new UnauthorizedException();
       }
+      const allowedClients = this.configService.get<string>(ENV_AUTH_ALLOWED_CLIENT_IDS)?.split(',') ?? [];
+      if (!allowedClients.includes(decoded.sub)) {
+        this.logger.warn('Unauthorized client tried to access the API');
+        return false;
+      }
     } catch (error) {
-      this.logger.warn('Invalid access token');
+      this.logger.warn('Invalid client token');
       throw new UnauthorizedException();
     }
     return true;

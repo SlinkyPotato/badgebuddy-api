@@ -1,15 +1,15 @@
 import { CanActivate, ExecutionContext, Injectable, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Observable } from 'rxjs';
-import type { UserToken } from '../auth.service';
+import { UserToken } from '../../auth.service';
 
 @Injectable()
-export class UserTokenGuard implements CanActivate {
+export class UserTokenNoVerifyGuard implements CanActivate {
 
   constructor(
-    private jwtService: JwtService,
-    private logger: Logger,
-  ) {}
+    private readonly jwtService: JwtService,
+    private readonly logger: Logger,
+  ) { }
 
   canActivate(
     context: ExecutionContext,
@@ -32,7 +32,7 @@ export class UserTokenGuard implements CanActivate {
       return false;
     }
     try {
-      const decodedAccessToken: UserToken = this.jwtService.verify<UserToken>(accessToken);
+      const decodedAccessToken: UserToken = this.jwtService.decode<UserToken>(accessToken);
       if (!decodedAccessToken.userId) {
         this.logger.warn('Invalid access token');
         return false;

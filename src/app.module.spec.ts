@@ -10,8 +10,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AppModule } from './app.module';
 import { AuthModule } from './auth/auth.module';
 import {
-  DiscordCommunityEventsModule
-} from './discord-community-events/discord-community-events.module';
+  DiscordCommunityEventsManageModule
+} from './discord-community-events/discord-community-events-manage.module';
 
 jest.mock('@badgebuddy/common', () => ({
   CommonConfigModule: {

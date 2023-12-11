@@ -2,13 +2,13 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AuthController } from './auth.controller';
 import { describe, beforeEach, it, expect, jest } from '@jest/globals';
 import { AuthService } from './auth.service';
-import { ClientIdGuard } from './guards/client-id.guard';
+import { ClientIdGuard } from './guards/client-id/client-id.guard';
 import { EmailCodePipe } from './pipes/email-code.pipe';
-import { ClientTokenGuard } from './guards/client-token.guard';
+import { ClientTokenGuard } from './guards/client-token/client-token.guard';
 import { ConfigService } from '@nestjs/config';
 import {
   UserTokenNoVerifyGuard
-} from './guards/user-token-guard-no-verify.guard';
+} from './guards/user-token-no-verify/user-token-guard-no-verify.guard';
 import { Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 

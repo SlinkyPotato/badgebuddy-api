@@ -14,9 +14,9 @@ import {
   ApiResponse,
   ApiTags
 } from '@nestjs/swagger';
-import { ClientTokenGuard } from './guards/client-token.guard';
-import { ClientIdGuard } from './guards/client-id.guard';
-import { UserTokenNoVerifyGuard } from './guards/user-token-guard-no-verify.guard';
+import { ClientTokenGuard } from './guards/client-token/client-token.guard';
+import { ClientIdGuard } from './guards/client-id/client-id.guard';
+import { UserTokenNoVerifyGuard } from './guards/user-token-no-verify/user-token-guard-no-verify.guard';
 import { EmailCode, EmailCodePipe } from './pipes/email-code.pipe';
 import { AuthService } from './auth.service';
 import { AuthorizeGetRequestDto } from './dto/authorize-get-request/authorize-get-request.dto';

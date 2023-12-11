@@ -623,7 +623,8 @@ export class AuthService {
   }
 
   private getLoginResponse(
-    user: UserEntity, accessToken: string, refreshToken: string): { user: any, accessToken: {token: string, type: string, expiresIn: number}, refreshToken: {token: string, type: string, expiresIn: number} } {
+    user: UserEntity, accessToken: string, refreshToken: string
+  ): { user: any, accessToken: {token: string, type: string, expiresIn: number}, refreshToken: {token: string, type: string, expiresIn: number} } {
     return {
       user: {
         id: user.id,
