@@ -13,7 +13,7 @@ import crypto from 'crypto';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import {
-  DataSource, InsertResult,
+  DataSource, InsertResult, Repository,
 } from 'typeorm';
 import {
   AUTH_EMAIL_VERIFY,
@@ -52,6 +52,7 @@ import { LoginDiscordPostResponseDto } from './dto/login-discord-post-response/l
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import qs from 'qs';
+import { InjectRepository } from '@nestjs/typeorm';
 
 type RedisAuthCode = {
   codeChannelMethod: string;
@@ -84,6 +85,7 @@ export class AuthService {
     private readonly configService: ConfigService,
     private dataSource: DataSource,
     private readonly httpService: HttpService,
+    @InjectRepository(TokenEntity) private readonly tokenRepository: Repository<TokenEntity>,
   ) {
     this.transporter = nodemailer.createTransport({
       host: this.configService.get<string>('MAIL_HOST'),
@@ -458,7 +460,7 @@ export class AuthService {
     const user = await this.getOrInsertUser(idToken.email.trim());
     const account = await this.insertAccountForUser(user.id, idToken.sub, 'google');
     
-    this.insertTokenForAccount(account.id, tokenResult.tokens.id_token!, 'id_token', idToken.exp, tokenResult.tokens.scope)
+    this.upsertTokenForAccount(account.id, tokenResult.tokens.id_token!, 'id_token', idToken.exp, tokenResult.tokens.scope)
       .catch((error) => {
         this.logger.error(`Failed to insert id_token for ${user.id}`, error);
       });
@@ -470,12 +472,12 @@ export class AuthService {
   }
 
   async loginDiscord(clientToken: string, {authCode, state}: LoginDiscordPostRequestDto): Promise<LoginDiscordPostResponseDto> {
-    this.logger.debug(`Attempting to login user with discord`);
+    this.logger.log(`Attempting to login user with discord`);
     
     const resultFromHeader = this.getTokenFromHeader(clientToken);
     const decodedClientToken = this.decodeToken<AccessToken>(resultFromHeader);
     const sessionId = decodedClientToken.sessionId;
-    this.logger.debug(`processing session ${sessionId} for discord login attempt`);
+    this.logger.verbose(`processing session ${sessionId} for discord login attempt`);
 
     if (!sessionId) {
       this.logger.warn(`Session id not used in request for ${sessionId}`)
@@ -493,7 +495,7 @@ export class AuthService {
       this.logger.warn(`State invalid for ${sessionId}`)
       throw new UnauthorizedException('State invalid');
     }
-    this.logger.debug(`found valid state ${storedState} for discord login attempt`)
+    this.logger.verbose(`found valid state ${storedState} for discord login attempt`)
 
     type DiscordToken = {
       token_type: string,
@@ -564,8 +566,8 @@ export class AuthService {
     const user = await this.getOrInsertUser(discordProfile.email);
     const account = await this.insertAccountForUser(user.id, discordProfile.id, 'discord');
     
-    this.insertTokenForAccount(account.id, discordToken.access_token!, 'access_token', discordToken.expires_in, discordToken.scope).catch((error) => {this.logger.error(`Failed to insert access_token for ${user.id}`, error);});
-    this.insertTokenForAccount(account.id, discordToken.refresh_token!, 'refresh_token', undefined, discordToken.scope).catch((error) => {this.logger.error(`Failed to insert refresh_token for ${user.id}`, error);});
+    this.upsertTokenForAccount(account.id, discordToken.access_token!, 'access_token', discordToken.expires_in, discordToken.scope).catch((error) => {this.logger.error(`Failed to insert access_token for ${user.id}`, error);});
+    this.upsertTokenForAccount(account.id, discordToken.refresh_token!, 'refresh_token', undefined, discordToken.scope).catch((error) => {this.logger.error(`Failed to insert refresh_token for ${user.id}`, error);});
 
     try {
       const idToken = this.jwtService.sign(discordProfile, {
@@ -573,14 +575,14 @@ export class AuthService {
         subject: discordProfile.id,
       });
       const sevenDaysTimestamp = (7 * 24 * 60 * 60 * 1000);
-      this.insertTokenForAccount(account.id, idToken, 'id_token', sevenDaysTimestamp).catch((error) => {this.logger.error(`Failed to insert id_token for ${user.id}`, error);});
+      this.upsertTokenForAccount(account.id, idToken, 'id_token', sevenDaysTimestamp).catch((error) => {this.logger.error(`Failed to insert id_token for ${user.id}`, error);});
     } catch(error) {
       this.logger.error(`Failed to sign id_token for ${user.id}`, error);
     }
     
     const { accessToken, refreshToken } = this.generateTokens(decodedClientToken.sub, user.id);
     
-    this.logger.debug(`Logged in user ${sessionId}`);
+    this.logger.log(`Logged in user ${sessionId}`);
     return this.getLoginResponse(user, accessToken, refreshToken);
   }
 
@@ -676,24 +678,20 @@ export class AuthService {
     return account;
   }
 
-  private async insertTokenForAccount(
+  private async upsertTokenForAccount(
     accountId: string, token: string, tokenType: TokenType, exp?: number, scope?: string
-  ): Promise<InsertResult> {
-    this.logger.debug(`Attempting to insert token ${tokenType}`);
+  ): Promise<TokenEntity> {
     try {
-      const promise = await this.dataSource.createQueryBuilder()
-      .insert()
-      .into(TokenEntity)
-      .values({
+      this.logger.debug(`Attempting to insert token ${tokenType}`);
+      const result = await this.tokenRepository.save<TokenEntity>({
         accountId: accountId,
         expiresOn: exp ? new Date(new Date().getTime() + exp) : undefined,
         scope: scope,
         token: token,
         type: tokenType
-      })
-      .execute();
-      this.logger.debug(`Inserted token ${tokenType}`);
-      return promise;
+      });
+      this.logger.verbose(`Upserted token ${tokenType} for account ${accountId}`);
+      return result;
     } catch (error) {
       this.logger.error(`Failed to insert ${tokenType} for account`, error);
       throw new InternalServerErrorException('Failed to insert token');

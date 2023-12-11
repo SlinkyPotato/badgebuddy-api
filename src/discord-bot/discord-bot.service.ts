@@ -18,6 +18,7 @@ import {
   DiscordBotPostResponseDto,
   DiscordBotPermissionsPatchRequestDto,
   DiscordBotDeleteRequestDto,
+  DiscordUserEntity,
 } from '@badgebuddy/common';
 
 @Injectable()
@@ -146,7 +147,6 @@ export class DiscordBotService {
     const newBotSettings: DiscordBotSettingsEntity = {
       guildSId,
       name: discordGuild.name,
-      ownerSid: discordGuild.ownerId,
       description: discordGuild.description ?? undefined,
       poapManagerRoleSId: poapManagerRole.id,
       privateChannelSId: privateChannel.id,
@@ -191,7 +191,7 @@ export class DiscordBotService {
       this.logger.warn(`discord bot does not exist in guild: ${guildSId}`);
       throw new NotFoundException('Discord bot does not exist');
     }
-    this.logger.verbose(`found bot settings in db: ${guildSId}`);
+    this.logger.verbose(`found bot settings ${botSettings.id}, for guildSId: ${guildSId}`);
 
     const guild = await this.discordClient.guilds.fetch(guildSId);
 
@@ -199,7 +199,7 @@ export class DiscordBotService {
       throw new UnprocessableEntityException('Bot not available in guild');
     }
 
-    this.logger.verbose(`found guild in discord: ${guildSId}`);
+    this.logger.verbose(`found guild in discord, guildSId: ${guildSId}`);
 
     const decodedUserToken = this.authService.decodeTokenFromRawString<UserToken>(userToken);
 
@@ -230,9 +230,10 @@ export class DiscordBotService {
     this.logger.verbose(`found discord token in db for userId: ${decodedUserToken.userId}`);
     const globalCommands = await this.discordClient.application!.commands.fetch();
     this.logger.verbose(`found global commands in discord for userId: ${decodedUserToken.userId}`);
+    const botCommands: string[] = ['start-event', 'end-event', 'distribute-poaps'] as const;
     try {
-      for (const command of globalCommands.values()) {
-        if (command.name === ('start-event' || 'end-event' || 'distribute-poaps') ) {
+      for await (const command of globalCommands.values()) {
+        if (botCommands.includes(command.name)) {
           await guild.commands.permissions.set({
             command: command.id,
             token: storedToken?.token,
@@ -251,11 +252,11 @@ export class DiscordBotService {
           });
         }
       }
+      this.logger.log(`successfully updated discord bot permissions for guild: ${guildSId}`);
     } catch (e) {
       this.logger.error('failed to update bot permissions with discord api', e);
       throw new InternalServerErrorException('Failed to update bot permissions');
     }
-    this.logger.log(`successfully updated discord bot permissions for guild: ${guildSId}`);
   }
 
   /**

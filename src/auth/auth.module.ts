@@ -4,6 +4,8 @@ import { AuthService } from './auth.service';
 import { JwtModule } from '@nestjs/jwt';
 import { HttpModule } from '@nestjs/axios';
 import { ConfigModule } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { TokenEntity } from '@badgebuddy/common';
 
 @Module({
   imports: [
@@ -15,7 +17,10 @@ import { ConfigModule } from '@nestjs/config';
         issuer: process.env.AUTH_ISSUER,
       },
     }),
-    HttpModule
+    HttpModule,
+    TypeOrmModule.forFeature([
+      TokenEntity
+    ])
   ],
   controllers: [AuthController],
   providers: [

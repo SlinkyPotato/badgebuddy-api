@@ -233,7 +233,7 @@ export class DiscordCommunityEventsManagementService {
     this.logger.debug(`Removing active event from processor cache, eventId: ${discordEvent.communityEventId}, voiceChannelSId: ${voiceChannelSId}`)
     await this.cacheManager.del(TRACKING_EVENTS_ACTIVE(voiceChannelSId));
     return {
-      id: discordEvent.communityEventId,
+      communityEventId: discordEvent.communityEventId,
       endDate: discordEvent.communityEvent.endDate.toISOString(),
     };
   }
