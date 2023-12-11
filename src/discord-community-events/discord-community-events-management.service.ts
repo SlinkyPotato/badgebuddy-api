@@ -19,10 +19,12 @@ import {
   DiscordActiveCommunityEventDto,
 } from '@badgebuddy/common';
 import { MoreThan, Repository } from 'typeorm';
-import { DiscordCommunityEventPostRequestDto } from './dto/discord-community-event-post-request/discord-community-event-post-request.dto';
-import { DiscordCommunityEventPostResponseDto } from './dto/discord-community-event-post-response/discord-community-event-post-response.dto';
-import { DiscordCommunityEventPatchRequestDto } from './dto/discord-community-event-patch-request/discord-community-event-patch-request.dto';
-import { DiscordCommunityEventPatchResponseDto } from './dto/discord-community-event-patch-response/discord-community-event-patch-response.dto';
+import { 
+  DiscordCommunityEventPostRequestDto,
+  DiscordCommunityEventPostResponseDto,
+  DiscordCommunityEventPatchRequestDto,
+  DiscordCommunityEventPatchResponseDto
+} from '@badgebuddy/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { InjectDiscordClient } from '@discord-nestjs/core';
 import { Client } from 'discord.js';

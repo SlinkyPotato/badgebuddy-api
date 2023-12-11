@@ -1,9 +1,6 @@
 import { ConflictException, Inject, Injectable, InternalServerErrorException, Logger, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
-import { DiscordBotSettingsGetResponseDto } from './dto/discord-bot-settings-get-response.dto';
 import { Repository } from 'typeorm';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { DiscordBotPostResponseDto } from './dto/discord-bot-post-response.dto';
-import { DiscordBotPostRequestDto } from './dto/discord-bot-post-request.dto';
 import { InjectDiscordClient } from '@discord-nestjs/core';
 import { ApplicationCommandPermissionType, ChannelType, Client, Colors, Guild, NewsChannel, PermissionsBitField, Role, TextChannel } from 'discord.js';
 import { Cache } from 'cache-manager';
@@ -11,12 +8,17 @@ import {
   DISCORD_BOT_SETTINGS, DISCORD_BOT_SETTINGS_GUILDSID, TokenEntity,
 } from '@badgebuddy/common';
 import { ConfigService } from '@nestjs/config';
-import { DiscordBotDeleteRequestDto } from './dto/discord-bot-delete-request.dto';
-import { DiscordBoSettingsGetRequestDto } from './dto/discord-bot-settings-get-request.dto';
 import { DiscordBotSettingsEntity } from '@badgebuddy/common/dist/common-typeorm/entities/discord/discord-bot-settings.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DiscordBotPermissionsPatchRequestDto } from './dto/discord-bot-permissions-patch-request/discord-bot-permissions-patch-request.dto';
 import { AuthService, UserToken } from '@/auth/auth.service';
+import {
+  DiscordBoSettingsGetRequestDto,
+  DiscordBotSettingsGetResponseDto,
+  DiscordBotPostRequestDto,
+  DiscordBotPostResponseDto,
+  DiscordBotPermissionsPatchRequestDto,
+  DiscordBotDeleteRequestDto,
+} from '@badgebuddy/common';
 
 @Injectable()
 export class DiscordBotService {

@@ -12,8 +12,10 @@ import { InjectDiscordClient } from '@discord-nestjs/core';
 import { Client, GuildMember } from 'discord.js';
 import { DISCORD_BOT_SETTINGS_GUILDSID } from '@badgebuddy/common';
 import { Repository } from 'typeorm';
-import { CommonManagementRequestDto } from '../dto/common-management-request.dto';
-import { DiscordBotSettingsGetResponseDto } from 'src/discord-bot/dto/discord-bot-settings-get-response.dto';
+import {
+  CommonManagementRequestDto,
+  DiscordBotSettingsGetResponseDto,
+} from '@badgebuddy/common';
 import { DiscordBotSettingsEntity } from '@badgebuddy/common/dist/common-typeorm/entities/discord/discord-bot-settings.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 

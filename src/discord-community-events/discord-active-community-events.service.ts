@@ -1,12 +1,14 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { DiscordCommunityEventsActiveByIdGetRequestDto } from './dto/discord-community-events-active-by-id-get-request/discord-community-events-active-by-id-get-request.dto';
-import { DiscordCommunityEventsActiveByGuildGetRequestDto } from './dto/discord-community-events-active-by-guild-get-request/discord-community-events-active-by-guild-get-request.dto';
-import { DiscordCommunityEventsActiveByOrganizerGetRequestDto } from './dto/discord-community-events-active-by-organizer-get-request/discord-community-events-active-by-organizer-get-request.dto';
-import { DiscordCommunityEventsActiveByVoiceChannelGetRequestDto } from './dto/discord-community-events-active-by-voice-channel-get-request/discord-community-events-active-by-voice-channel-get-request.dto';
-import { DiscordCommunityEventsActiveByGuildAndOrganizerGetRequestDto } from './dto/discord-community-events-active-by-guild-and-organizer-get-request/discord-community-events-active-by-guild-and-organizer-get-request.dto';
 import { CommunityEventDiscordEntity, DiscordActiveCommunityEventsGetResponseDto, DiscordActiveCommunityEventDto } from '@badgebuddy/common';
 import { MoreThan, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import {
+  DiscordCommunityEventsActiveByIdGetRequestDto,
+  DiscordCommunityEventsActiveByGuildGetRequestDto,
+  DiscordCommunityEventsActiveByOrganizerGetRequestDto,
+  DiscordCommunityEventsActiveByVoiceChannelGetRequestDto,
+  DiscordCommunityEventsActiveByGuildAndOrganizerGetRequestDto
+} from '@badgebuddy/common';
 
 @Injectable()
 export class DiscordActiveCommunityEventsService {

@@ -2,15 +2,19 @@ import { Controller, Get, Post, Body, Delete, UseInterceptors, Query, HttpStatus
 import { DiscordBotService } from './discord-bot.service';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CacheInterceptor } from '@nestjs/cache-manager';
-import { DiscordBoSettingsGetRequestDto } from './dto/discord-bot-settings-get-request.dto';
-import { DiscordBotSettingsGetResponseDto } from './dto/discord-bot-settings-get-response.dto';
-import { DiscordBotPostRequestDto } from './dto/discord-bot-post-request.dto';
-import { DiscordBotPostResponseDto } from './dto/discord-bot-post-response.dto';
-import { DiscordBotDeleteRequestDto } from './dto/discord-bot-delete-request.dto';
-import { DiscordBotPermissionsPatchRequestDto } from './dto/discord-bot-permissions-patch-request/discord-bot-permissions-patch-request.dto';
 import { Headers } from '@nestjs/common';
 import { UserTokenGuard } from '@/auth/guards/user-token.guard';
 import { ProcessorTokenGuard } from '@/auth/guards/processor-token/processor-token.guard';
+import {
+  DiscordBotSettingsGetResponseDto,
+  DiscordBoSettingsGetRequestDto,
+  DiscordBotPostResponseDto,
+  DiscordBotPostRequestDto,
+  DiscordBotPermissionsPatchRequestDto,
+  DiscordBotDeleteRequestDto
+} from '@badgebuddy/common';
+
+
 @Controller('discord/bot')
 @ApiTags('Discord Bot')
 @UseInterceptors(CacheInterceptor)
