@@ -232,7 +232,7 @@ export class DiscordBotService {
     this.logger.verbose(`found global commands in discord for userId: ${decodedUserToken.userId}`);
     try {
       for (const command of globalCommands.values()) {
-        if (command.name === ('start' || 'end' || 'distribute') ) {
+        if (command.name === ('start-event' || 'end-event' || 'distribute-poaps') ) {
           await guild.commands.permissions.set({
             command: command.id,
             token: storedToken?.token,
