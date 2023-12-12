@@ -1,11 +1,11 @@
 import { describe, it, expect, beforeEach, jest } from '@jest/globals';
-import { ClientTokenGuard } from '../client-token/client-token.guard';
+import { AccessTokenGuard } from './access-token.guard';
 import { Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Test } from '@nestjs/testing';
 
 describe('ClientTokenGuard', () => {
-  let guard: ClientTokenGuard;
+  let guard: AccessTokenGuard;
 
   const mockJwtService = {
     verify: jest.fn(),
@@ -18,7 +18,7 @@ describe('ClientTokenGuard', () => {
   beforeEach(async () => {
     const module = await Test.createTestingModule({
       providers: [
-        ClientTokenGuard,
+        AccessTokenGuard,
         {
           provide: JwtService,
           useValue: mockJwtService,
@@ -30,7 +30,7 @@ describe('ClientTokenGuard', () => {
       ],
     }).compile();
 
-    guard = module.get<ClientTokenGuard>(ClientTokenGuard);
+    guard = module.get<AccessTokenGuard>(AccessTokenGuard);
   })
 
   it('should be defined', () => {

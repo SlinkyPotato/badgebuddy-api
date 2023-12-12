@@ -1,16 +1,16 @@
+import { ENV_AUTH_PROCESSOR_CLIENT_ID, ENV_AUTH_PROCESSOR_CLIENT_SECRET } from '@/app.constants';
+import { AccessTokenDto } from '@badgebuddy/common';
 import { CanActivate, ExecutionContext, Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Observable } from 'rxjs';
-import type { UserToken } from '../../auth.service';
-import { ConfigService } from '@nestjs/config';
-import { ENV_AUTH_ALLOWED_CLIENT_IDS } from '@/app.constants';
 
 @Injectable()
-export class UserTokenGuard implements CanActivate {
+export class ProcessorTokenGuard implements CanActivate {
 
   constructor(
-    private readonly jwtService: JwtService,
     private readonly logger: Logger,
+    private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
   ) {}
 
@@ -35,13 +35,15 @@ export class UserTokenGuard implements CanActivate {
       return false;
     }
     try {
-      const decodedAccessToken: UserToken = this.jwtService.verify<UserToken>(accessToken);
-      if (!decodedAccessToken || !decodedAccessToken.userId) {
-        this.logger.warn('Invalid user token');
+      const decodedAccessToken: AccessTokenDto = this.jwtService.verify<AccessTokenDto>(accessToken, {
+        secret: this.configService.get<string>(ENV_AUTH_PROCESSOR_CLIENT_SECRET),
+      });
+      if (!decodedAccessToken.sessionId) {
+        this.logger.warn('Invalid discord bot token');
         return false;
       }
-      const allowedClients = this.configService.get<string>(ENV_AUTH_ALLOWED_CLIENT_IDS)?.split(',') ?? [];
-      if (!allowedClients.includes(decodedAccessToken.sub)) {
+      const processorClientId = this.configService.get<string>(ENV_AUTH_PROCESSOR_CLIENT_ID);
+      if (!decodedAccessToken.sub || decodedAccessToken.sub !== processorClientId) {
         this.logger.warn('Unauthorized client tried to access the API');
         return false;
       }

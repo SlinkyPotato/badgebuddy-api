@@ -4,7 +4,7 @@ import { describe, beforeEach, it, expect, jest } from '@jest/globals';
 import { AuthService } from './auth.service';
 import { ClientIdGuard } from './guards/client-id/client-id.guard';
 import { EmailCodePipe } from './pipes/email-code.pipe';
-import { ClientTokenGuard } from './guards/client-token/client-token.guard';
+import { AccessTokenGuard } from './guards/access-token/access-token.guard';
 import { ConfigService } from '@nestjs/config';
 import {
   UserTokenNoVerifyGuard
@@ -46,7 +46,7 @@ describe('AuthController', () => {
           useValue: jest.fn(),
         },
         {
-          provide: ClientTokenGuard,
+          provide: AccessTokenGuard,
           useValue: jest.fn(),
         },
         {

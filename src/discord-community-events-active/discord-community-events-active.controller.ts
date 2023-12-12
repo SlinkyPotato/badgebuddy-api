@@ -3,6 +3,7 @@ import {
   Get,
   HttpStatus,
   Param,
+  UseGuards,
   UseInterceptors,
   UsePipes,
   ValidationPipe,
@@ -18,11 +19,13 @@ import {
   DiscordCommunityEventsActiveByVoiceChannelGetRequestDto,
   DiscordCommunityEventsActiveByGuildAndOrganizerGetRequestDto
 } from '@badgebuddy/common';
+import { UserTokenGuard } from '@/auth/guards/user-token/user-token.guard';
 
 @Controller('discord/community-events/active')
 @ApiTags('Active Discord Community Events')
 @UseInterceptors(CacheInterceptor)
 @UsePipes(ValidationPipe)
+@UseGuards(UserTokenGuard)
 export class DiscordCommunityEventsActiveController {
 
   constructor(

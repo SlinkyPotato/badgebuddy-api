@@ -14,7 +14,7 @@ import {
   ApiResponse,
   ApiTags
 } from '@nestjs/swagger';
-import { ClientTokenGuard } from './guards/client-token/client-token.guard';
+import { AccessTokenGuard } from './guards/access-token/access-token.guard';
 import { ClientIdGuard } from './guards/client-id/client-id.guard';
 import { UserTokenNoVerifyGuard } from './guards/user-token-no-verify/user-token-guard-no-verify.guard';
 import { EmailCode, EmailCodePipe } from './pipes/email-code.pipe';
@@ -60,7 +60,7 @@ export class AuthController {
     return this.authService.authorize(request);
   }
 
-  @UseGuards(ClientTokenGuard)
+  @UseGuards(AccessTokenGuard)
   @Post('/authorize/email')
   @ApiOperation({ summary: 'Send magic email code' })
   @ApiResponse({
@@ -73,7 +73,7 @@ export class AuthController {
     return this.authService.authorizeEmail(request);
   }
 
-  @UseGuards(ClientTokenGuard)
+  @UseGuards(AccessTokenGuard)
   @Get('/authorize/google')
   @ApiOperation({ summary: 'Authorize google' })
   @ApiResponse({
@@ -87,7 +87,7 @@ export class AuthController {
     return this.authService.authorizeGoogle(clientToken);
   }
 
-  @UseGuards(ClientTokenGuard)
+  @UseGuards(AccessTokenGuard)
   @Get('/authorize/discord')
   @ApiOperation({ summary: 'Authorize discord' })
   @ApiResponse({
@@ -125,7 +125,7 @@ export class AuthController {
     return this.authService.refreshAccessToken(request, authorization.split(' ')[1]);
   }
 
-  @UseGuards(ClientTokenGuard)
+  @UseGuards(AccessTokenGuard)
   @Post('/register')
   @ApiOperation({ summary: 'Register user' })
   @ApiHeaders([{
@@ -143,7 +143,7 @@ export class AuthController {
     return this.authService.register(request);
   }
 
-  @UseGuards(ClientTokenGuard)
+  @UseGuards(AccessTokenGuard)
   @Post('/login')
   @ApiOperation({ summary: 'Login user' })
   @ApiResponse({
@@ -162,7 +162,7 @@ export class AuthController {
     return this.authService.login(clientToken, request);
   }
 
-  @UseGuards(ClientTokenGuard)
+  @UseGuards(AccessTokenGuard)
   @Post('/login/email')
   @ApiOperation({ summary: 'Login by email' })
   @ApiHeaders([{
@@ -181,7 +181,7 @@ export class AuthController {
     return this.authService.loginEmail(clientToken, emailCode);
   }
 
-  @UseGuards(ClientTokenGuard)
+  @UseGuards(AccessTokenGuard)
   @Post('/login/google')
   @ApiOperation({ summary: 'Login user by google' })
   @ApiResponse({
@@ -196,7 +196,7 @@ export class AuthController {
     return this.authService.loginGoogle(clientToken, request);
   }
 
-  @UseGuards(ClientTokenGuard)
+  @UseGuards(AccessTokenGuard)
   @Post('/login/discord')
   @ApiOperation({ summary: 'Login user by discord' })
   @ApiResponse({

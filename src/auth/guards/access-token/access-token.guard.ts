@@ -12,7 +12,7 @@ import { ConfigService } from '@nestjs/config';
 import { ENV_AUTH_ALLOWED_CLIENT_IDS } from '@/app.constants';
 
 @Injectable()
-export class ClientTokenGuard implements CanActivate {
+export class AccessTokenGuard implements CanActivate {
 
   constructor(
     private readonly jwtService: JwtService,
