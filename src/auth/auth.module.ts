@@ -6,6 +6,9 @@ import { HttpModule } from '@nestjs/axios';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TokenEntity } from '@badgebuddy/common';
+import { UserTokenGuard } from './guards/user-token/user-token.guard';
+import { DiscordBotTokenGuard } from './guards/discord-bot-token/discord-bot-token.guard';
+import { ProcessorTokenGuard } from './guards/processor-token/processor-token.guard';
 
 @Module({
   imports: [
@@ -26,10 +29,17 @@ import { TokenEntity } from '@badgebuddy/common';
   providers: [
     Logger,
     AuthService,
+    UserTokenGuard,
+    DiscordBotTokenGuard,
+    ProcessorTokenGuard,
   ],
   exports: [
+    ConfigModule,
     AuthService,
     JwtModule,
+    UserTokenGuard,
+    DiscordBotTokenGuard,
+    ProcessorTokenGuard,
   ]
 })
 export class AuthModule {}

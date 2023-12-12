@@ -46,7 +46,7 @@ export class UserTokenGuard implements CanActivate {
         return false;
       }
     } catch (error) {
-      this.logger.warn('Invalid access token');
+      this.logger.warn('Invalid user access token');
       return false;
     }
     return true;

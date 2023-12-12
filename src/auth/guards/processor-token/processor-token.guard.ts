@@ -48,7 +48,7 @@ export class ProcessorTokenGuard implements CanActivate {
         return false;
       }
     } catch (error) {
-      this.logger.warn('Invalid access token');
+      this.logger.warn('Invalid processor token');
       return false;
     }
     return true;

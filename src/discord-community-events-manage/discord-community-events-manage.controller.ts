@@ -9,14 +9,11 @@ import {
   DiscordCommunityEventPatchResponseDto,
   DiscordCommunityEventPatchRequestDto
 } from '@badgebuddy/common';
-import { DiscordBotTokenGuard } from '@/auth/guards/discord-bot-token/discord-bot-token.guard';
-import { UserTokenGuard } from '@/auth/guards/user-token/user-token.guard';
-import { ProcessorTokenGuard } from '@/auth/guards/processor-token/processor-token.guard';
 
 @Controller('discord/community-events/manage')
 @ApiTags('Discord Community Events Management')
 @UsePipes(ValidationPipe)
-@UseGuards(ProcessorTokenGuard || ((UserTokenGuard || DiscordBotTokenGuard) && PoapManagerGuard))
+@UseGuards(PoapManagerGuard)
 export class DiscordCommunityEventsManageController {
 
   constructor(

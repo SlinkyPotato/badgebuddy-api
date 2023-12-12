@@ -580,7 +580,7 @@ export class AuthService {
       this.logger.error(`Failed to sign id_token for ${user.id}`, error);
     }
     
-    const { accessToken, refreshToken } = this.generateTokens(decodedClientToken.sub, user.id);
+    const { accessToken, refreshToken } = this.generateTokens(decodedClientToken.sub, user.id, discordProfile.id);
     
     this.logger.log(`Logged in user ${sessionId}`);
     return this.getLoginResponse(user, accessToken, refreshToken);
@@ -707,12 +707,15 @@ export class AuthService {
     );
   }
 
-  private generateTokens(sub: string, userId: string): { accessToken: string, refreshToken: string } {
+  private generateTokens(
+    sub: string, userId: string, discordUserSId?: string | undefined
+  ): { accessToken: string, refreshToken: string } {
     const sessionId = crypto.randomUUID().toString();
     
     const accessToken = this.jwtService.sign({
       userId: userId,
       sessionId: sessionId,
+      discordUserSId,
     }, {
       expiresIn: '24h',
       subject: sub,
@@ -721,6 +724,7 @@ export class AuthService {
     const refreshToken = this.jwtService.sign({
       userId: userId,
       sessionId: sessionId,
+      discordUserSId,
     }, {
       expiresIn: '7d',
       subject: sub,

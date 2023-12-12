@@ -10,7 +10,7 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { InjectDiscordClient } from '@discord-nestjs/core';
 import { Client, GuildMember } from 'discord.js';
-import { AccountEntity, DISCORD_BOT_SETTINGS_GUILDSID, DiscordBotTokenDto, UserEntity, UserTokenDto } from '@badgebuddy/common';
+import { DISCORD_BOT_SETTINGS_GUILDSID, DiscordBotTokenDto, UserTokenDto } from '@badgebuddy/common';
 import { Repository } from 'typeorm';
 import {
   DiscordBotSettingsGetResponseDto,
@@ -18,6 +18,9 @@ import {
 import { DiscordBotSettingsEntity } from '@badgebuddy/common/dist/common-typeorm/entities/discord/discord-bot-settings.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { JwtService } from '@nestjs/jwt';
+import { ProcessorTokenGuard } from '@/auth/guards/processor-token/processor-token.guard';
+import { DiscordBotTokenGuard } from '@/auth/guards/discord-bot-token/discord-bot-token.guard';
+import { UserTokenGuard } from '@/auth/guards/user-token/user-token.guard';
 
 /**
  * Auth guard to authenticate users based on whether they are a POAP manager.
@@ -29,33 +32,34 @@ export class PoapManagerGuard implements CanActivate {
   constructor(
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
     @InjectRepository(DiscordBotSettingsEntity) private discordBotSettingsRepo: Repository<DiscordBotSettingsEntity>,
-    @InjectRepository(AccountEntity) private accountRepo: Repository<AccountEntity>,
     @InjectDiscordClient() private readonly discordClient: Client,
     private readonly logger: Logger,
     private readonly jwtService: JwtService,
+    private readonly processorTokenGuard: ProcessorTokenGuard,
+    private readonly userTokenGuard: UserTokenGuard,
+    private readonly discordBotTokenGuard: DiscordBotTokenGuard,
   ) { }
 
   async canActivate(
     context: ExecutionContext,
   ): Promise<boolean> {
+    if (await this.processorTokenGuard.canActivate(context)) {
+      return true;
+    }
+
+    if (!await this.userTokenGuard.canActivate(context) && !await this.discordBotTokenGuard.canActivate(context)) {
+      return false;
+    }
+    
     const accessToken = context.switchToHttp().getRequest().headers['authorization'].split(' ')[1];
     const decodedToken: DiscordBotTokenDto | UserTokenDto = this.jwtService.decode<DiscordBotTokenDto | UserTokenDto>(accessToken);
-    let organizerSId: string | undefined;
-    let userId: string | undefined;
-    
-    if (typeof decodedToken === DiscordBotTokenDto.name) {
-      organizerSId = (decodedToken as DiscordBotTokenDto).discordUserSId;
-    }
+    const organizerSId = decodedToken.discordUserSId;
 
-    if (typeof decodedToken === UserTokenDto.name) {
-      userId = (decodedToken as UserTokenDto).userId;
-    }
-
-    if (!organizerSId && !userId) {
+    if (!organizerSId) {
       this.logger.warn(
-        `Auth request rejected. Missing organizerSId or userId. organizerSId: ${organizerSId}, userId: ${userId}`,
+        `Auth request rejected. Missing discordUserSId. discordUserSId: ${organizerSId}`,
       );
-      throw new BadRequestException('Missing organizerSId or userId');
+      throw new BadRequestException('Missing discordUserSId');
     }
 
     const { guildSId } = context.switchToHttp().getRequest().body;
@@ -96,24 +100,6 @@ export class PoapManagerGuard implements CanActivate {
         `Auth request rejected. Guild not found in cache or db for guildSId: ${guildSId}`,
       );
       return false;
-    }
-
-    if (!organizerSId) {
-      // TODO: use cache to lookup user
-      const result = await this.accountRepo.findOne({
-        where: {
-          userId: userId,
-          provider: 'discord',
-        }
-      });
-      if (!result) {
-        this.logger.warn(
-          `Auth request rejected. User not found for userId: ${userId}`,
-        );
-        return false;
-      }
-      this.logger.verbose(`Discord account found for userId: ${userId}`);
-      organizerSId = result.providerAccountId;
     }
 
     try {

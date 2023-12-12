@@ -48,7 +48,7 @@ export class DiscordBotTokenGuard implements CanActivate {
         return false;
       }
     } catch (error) {
-      this.logger.warn('Invalid access token');
+      this.logger.warn('Invalid discord bot access token');
       return false;
     }
     return true;
