@@ -48,7 +48,8 @@ export class DiscordCommunityEventsManageService {
     this.logger.log('Attempting to start new event.');
     
     const endDateObj: Date = new Date(endDate);
-    if (endDateObj < new Date(new Date().getTime() + (1000 * 60 * 30))) {
+    const startDateObj: Date = new Date();
+    if (endDateObj < startDateObj) {
       this.logger.warn(`Event end date is in the past, endDate: ${endDate}`);
       throw new UnprocessableEntityException('Event end date is in the past and must be greater than 30 minutes from now');
     }
@@ -131,8 +132,8 @@ export class DiscordCommunityEventsManageService {
       communityEvent: {
         title: title,
         description: description,
-        startDate: new Date(),
-        endDate: new Date(endDate),
+        startDate: startDateObj,
+        endDate: endDateObj,
       } as CommunityEventEntity,
     } as CommunityEventDiscordEntity);
     this.logger.verbose(`Stored communityEvent in db id: ${newEvent.communityEventId}, startDate: ${newEvent.communityEvent.startDate}, endDate: ${newEvent.communityEvent.endDate}`);
@@ -187,7 +188,7 @@ export class DiscordCommunityEventsManageService {
     this.logger.log(
       `Stopping event for guildSId: ${guildSId}, voiceChannelSId: ${voiceChannelSId}`,
     );
-
+    const endDateObj: Date = new Date();
     let discordEvent = await this.discordEventRepo.findOne({
       relations: {
         botSettings: true,
@@ -199,7 +200,7 @@ export class DiscordCommunityEventsManageService {
         },
         voiceChannelSId: voiceChannelSId,
         communityEvent: {
-          endDate: MoreThan(new Date()),
+          endDate: MoreThan(endDateObj),
         },
       }
     });
@@ -208,7 +209,7 @@ export class DiscordCommunityEventsManageService {
       throw new NotFoundException('Active event not found');
     }
 
-    discordEvent.communityEvent.endDate = new Date();
+    discordEvent.communityEvent.endDate = endDateObj;
     try {
       discordEvent = await this.discordEventRepo.save(discordEvent);
     } catch (error) {

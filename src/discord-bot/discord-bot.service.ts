@@ -18,7 +18,6 @@ import {
   DiscordBotPostResponseDto,
   DiscordBotPermissionsPatchRequestDto,
   DiscordBotDeleteRequestDto,
-  DiscordUserEntity,
 } from '@badgebuddy/common';
 
 @Injectable()

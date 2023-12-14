@@ -183,7 +183,7 @@ export class DiscordCommunityEventsActiveService {
   private mapEventToResponse(activeEvents: CommunityEventDiscordEntity[]): DiscordActiveCommunityEventsGetResponseDto {
     const events = activeEvents.map<DiscordActiveCommunityEventDto>((event) => {
       return {
-        communityEventId: event.id,
+        communityEventId: event.communityEventId,
         title: event.communityEvent.title,
         description: event.communityEvent.description ?? undefined,
         guildSId: event.botSettings.guildSId,
