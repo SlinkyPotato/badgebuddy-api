@@ -5,12 +5,12 @@ import { InjectDiscordClient } from '@discord-nestjs/core';
 import { ApplicationCommandPermissionType, ChannelType, Client, Colors, Guild, NewsChannel, PermissionsBitField, Role, TextChannel } from 'discord.js';
 import { Cache } from 'cache-manager';
 import {
-  DISCORD_BOT_SETTINGS, DISCORD_BOT_SETTINGS_GUILDSID, TokenEntity,
+  DISCORD_BOT_SETTINGS, DISCORD_BOT_SETTINGS_GUILDSID, TokenEntity, UserTokenDto,
 } from '@badgebuddy/common';
 import { ConfigService } from '@nestjs/config';
 import { DiscordBotSettingsEntity } from '@badgebuddy/common/dist/common-typeorm/entities/discord/discord-bot-settings.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { AuthService, UserToken } from '@/auth/auth.service';
+import { AuthService } from '@/auth/auth.service';
 import {
   DiscordBoSettingsGetRequestDto,
   DiscordBotSettingsGetResponseDto,
@@ -200,7 +200,7 @@ export class DiscordBotService {
 
     this.logger.verbose(`found guild in discord, guildSId: ${guildSId}`);
 
-    const decodedUserToken = this.authService.decodeTokenFromRawString<UserToken>(userToken);
+    const decodedUserToken = this.authService.decodeTokenFromRawString<UserTokenDto>(userToken);
 
     this.logger.verbose(`decoded user token for userId: ${decodedUserToken.userId}`);
 

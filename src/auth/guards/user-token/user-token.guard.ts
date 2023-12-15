@@ -1,9 +1,9 @@
 import { CanActivate, ExecutionContext, Injectable, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Observable } from 'rxjs';
-import type { UserToken } from '../../auth.service';
 import { ConfigService } from '@nestjs/config';
 import { ENV_AUTH_ALLOWED_CLIENT_IDS } from '@/app.constants';
+import { UserTokenDto } from '@badgebuddy/common';
 
 @Injectable()
 export class UserTokenGuard implements CanActivate {
@@ -35,7 +35,7 @@ export class UserTokenGuard implements CanActivate {
       return false;
     }
     try {
-      const decodedAccessToken: UserToken = this.jwtService.verify<UserToken>(accessToken);
+      const decodedAccessToken: UserTokenDto = this.jwtService.verify<UserTokenDto>(accessToken);
       if (!decodedAccessToken || !decodedAccessToken.userId) {
         this.logger.warn('Invalid user token');
         return false;
