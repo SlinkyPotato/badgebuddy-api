@@ -201,7 +201,7 @@ export class DiscordCommunityEventsManageService {
    * @param voiceChannelSId
    * @returns
    */
-  async stopEvent(
+  async endEvent(
     {guildSId, voiceChannelSId, poapLinksUrl}: DiscordCommunityEventPatchRequestDto,
   ): Promise<DiscordCommunityEventPatchResponseDto> {
     this.logger.log(
@@ -329,7 +329,8 @@ export class DiscordCommunityEventsManageService {
   }
 
   public async parsePoapLinksUrl(poapLinksUrl: string): Promise<PoapLink[]> {
-    const POAP_LINK_REGEX = /^http[s]?:\/\/poap\.xyz\/.*$/gis;
+    const POAP_LINK_REGEX = /^http[s]?:\/\/poap\.xyz\/.*$/i;
+    const QR_CLAIM_REGEX = /^http[s]?:\/\/poap\.xyz\/claim\//i;
 
     this.logger.verbose(`Fetching poap links from url: ${poapLinksUrl}`);
     const contents = await firstValueFrom(this.httpService.get(poapLinksUrl));
@@ -347,8 +348,7 @@ export class DiscordCommunityEventsManageService {
       }
       let qrCode: string | undefined;
       try {
-        // get the QR code from the link
-        // qrCode = line.split(POAP_LINK_REGEX);
+        qrCode = line.split(QR_CLAIM_REGEX)[1];
       } catch (e) {
         this.logger.error(`Error parsing poap link: ${line}`, e);
       }
@@ -371,20 +371,16 @@ export class DiscordCommunityEventsManageService {
       }
 
       this.logger.verbose(`Saving poap links for event, eventId: ${newEvent.communityEventId}`);
-      poapLinks.forEach((poapLink) => {
-        this.logger.verbose(poapLink);
-      });
-      // const result = await this.dataSource.createQueryBuilder()
-      //   .insert()
-      //   .into(PoapLinksEntity)
-      //   .values(poapLinks.map((poapLink) => ({
-      //     communityEventId: newEvent.communityEventId,
-      //     qrCode: poapLink.qrCode,
-      //     claimUrl: poapLink.claimUrl,
-      //   })))
-      //   .execute();
-      // savedPOAPs = result.identifiers.length;
-      savedPOAPs = 0;
+      const result = await this.dataSource.createQueryBuilder()
+        .insert()
+        .into(PoapLinksEntity)
+        .values(poapLinks.map((poapLink) => ({
+          communityEventId: newEvent.communityEventId,
+          qrCode: poapLink.qrCode,
+          claimUrl: poapLink.claimUrl,
+        })))
+        .execute();
+      savedPOAPs = result.identifiers.length;
       this.logger.verbose(`Saved poap links for event, eventId: ${newEvent.communityEventId}`);
     }
     return savedPOAPs;

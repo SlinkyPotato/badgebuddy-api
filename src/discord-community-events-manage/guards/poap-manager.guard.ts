@@ -5,6 +5,8 @@ import {
   Inject,
   Injectable,
   Logger,
+  NotAcceptableException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
@@ -47,7 +49,10 @@ export class PoapManagerGuard implements CanActivate {
       return true;
     }
 
-    if (!await this.userTokenGuard.canActivate(context) && !await this.discordBotTokenGuard.canActivate(context)) {
+    if (
+      !await this.userTokenGuard.canActivate(context) && 
+      !await this.discordBotTokenGuard.canActivate(context)
+    ) {
       return false;
     }
     
@@ -59,7 +64,7 @@ export class PoapManagerGuard implements CanActivate {
       this.logger.warn(
         `Auth request rejected. Missing discordUserSId. discordUserSId: ${organizerSId}`,
       );
-      throw new BadRequestException('Missing discordUserSId');
+      throw new UnauthorizedException('Missing discordUserSId');
     }
 
     const { guildSId } = context.switchToHttp().getRequest().body;
@@ -68,7 +73,7 @@ export class PoapManagerGuard implements CanActivate {
       this.logger.warn(
         `Auth request rejected. Missing guildSId or organizerSId. guildSId: ${guildSId}}`,
       );
-      throw new BadRequestException('Missing guildSId or organizerSId');
+      throw new UnauthorizedException('Missing guildSId or organizerSId');
     }
 
     this.logger.log(

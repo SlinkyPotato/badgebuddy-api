@@ -303,7 +303,6 @@ export class AuthService {
       .into(UserEntity)
       .values({
         email: email,
-        emailVerifiedOn: new Date(),
         passwordHash: passwordHash,
       })
       .execute()).identifiers[0].id;

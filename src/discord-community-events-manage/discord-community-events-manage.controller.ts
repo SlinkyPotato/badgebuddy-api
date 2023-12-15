@@ -55,7 +55,7 @@ export class DiscordCommunityEventsManageController {
   stopEvent(
     @Body() request: DiscordCommunityEventPatchRequestDto
   ): Promise<DiscordCommunityEventPatchResponseDto> {
-    return this.discordCommunityEventsManageService.stopEvent(request);
+    return this.discordCommunityEventsManageService.endEvent(request);
   }
 
 }
