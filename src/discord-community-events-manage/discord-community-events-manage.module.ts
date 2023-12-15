@@ -8,6 +8,7 @@ import { DiscordCommunityEventsManageService } from './discord-community-events-
 import { DiscordBotSettingsEntity } from '@badgebuddy/common/dist/common-typeorm/entities/discord/discord-bot-settings.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from '@/auth/auth.module';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { AuthModule } from '@/auth/auth.module';
       DiscordUserEntity,
     ]),
     AuthModule,
+    HttpModule,
   ],
   controllers: [
     DiscordCommunityEventsManageController

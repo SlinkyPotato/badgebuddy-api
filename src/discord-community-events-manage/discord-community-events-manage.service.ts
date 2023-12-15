@@ -17,9 +17,10 @@ import {
   DiscordBotSettingsEntity,
   CommunityEventEntity,
   DiscordActiveCommunityEventDto,
+  PoapLinksEntity,
 } from '@badgebuddy/common';
-import { MoreThan, Repository } from 'typeorm';
-import { 
+import { DataSource, MoreThan, Repository } from 'typeorm';
+import {
   DiscordCommunityEventPostRequestDto,
   DiscordCommunityEventPostResponseDto,
   DiscordCommunityEventPatchRequestDto,
@@ -28,10 +29,17 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { InjectDiscordClient } from '@discord-nestjs/core';
 import { Client } from 'discord.js';
+import { HttpService } from '@nestjs/axios';
+import { firstValueFrom } from 'rxjs';
+
+type PoapLink = {
+  qrCode: string | undefined,
+  claimUrl: string,
+}
 
 @Injectable()
 export class DiscordCommunityEventsManageService {
-  
+
   constructor(
     private readonly logger: Logger,
     @InjectRepository(CommunityEventDiscordEntity) private discordEventRepo: Repository<CommunityEventDiscordEntity>,
@@ -40,13 +48,15 @@ export class DiscordCommunityEventsManageService {
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
     @InjectQueue(DISCORD_COMMUNITY_EVENTS_QUEUE) private eventsQueue: Queue,
     @InjectDiscordClient() private discordClient: Client,
+    private readonly httpService: HttpService,
+    private dataSource: DataSource,
   ) { }
 
   async startEvent(
-    {title, voiceChannelSId, endDate, guildSId, description, organizerSId}: DiscordCommunityEventPostRequestDto
+    {title, voiceChannelSId, endDate, guildSId, description, organizerSId, poapLinksUrl}: DiscordCommunityEventPostRequestDto
   ): Promise<DiscordCommunityEventPostResponseDto> {
     this.logger.log('Attempting to start new event.');
-    
+
     const endDateObj: Date = new Date(endDate);
     const startDateObj: Date = new Date();
     if (endDateObj < startDateObj) {
@@ -168,10 +178,19 @@ export class DiscordCommunityEventsManageService {
       this.logger.error(`Error adding active event to cache, eventId: ${newEvent.communityEventId}`, e);
     });
 
+    let availablePOAPs = 0;
+
+    try {
+      availablePOAPs = await this.savePoapLinks(newEvent, poapLinksUrl);
+    } catch (e) {
+      this.logger.error(`Error saving poap links for event, eventId: ${newEvent.communityEventId}`, e);
+    }
+
     return {
       communityEventId: newEvent.communityEventId,
       startDate: newEvent.communityEvent.startDate.toISOString(),
       endDate: newEvent.communityEvent.endDate.toISOString(),
+      availablePOAPs,
     };
   }
 
@@ -179,11 +198,11 @@ export class DiscordCommunityEventsManageService {
    * Ends the community event
    * @param guildSId
    * @param organizerSId
-   * @param voiceChannelSId 
-   * @returns 
+   * @param voiceChannelSId
+   * @returns
    */
   async stopEvent(
-    {guildSId, voiceChannelSId}: DiscordCommunityEventPatchRequestDto,
+    {guildSId, voiceChannelSId, poapLinksUrl}: DiscordCommunityEventPatchRequestDto,
   ): Promise<DiscordCommunityEventPatchResponseDto> {
     this.logger.log(
       `Stopping event for guildSId: ${guildSId}, voiceChannelSId: ${voiceChannelSId}`,
@@ -222,7 +241,9 @@ export class DiscordCommunityEventsManageService {
       discordEvent.voiceChannelSId,
       discordEvent.organizer.userSId,
       discordEvent.communityEventId,
-    ).catch((e) => {
+    ).then(() => {
+      this.logger.log(`Removed active event from cache, communityEventId: ${discordEvent?.communityEventId}, voiceChannelSId: ${discordEvent?.voiceChannelSId}`);
+    }).catch((e) => {
       this.logger.error(`Error removing active event from cache`, e);
     });
 
@@ -236,7 +257,20 @@ export class DiscordCommunityEventsManageService {
     });
 
     this.logger.debug(`Removing active event from processor cache, eventId: ${discordEvent.communityEventId}, voiceChannelSId: ${voiceChannelSId}`)
-    await this.cacheManager.del(TRACKING_EVENTS_ACTIVE(voiceChannelSId));
+    this.cacheManager.del(TRACKING_EVENTS_ACTIVE(voiceChannelSId))
+    .then(() => {
+      this.logger.debug(`Removed active event from processor cache, eventId: ${discordEvent?.communityEventId}, voiceChannelSId: ${voiceChannelSId}`)
+    }).catch((e) => {
+      this.logger.error(`Error removing active event from processor cache, eventId: ${discordEvent?.communityEventId}, voiceChannelSId: ${voiceChannelSId}`, e)
+    });
+
+    let availablePOAPs = 0;
+    try {
+      availablePOAPs = await this.savePoapLinks(discordEvent, poapLinksUrl);
+    } catch (e) {
+      this.logger.error(`Error saving poap links for event, eventId: ${discordEvent.communityEventId}`, e);
+    }
+
     return {
       communityEventId: discordEvent.communityEventId,
       title: discordEvent.communityEvent.title,
@@ -244,6 +278,7 @@ export class DiscordCommunityEventsManageService {
       endDate: discordEvent.communityEvent.endDate.toISOString(),
       organizerUsername: discordEvent.organizer.username,
       startDate: discordEvent.communityEvent.startDate.toISOString(),
+      availablePOAPs,
     };
   }
 
@@ -291,5 +326,67 @@ export class DiscordCommunityEventsManageService {
       } as DiscordActiveCommunityEventDto,
       0
     );
+  }
+
+  private async parsePoapLinksUrl(poapLinksUrl: string): Promise<PoapLink[]> {
+    const POAP_LINK_REGEX = /^http[s]?:\/\/poap\.xyz\/.*$/gis;
+
+    this.logger.verbose(`Fetching poap links from url: ${poapLinksUrl}`);
+    const contents = await firstValueFrom(this.httpService.get(poapLinksUrl));
+    
+    this.logger.verbose(`Fetched poap links from url: ${poapLinksUrl}`);
+    const lines: string[] = contents.data.split('\n');
+    const poapLinks: PoapLink[] = [];
+    
+    this.logger.verbose(`Parsing poap links from url: ${poapLinksUrl}`);
+    
+    for (const line of lines) {
+      if (!line.match(POAP_LINK_REGEX)) {
+        this.logger.verbose(`Skipping line, does not contain poap link: ${line}`)
+        continue;
+      }
+      let qrCode: string | undefined;
+      try {
+        // get the QR code from the link
+        qrCode = line.split(POAP_LINK_REGEX);
+      } catch (e) {
+        this.logger.error(`Error parsing poap link: ${line}`, e);
+      }
+      poapLinks.push({
+        qrCode,
+        claimUrl: line,
+      });
+    }
+    this.logger.verbose(`Finished parsing poap links from url: ${poapLinksUrl}, found ${poapLinks.length} links`);
+    return poapLinks;
+  }
+
+  private async savePoapLinks(newEvent: CommunityEventDiscordEntity, poapLinksUrl?: string): Promise<number> {
+    let savedPOAPs = 0;
+    if (poapLinksUrl) {
+      this.logger.verbose('found poap links url');
+      const poapLinks = await this.parsePoapLinksUrl(poapLinksUrl);
+      if (poapLinks.length <= 0) {
+        this.logger.warn('No poap links found');
+      }
+
+      this.logger.verbose(`Saving poap links for event, eventId: ${newEvent.communityEventId}`);
+      poapLinks.forEach((poapLink) => {
+        this.logger.verbose(poapLink);
+      });
+      // const result = await this.dataSource.createQueryBuilder()
+      //   .insert()
+      //   .into(PoapLinksEntity)
+      //   .values(poapLinks.map((poapLink) => ({
+      //     communityEventId: newEvent.communityEventId,
+      //     qrCode: poapLink.qrCode,
+      //     claimUrl: poapLink.claimUrl,
+      //   })))
+      //   .execute();
+      // savedPOAPs = result.identifiers.length;
+      savedPOAPs = 0;
+      this.logger.verbose(`Saved poap links for event, eventId: ${newEvent.communityEventId}`);
+    }
+    return savedPOAPs;
   }
 }
