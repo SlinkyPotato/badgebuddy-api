@@ -183,7 +183,7 @@ export class DiscordCommunityEventsManageService {
 
     this.logger.verbose(`Adding active event to cache by voiceChannelSId: ${voiceChannelSId}`);
 
-    this.addEventToCacheTracking(
+    this.addEventToProcessorTracking(
       newEvent, voiceChannelSId, organizerSId, guildSId
     ).then(() => {
       this.logger.verbose(`Added active event to cache, eventId: ${newEvent.communityEventId}`);
@@ -270,11 +270,7 @@ export class DiscordCommunityEventsManageService {
       this.logger.error(`Error adding event to end queue`, e);
     });
 
-    this.logger.verbose(`Removing active event from processor cache, eventId: ${discordEvent.communityEventId}, voiceChannelSId: ${voiceChannelSId}`)
-    this.cacheManager.del(TRACKING_EVENTS_ACTIVE(voiceChannelSId))
-    .then(() => {
-      this.logger.verbose(`Removed active event from processor cache, eventId: ${discordEvent?.communityEventId}, voiceChannelSId: ${voiceChannelSId}`)
-    }).catch((e) => {
+    this.removeEventFromProcessorTracking(discordEvent.communityEventId, voiceChannelSId).catch((e) => {
       this.logger.error(`Error removing active event from processor cache, eventId: ${discordEvent?.communityEventId}, voiceChannelSId: ${voiceChannelSId}`, e)
     });
 
@@ -324,7 +320,7 @@ export class DiscordCommunityEventsManageService {
     this.logger.verbose('Removed active event from cache');
   }
 
-  private async addEventToCacheTracking(
+  private async addEventToProcessorTracking(
     newEvent: CommunityEventDiscordEntity, voiceChannelSId: string, organizerSId: string, guildSId: string
   ): Promise<void> {
     return this.cacheManager.set(TRACKING_EVENTS_ACTIVE(voiceChannelSId),
@@ -338,8 +334,16 @@ export class DiscordCommunityEventsManageService {
         startDate: newEvent.communityEvent.startDate,
         endDate: newEvent.communityEvent.endDate,
       } as DiscordActiveCommunityEventDto,
-      0
+      newEvent.communityEvent.endDate.getTime() - newEvent.communityEvent.startDate.getTime(),
     );
+  }
+
+  private async removeEventFromProcessorTracking(
+    communityEventId: string, voiceChannelSId: string
+  ) {
+    this.logger.verbose(`Removing active event from processor cache, eventId: ${communityEventId}, voiceChannelSId: ${voiceChannelSId}`);
+    await this.cacheManager.del(TRACKING_EVENTS_ACTIVE(voiceChannelSId));
+    this.logger.verbose(`Removed active event from processor cache, eventId: ${communityEventId}, voiceChannelSId: ${voiceChannelSId}`);
   }
 
   public async parsePoapLinksUrl(poapLinksUrl: string): Promise<PoapLink[]> {
