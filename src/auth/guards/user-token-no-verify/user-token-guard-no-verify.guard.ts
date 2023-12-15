@@ -29,7 +29,7 @@ export class UserTokenNoVerifyGuard implements CanActivate {
     } catch (error) {
       this.logger.warn('No authorization header provided');
       this.logger.error(error);
-      return false;
+      return false; 
     }
     try {
       const decodedAccessToken: UserTokenDto = this.jwtService.decode<UserTokenDto>(accessToken);
