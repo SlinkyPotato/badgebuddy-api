@@ -13,7 +13,7 @@ import crypto from 'crypto';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import {
-  DataSource, InsertResult, Repository,
+  DataSource, Repository,
 } from 'typeorm';
 import {
   AUTH_EMAIL_VERIFY,

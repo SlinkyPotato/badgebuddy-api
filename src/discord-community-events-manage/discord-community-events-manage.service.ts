@@ -108,12 +108,23 @@ export class DiscordCommunityEventsManageService {
       if (!organizer) {
         throw new NotFoundException('Organizer not found');
       }
-      discordOrganizer = await this.discordUserRepo.save({
+      const insertResult = await this.dataSource.createQueryBuilder()
+        .insert()
+        .into(DiscordUserEntity)
+        .values({
+          userSId: organizerSId,
+          username: organizer.user.username,
+          discriminator: organizer.user.discriminator,
+          avatar: organizer.user.avatar ?? undefined,
+        })
+        .execute();
+      discordOrganizer = {
+        id: insertResult.identifiers[0].id,
         userSId: organizerSId,
         username: organizer.user.username,
         discriminator: organizer.user.discriminator,
-        avatar: organizer.user.avatar,
-      } as DiscordUserEntity);
+        avatar: organizer.user.avatar ?? undefined,
+      };
     }
 
     this.logger.verbose(`Organizer found, organizerSId: ${organizerSId}`);
@@ -135,7 +146,7 @@ export class DiscordCommunityEventsManageService {
     }
 
     this.logger.verbose(`attempting to store event in db, guildSId: ${guildSId}, voiceChannelSId: ${voiceChannelSId}, organizerId: ${organizerSId}`);
-    const newEvent: CommunityEventDiscordEntity = await this.discordEventRepo.save({
+    const newEvent: CommunityEventDiscordEntity = await this.discordEventRepo.save<CommunityEventDiscordEntity>({
       botSettingsId: discordBotSettings.id,
       voiceChannelSId: voiceChannelSId,
       organizerId: discordOrganizer.id,
@@ -230,7 +241,7 @@ export class DiscordCommunityEventsManageService {
 
     discordEvent.communityEvent.endDate = endDateObj;
     try {
-      discordEvent = await this.discordEventRepo.save(discordEvent);
+      discordEvent = await this.discordEventRepo.save<CommunityEventDiscordEntity>(discordEvent);
     } catch (error) {
       this.logger.error(`Error saving event for guildSId: ${guildSId}, voiceChannelSId: ${voiceChannelSId}`);
       throw new InternalServerErrorException('Failed to update event');

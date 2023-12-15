@@ -6,7 +6,6 @@ import { DiscordCommunityEventsActiveService } from '../discord-community-events
 import { DiscordBotSettingsEntity } from '@badgebuddy/common/dist/common-typeorm/entities/discord/discord-bot-settings.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DiscordCommunityEventsActiveController } from '../discord-community-events-active/discord-community-events-active.controller';
-import { UserTokenGuard } from '@/auth/guards/user-token/user-token.guard';
 import { AuthModule } from '@/auth/auth.module';
 
 @Module({
