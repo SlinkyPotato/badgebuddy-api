@@ -328,7 +328,7 @@ export class DiscordCommunityEventsManageService {
     );
   }
 
-  private async parsePoapLinksUrl(poapLinksUrl: string): Promise<PoapLink[]> {
+  public async parsePoapLinksUrl(poapLinksUrl: string): Promise<PoapLink[]> {
     const POAP_LINK_REGEX = /^http[s]?:\/\/poap\.xyz\/.*$/gis;
 
     this.logger.verbose(`Fetching poap links from url: ${poapLinksUrl}`);
@@ -348,7 +348,7 @@ export class DiscordCommunityEventsManageService {
       let qrCode: string | undefined;
       try {
         // get the QR code from the link
-        qrCode = line.split(POAP_LINK_REGEX);
+        // qrCode = line.split(POAP_LINK_REGEX);
       } catch (e) {
         this.logger.error(`Error parsing poap link: ${line}`, e);
       }
