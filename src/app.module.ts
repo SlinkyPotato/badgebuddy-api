@@ -30,6 +30,7 @@ import { DiscordCommunityEventsManageModule } from './discord-community-events-m
         MARIADB_USERNAME: Joi.string().required(),
         MARIADB_PASSWORD: Joi.string().required(),
         MARIADB_DATABASE: Joi.string().required(),
+        MARIADB_LOGGING: Joi.required(),
         REDIS_HOST: Joi.string().optional(),
         REDIS_PORT: Joi.number().optional(),
         REDIS_CACHE_MIN: Joi.number().required(),

@@ -18,6 +18,8 @@ import {
   CommunityEventEntity,
   DiscordActiveCommunityEventDto,
   PoapLinksEntity,
+  DISCORD_COMMUNITY_EVENTS_START_JOB,
+  DISCORD_COMMUNITY_EVENTS_END_JOB,
 } from '@badgebuddy/common';
 import { DataSource, MoreThan, Repository } from 'typeorm';
 import {
@@ -170,13 +172,13 @@ export class DiscordCommunityEventsManageService {
       this.logger.error(`Error removing active event from cache, eventId: ${newEvent.communityEventId}, voiceChannelSId: ${newEvent.voiceChannelSId}`, e);
     });
 
-    this.logger.verbose(`Adding event to start cache queue, eventId: ${newEvent.communityEventId}`);
-    this.eventsQueue.add('start', {
+    this.logger.verbose(`Adding event to start cache queue: ${DISCORD_COMMUNITY_EVENTS_START_JOB}, eventId: ${newEvent.communityEventId}`);
+    this.eventsQueue.add(DISCORD_COMMUNITY_EVENTS_START_JOB, {
       eventId: newEvent.communityEventId,
     }).then(() => {
-      this.logger.verbose('Added event to queue');
+      this.logger.verbose(`Added eventId: ${newEvent.communityEventId} to queue: ${DISCORD_COMMUNITY_EVENTS_START_JOB}`);
     }).catch((e) => {
-      this.logger.error(`Error adding event to start queue, eventId: ${newEvent.communityEventId}`, e);
+      this.logger.error(`Error adding event to start queue: ${DISCORD_COMMUNITY_EVENTS_START_JOB}, eventId: ${newEvent.communityEventId}`, e);
     });
 
     this.logger.verbose(`Adding active event to cache by voiceChannelSId: ${voiceChannelSId}`);
@@ -197,6 +199,7 @@ export class DiscordCommunityEventsManageService {
       this.logger.error(`Error saving poap links for event, eventId: ${newEvent.communityEventId}`, e);
     }
 
+    this.logger.log(`Started community event for guild: ${guildSId}, voiceChannelSId: ${voiceChannelSId}, organizer: ${organizerSId}`);
     return {
       communityEventId: newEvent.communityEventId,
       startDate: newEvent.communityEvent.startDate.toISOString(),
@@ -259,7 +262,7 @@ export class DiscordCommunityEventsManageService {
     });
 
     this.logger.log(`Adding event to end queue, eventId: ${discordEvent.communityEventId}`);
-    this.eventsQueue.add('end', {
+    this.eventsQueue.add(DISCORD_COMMUNITY_EVENTS_END_JOB, {
       eventId: discordEvent.communityEventId,
     }).then(() => {
       this.logger.log('Added event to queue');
@@ -267,10 +270,10 @@ export class DiscordCommunityEventsManageService {
       this.logger.error(`Error adding event to end queue`, e);
     });
 
-    this.logger.debug(`Removing active event from processor cache, eventId: ${discordEvent.communityEventId}, voiceChannelSId: ${voiceChannelSId}`)
+    this.logger.verbose(`Removing active event from processor cache, eventId: ${discordEvent.communityEventId}, voiceChannelSId: ${voiceChannelSId}`)
     this.cacheManager.del(TRACKING_EVENTS_ACTIVE(voiceChannelSId))
     .then(() => {
-      this.logger.debug(`Removed active event from processor cache, eventId: ${discordEvent?.communityEventId}, voiceChannelSId: ${voiceChannelSId}`)
+      this.logger.verbose(`Removed active event from processor cache, eventId: ${discordEvent?.communityEventId}, voiceChannelSId: ${voiceChannelSId}`)
     }).catch((e) => {
       this.logger.error(`Error removing active event from processor cache, eventId: ${discordEvent?.communityEventId}, voiceChannelSId: ${voiceChannelSId}`, e)
     });
@@ -311,14 +314,14 @@ export class DiscordCommunityEventsManageService {
     organizerSId: string,
     communnityEventId: string,
   ) {
-    this.logger.log('Removing active events from cache');
+    this.logger.verbose('Removing active events from cache');
     await this.cacheManager.del(DISCORD_COMMUNITY_EVENTS_ACTIVE);
     await this.cacheManager.del(DISCORD_COMMUNITY_EVENTS_ACTIVE_ID(communnityEventId));
     await this.cacheManager.del(DISCORD_COMMUNITY_EVENTS_ACTIVE_GUILD(guildSId));
     await this.cacheManager.del(DISCORD_COMMUNITY_EVENTS_ACTIVE_VOICE_CHANNEL(voiceChannelSId));
     await this.cacheManager.del(DISCORD_COMMUNITY_EVENTS_ACTIVE_ORGANIZER(organizerSId));
     await this.cacheManager.del(DISCORD_COMMUNITY_EVENTS_ACTIVE_GUILD_ORGANIZER({ organizerSId, guildSId }));
-    this.logger.log('Removed active event from cache');
+    this.logger.verbose('Removed active event from cache');
   }
 
   private async addEventToCacheTracking(
