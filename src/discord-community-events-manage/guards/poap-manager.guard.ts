@@ -1,11 +1,9 @@
 import {
-  BadRequestException,
   CanActivate,
   ExecutionContext,
   Inject,
   Injectable,
   Logger,
-  NotAcceptableException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
@@ -13,12 +11,11 @@ import { Cache } from 'cache-manager';
 import { InjectDiscordClient } from '@discord-nestjs/core';
 import { Client, GuildMember } from 'discord.js';
 import { DISCORD_BOT_SETTINGS_GUILDSID, DiscordBotTokenDto, UserTokenDto } from '@badgebuddy/common';
-import { Repository } from 'typeorm';
+import { DataSource } from 'typeorm';
 import {
   DiscordBotSettingsGetResponseDto,
 } from '@badgebuddy/common';
 import { DiscordBotSettingsEntity } from '@badgebuddy/common/dist/common-typeorm/entities/discord/discord-bot-settings.entity';
-import { InjectRepository } from '@nestjs/typeorm';
 import { JwtService } from '@nestjs/jwt';
 import { ProcessorTokenGuard } from '@/auth/guards/processor-token/processor-token.guard';
 import { DiscordBotTokenGuard } from '@/auth/guards/discord-bot-token/discord-bot-token.guard';
@@ -33,13 +30,13 @@ export class PoapManagerGuard implements CanActivate {
 
   constructor(
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
-    @InjectRepository(DiscordBotSettingsEntity) private discordBotSettingsRepo: Repository<DiscordBotSettingsEntity>,
     @InjectDiscordClient() private readonly discordClient: Client,
     private readonly logger: Logger,
     private readonly jwtService: JwtService,
     private readonly processorTokenGuard: ProcessorTokenGuard,
     private readonly userTokenGuard: UserTokenGuard,
     private readonly discordBotTokenGuard: DiscordBotTokenGuard,
+    private readonly dataSource: DataSource,
   ) { }
 
   async canActivate(
@@ -154,11 +151,11 @@ export class PoapManagerGuard implements CanActivate {
   }
 
   private async getBotSettingsFromDb(guildSId: string) {
-    return await this.discordBotSettingsRepo.findOne({
-      where: {
-        guildSId: guildSId,
-      },
-    });
+    return await this.dataSource.createQueryBuilder()
+      .select('discordBotSettings')
+      .from(DiscordBotSettingsEntity, 'discordBotSettings')
+      .where('discordBotSettings.guildSId = :guildSId', { guildSId })
+      .getOne();
   }
 
   private async fetchGuildMember(guildSId: string, organizerSId: string): Promise<GuildMember> {

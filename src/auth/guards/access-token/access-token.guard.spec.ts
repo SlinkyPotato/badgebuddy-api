@@ -3,8 +3,9 @@ import { AccessTokenGuard } from './access-token.guard';
 import { Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Test } from '@nestjs/testing';
+import { ConfigService } from '@nestjs/config';
 
-describe('ClientTokenGuard', () => {
+describe('AccessTokenGuard', () => {
   let guard: AccessTokenGuard;
 
   const mockJwtService = {
@@ -15,18 +16,17 @@ describe('ClientTokenGuard', () => {
     warn: jest.fn(),
   };
 
+  const mockConfigService = {
+    get: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module = await Test.createTestingModule({
       providers: [
         AccessTokenGuard,
-        {
-          provide: JwtService,
-          useValue: mockJwtService,
-        },
-        {
-          provide: Logger,
-          useValue: mockLogger,
-        },
+        { provide: JwtService, useValue: mockJwtService },
+        { provide: Logger, useValue: mockLogger },
+        { provide: ConfigService, useValue: mockConfigService },
       ],
     }).compile();
 

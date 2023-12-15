@@ -37,16 +37,22 @@ describe('AuthService', () => {
     set: jest.fn().mockReturnThis(),
   };
 
+  const mockTokenEntityRepository = {
+    findOne: jest.fn().mockReturnThis(),
+    save: jest.fn().mockReturnThis(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
+        { provide: Logger, useValue: mockLogger },
+        { provide: CACHE_MANAGER, useValue: mockCacheManager },
         { provide: JwtService, useValue: jest.fn() },
         { provide: ConfigService, useValue: mockConfigService },
         { provide: DataSource, useValue: jest.fn() },
         { provide: HttpService, useValue: jest.fn() },
-        { provide: Logger, useValue: mockLogger },
-        { provide: CACHE_MANAGER, useValue: mockCacheManager },
+        { provide: 'TokenEntityRepository', useValue: mockTokenEntityRepository },
       ],
     }).compile();
 

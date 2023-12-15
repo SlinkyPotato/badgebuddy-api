@@ -2,12 +2,14 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { DiscordBotController } from './discord-bot.controller';
 import { DiscordBotService } from './discord-bot.service';
 import { describe, it, expect, beforeEach, jest } from '@jest/globals';
-import { DiscordBotPostRequestDto } from './dto/discord-bot-post-request.dto';
-import { JwtService } from '@nestjs/jwt';
-import { Logger } from '@nestjs/common';
+import { DiscordBotPostRequestDto } from '@badgebuddy/common';
 
 jest.mock('@nestjs/cache-manager', () => ({
   CacheInterceptor: jest.fn().mockImplementation(() => ({})),
+}));
+
+jest.mock('@/auth/guards/user-token/user-token.guard', () => ({
+  UserTokenGuard: jest.fn().mockImplementation(() => ({})),
 }));
 
 describe('DiscordBotController', () => {
@@ -25,8 +27,6 @@ describe('DiscordBotController', () => {
       controllers: [DiscordBotController],
       providers: [
         { provide: DiscordBotService, useValue: mockService },
-        { provide: JwtService, useValue: mockService },
-        { provide: Logger, useValue: mockService },
       ],
     }).compile();
 

@@ -73,6 +73,7 @@ export type UserToken = {
 
 @Injectable()
 export class AuthService {
+  
   private static readonly ACCESS_TOKEN_EXPIRES_IN = 86400;
   private static readonly REFRESH_TOKEN_EXPIRES_IN = 604800;
 

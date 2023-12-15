@@ -10,6 +10,11 @@ import { PoapManagerGuard } from './poap-manager.guard';
 import { Test, TestingModule } from '@nestjs/testing';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Logger } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { ProcessorTokenGuard } from '@/auth/guards/processor-token/processor-token.guard';
+import { UserTokenGuard } from '@/auth/guards/user-token/user-token.guard';
+import { DiscordBotTokenGuard } from '@/auth/guards/discord-bot-token/discord-bot-token.guard';
+import { DataSource } from 'typeorm';
 
 describe('PoapManagerGuard', () => {
   let guard: PoapManagerGuard;
@@ -30,6 +35,10 @@ describe('PoapManagerGuard', () => {
     verbose: jest.fn().mockReturnThis(),
   };
 
+  const mockJwtService = {
+    decode: jest.fn().mockReturnThis(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -37,7 +46,11 @@ describe('PoapManagerGuard', () => {
         { provide: CACHE_MANAGER, useValue: mockCacheManager },
         { provide: '__inject_discord_client__', useValue: mockDiscordClient },
         { provide: Logger, useValue: mockLogger },
-        { provide: 'DiscordBotSettingsEntityRepository', useValue: jest.fn() }
+        { provide: JwtService, useValue: mockJwtService },
+        { provide: ProcessorTokenGuard, useValue: jest.fn() },
+        { provide: UserTokenGuard, useValue: jest.fn() },
+        { provide: DiscordBotTokenGuard, useValue: jest.fn() },
+        { provide: DataSource, useValue: jest.fn() },
       ],
     }).compile();
     guard = module.get<PoapManagerGuard>(PoapManagerGuard);
