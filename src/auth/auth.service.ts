@@ -21,10 +21,12 @@ import {
   AUTH_REQUEST,
   AUTH_REQUEST_DISCORD,
   AUTH_REQUEST_GOOGLE,
+  AccessTokenDto,
   AccountEntity,
   TokenEntity,
   TokenType,
   UserEntity,
+  UserTokenDto,
 } from '@badgebuddy/common';
 import nodemailer from 'nodemailer';
 import mjml2html from 'mjml';
@@ -58,18 +60,6 @@ type RedisAuthCode = {
   codeChannelMethod: string;
   codeChallenge: string;
 };
-
-type AccessToken ={
-  iat: number,
-  exp: number,
-  iss: string,
-  sub: string,
-  sessionId: string,
-};
-
-export type UserToken = {
-  userId: string,
-} & AccessToken;
 
 @Injectable()
 export class AuthService {
@@ -149,7 +139,7 @@ export class AuthService {
 
   async authorizeGoogle(auth: string): Promise<AuthorizeGoogleGetResponseDto> {
     this.logger.debug('attempting to authorize google');
-    const sessionId = this.decodeToken<AccessToken>(this.getTokenFromHeader(auth)).sessionId;
+    const sessionId = this.decodeToken<AccessTokenDto>(this.getTokenFromHeader(auth)).sessionId;
     const client = this.getGoogleClient();
     const veriferValues: CodeVerifierResults = await client.generateCodeVerifierAsync();
     const authorizeUrl = client.generateAuthUrl({
@@ -173,7 +163,7 @@ export class AuthService {
 
   async authorizeDiscord(auth: string): Promise<AuthorizeDiscordGetResponseDto> {
     this.logger.debug('attempting to authorize discord');
-    const sessionId = this.decodeToken<AccessToken>(this.getTokenFromHeader(auth)).sessionId;
+    const sessionId = this.decodeToken<AccessTokenDto>(this.getTokenFromHeader(auth)).sessionId;
     const clientId = this.configService.get('DISCORD_BOT_APPLICATION_ID');
     const scopes = 'email%20applications.commands.permissions.update';
     const redirectUri = encodeURIComponent(this.configService.get('DISCORD_REDIRECT_URI')!);
@@ -254,10 +244,10 @@ export class AuthService {
    */
   async refreshAccessToken(request: RefreshTokenPostRequestDto, requestAccessToken: string): Promise<RefreshTokenPostResponseDto> {    
     this.logger.debug(`Attempting to refresh access token for client`);
-    const decodedAccessToken = this.jwtService.decode<UserToken>(requestAccessToken);
-    let decodedRefresh: UserToken;
+    const decodedAccessToken = this.jwtService.decode<UserTokenDto>(requestAccessToken);
+    let decodedRefresh: UserTokenDto;
     try {
-      decodedRefresh = this.jwtService.verify<UserToken>(request.refreshToken);
+      decodedRefresh = this.jwtService.verify<UserTokenDto>(request.refreshToken);
       if (!decodedRefresh.userId || decodedRefresh.sub !== decodedAccessToken.sub || decodedRefresh.iss !== decodedAccessToken.iss || decodedRefresh.userId !== decodedAccessToken.userId) {
         throw new UnprocessableEntityException('Invalid refresh token');
       }
@@ -353,7 +343,7 @@ export class AuthService {
       throw new UnprocessableEntityException('Email not verified');
     }
 
-    const clientId = this.decodeToken<AccessToken>(this.getTokenFromHeader(auth)).sub;
+    const clientId = this.decodeToken<AccessTokenDto>(this.getTokenFromHeader(auth)).sub;
     const { accessToken, refreshToken } = this.generateTokens(clientId, user.id);
 
     this.logger.debug(`Logged in user ${user.id}`);
@@ -404,7 +394,7 @@ export class AuthService {
 
     await this.cacheManager.del(AUTH_EMAIL_VERIFY(request.email));
 
-    const clientId = this.decodeToken<AccessToken>(this.getTokenFromHeader(auth)).sub;
+    const clientId = this.decodeToken<AccessTokenDto>(this.getTokenFromHeader(auth)).sub;
     const { accessToken, refreshToken } = this.generateTokens(clientId, user.id);
     return this.getLoginResponse(user, accessToken, refreshToken);
   }
@@ -413,7 +403,7 @@ export class AuthService {
     this.logger.debug(`Attempting to login user with google`);
     const client = this.getGoogleClient();
     const resultFromHeader = this.getTokenFromHeader(clientToken);
-    const decodedClientToken = this.decodeToken<AccessToken>(resultFromHeader);
+    const decodedClientToken = this.decodeToken<AccessTokenDto>(resultFromHeader);
     const sessionId = decodedClientToken.sessionId;
 
     if (!sessionId) {
@@ -475,7 +465,7 @@ export class AuthService {
     this.logger.log(`Attempting to login user with discord`);
     
     const resultFromHeader = this.getTokenFromHeader(clientToken);
-    const decodedClientToken = this.decodeToken<AccessToken>(resultFromHeader);
+    const decodedClientToken = this.decodeToken<AccessTokenDto>(resultFromHeader);
     const sessionId = decodedClientToken.sessionId;
     this.logger.verbose(`processing session ${sessionId} for discord login attempt`);
 
