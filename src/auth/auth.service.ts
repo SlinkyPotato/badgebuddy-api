@@ -125,12 +125,17 @@ export class AuthService {
     };
   }
 
+  /**
+   * Send out an email with a magic link.
+   * @param email the email to send the magic link to 
+   */
   async authorizeEmail({email}: AuthorizeEmailPostRequestDto): Promise<void> {
-    this.logger.debug('Attempting to authorize email');
+    this.logger.log(`Attempting to authorize email: ${email}`);
 
     const emailCode: string = this.genMagicEmailCode(email);
     const mjmlParse = this.genConfirmationEmailHtml(emailCode);
     
+    this.logger.log(`Sending magic email code to ${email}`);
     this.transporter.sendMail({
       from: this.configService.get<string>('MAIL_FROM'),
       to: email,
@@ -138,7 +143,7 @@ export class AuthService {
       text: 'Please confirm your email.',
       html: mjmlParse.html,
     }).then((info) => {
-      this.logger.debug(`Sent mage email code`, info);
+      this.logger.debug(`Sent magic email code`, info);
     }).catch((error) => {
       this.logger.error(`Failed to send magic email code`, error);
     });
