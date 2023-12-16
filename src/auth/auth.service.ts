@@ -57,8 +57,9 @@ import qs from 'qs';
 import { InjectRepository } from '@nestjs/typeorm';
 
 type RedisAuthCode = {
-  codeChannelMethod: string;
+  codeChallengeMethod: string;
   codeChallenge: string;
+  scope?: string;
 };
 
 @Injectable()
@@ -96,26 +97,32 @@ export class AuthService {
    *
    * @see https://tools.ietf.org/html/rfc7636
    */
-  async authorize(request: AuthorizeGetRequestDto): Promise<AuthorizeGetResponseDto> {
-    this.logger.debug(`Attempting to generate auth token for client: ${request.clientId}`);
+  async authorize(
+    { clientId, codeChallenge, codeChallengeMethod, scope, state }: AuthorizeGetRequestDto
+  ): Promise<AuthorizeGetResponseDto> {
+    this.logger.log(`attempting to generate auth token for client: ${clientId}`);
     const authCode = crypto.randomBytes(20).toString('hex');
-    await this.cacheManager.del(AUTH_REQUEST(request.clientId, authCode));
 
-    const stored: RedisAuthCode = {
-      codeChannelMethod: request.codeChallengeMethod,
-      codeChallenge: request.codeChallenge,
-    };
+    this.logger.verbose('removing old auth code from cache');
+    await this.cacheManager.del(AUTH_REQUEST(clientId, authCode));
+    this.logger.verbose('removed old auth code from cache');
 
-    const signed = this.jwtService.sign(stored, {
+    const signed = this.jwtService.sign({
+      codeChallengeMethod,
+      codeChallenge,
+      scope,
+    } as RedisAuthCode, {
       expiresIn: '10m',
-      subject: request.clientId,
-    })
+      subject: clientId,
+    });
 
-    await this.cacheManager.set(AUTH_REQUEST(request.clientId, authCode), signed);
-    this.logger.debug(`Generated auth code ${authCode} for client ${request.clientId}`);
+    this.logger.verbose('setting new auth code in cache');
+    await this.cacheManager.set(AUTH_REQUEST(clientId, authCode), signed);
+    this.logger.log(`generated auth code ${authCode} for client ${clientId}`);
     return {
       code: authCode,
-    }
+      state,
+    };
   }
 
   async authorizeEmail({email}: AuthorizeEmailPostRequestDto): Promise<void> {
@@ -204,7 +211,7 @@ export class AuthService {
       throw new UnprocessableEntityException('Auth code invalid');
     }
 
-    switch (verifiedStored.codeChannelMethod) {
+    switch (verifiedStored.codeChallengeMethod) {
       case 's256':
         const codeChallenge = crypto.createHash('sha256').update(request.codeVerifier).digest('hex').toString();
         this.logger.debug(codeChallenge);

@@ -7,6 +7,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { HttpService } from '@nestjs/axios';
 import { DataSource } from 'typeorm';
+import { afterEach } from 'node:test';
 
 jest.mock('nodemailer', () => {
   return {
@@ -42,13 +43,19 @@ describe('AuthService', () => {
     save: jest.fn().mockReturnThis(),
   };
 
+  const mockJwtService = {
+    signAsync: jest.fn().mockReturnThis(),
+    sign: jest.fn().mockReturnThis(),
+    verifyAsync: jest.fn().mockReturnThis(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
         { provide: Logger, useValue: mockLogger },
         { provide: CACHE_MANAGER, useValue: mockCacheManager },
-        { provide: JwtService, useValue: jest.fn() },
+        { provide: JwtService, useValue: mockJwtService },
         { provide: ConfigService, useValue: mockConfigService },
         { provide: DataSource, useValue: jest.fn() },
         { provide: HttpService, useValue: jest.fn() },
@@ -59,7 +66,27 @@ describe('AuthService', () => {
     service = module.get<AuthService>(AuthService);
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   it('should be defined', () => {
     expect(service).toBeDefined();
+  });
+
+  describe('authorize', () => {
+    
+    it('should generate an auth code', async () => {
+      mockJwtService.sign.mockReturnValue('testJWTValue');
+      const state = crypto.randomUUID();
+      const result = await service.authorize({
+        clientId: 'testClient',
+        codeChallenge: 'testCodeChallenge',
+        codeChallengeMethod: 's256',
+        state
+      });
+      expect(result.code.length).toEqual(40);
+      expect(result.state).toEqual(state);
+    });
   });
 });
