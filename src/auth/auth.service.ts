@@ -23,7 +23,25 @@ import {
   AUTH_REQUEST_GOOGLE,
   AccessTokenDto,
   AccountEntity,
+  AuthorizeDiscordGetResponseDto,
+  AuthorizeEmailPostRequestDto,
+  AuthorizeGetRequestDto,
+  AuthorizeGetResponseDto,
+  AuthorizeGoogleGetResponseDto,
+  LoginDiscordPostRequestDto,
+  LoginDiscordPostResponseDto,
+  LoginEmailPostResponseDto,
+  LoginGooglePostRequestDto,
+  LoginGooglePostResponseDto,
+  LoginPostRequestDto,
+  LoginPostResponseDto,
+  RefreshTokenPostRequestDto,
+  RefreshTokenPostResponseDto,
+  RegisterPostRequestDto,
+  RegisterPostResponseDto,
   TokenEntity,
+  TokenGetRequestDto,
+  TokenGetResponseDto,
   TokenType,
   UserEntity,
   UserTokenDto,
@@ -33,24 +51,6 @@ import mjml2html from 'mjml';
 import base64url from 'base64url';
 import { EmailCode } from './pipes/email-code.pipe';
 import { CodeChallengeMethod, CodeVerifierResults, OAuth2Client } from 'google-auth-library';
-import { AuthorizeGetRequestDto } from './dto/authorize-get-request/authorize-get-request.dto';
-import { AuthorizeGetResponseDto } from './dto/authorize-get-request/authorize-get-response.dto';
-import { LoginEmailPostResponseDto } from './dto/login-email-post-request/login-email-post-response-dto';
-import { LoginGooglePostRequestDto } from './dto/login-google-post-request/login-google-post-request-dto';
-import { LoginGooglePostResponseDto } from './dto/login-google-post-request/login-google-post-response-dto';
-import { LoginPostRequestDto } from './dto/login-post-request/login-post-request.dto';
-import { LoginPostResponseDto } from './dto/login-post-request/login-post-response.dto';
-import { RefreshTokenPostRequestDto } from './dto/refresh-token-post-request/refresh-token-post-request.dto';
-import { RefreshTokenPostResponseDto } from './dto/refresh-token-post-request/refresh-token-post-response.dto';
-import { RegisterPostRequestDto } from './dto/register-post-request/register-post-request.dto';
-import { RegisterPostResponseDto } from './dto/register-post-request/register-post-response.dto';
-import { TokenGetRequestDto } from './dto/token-get-request/token-get-request.dto';
-import { TokenPostResponseDto } from './dto/token-get-request/token-get-response.dto';
-import { AuthorizeGoogleGetResponseDto } from './dto/authorize-google-get-response/authorize-google-get-response.dto';
-import { AuthorizeEmailPostRequestDto } from './dto/authorize-email-post-request/authorize-email-post-request.dto';
-import { AuthorizeDiscordGetResponseDto } from './dto/authorize-discord-get-response/authorize-discord-get-response.dto';
-import { LoginDiscordPostRequestDto } from './dto/login-discord-post-request/login-discord-post-request.dto';
-import { LoginDiscordPostResponseDto } from './dto/login-discord-post-response/login-discord-post-response.dto';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import qs from 'qs';
@@ -190,7 +190,7 @@ export class AuthService {
    *
    * @see https://tools.ietf.org/html/rfc6749#section-4.1.3
    */
-  async generateClientToken(request: TokenGetRequestDto): Promise<TokenPostResponseDto> {
+  async generateClientToken(request: TokenGetRequestDto): Promise<TokenGetResponseDto> {
     this.logger.debug(`Attempting to generate access token for client ${request.clientId}`);
     const cacheAuthCode = await this.cacheManager.get<string>(AUTH_REQUEST(request.clientId, request.code));
     if (!cacheAuthCode) {
