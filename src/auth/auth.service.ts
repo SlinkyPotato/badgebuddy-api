@@ -45,6 +45,7 @@ import {
   TokenType,
   UserEntity,
   UserTokenDto,
+  AuthorizeEmailPostResponseDto,
 } from '@badgebuddy/common';
 import nodemailer from 'nodemailer';
 import mjml2html from 'mjml';
@@ -129,7 +130,7 @@ export class AuthService {
    * Send out an email with a magic link.
    * @param email the email to send the magic link to 
    */
-  async authorizeEmail({email}: AuthorizeEmailPostRequestDto): Promise<void> {
+  async authorizeEmail({email, state}: AuthorizeEmailPostRequestDto): Promise<AuthorizeEmailPostResponseDto> {
     this.logger.log(`Attempting to authorize email: ${email}`);
 
     const emailCode: string = this.genMagicEmailCode(email);
@@ -147,6 +148,9 @@ export class AuthService {
     }).catch((error) => {
       this.logger.error(`Failed to send magic email code`, error);
     });
+    return {
+      state,
+    }
   }
 
   async authorizeGoogle(auth: string): Promise<AuthorizeGoogleGetResponseDto> {
@@ -771,7 +775,7 @@ export class AuthService {
     
     this.cacheManager.set(AUTH_EMAIL_VERIFY(email), encoding, (CODE_EXPIRES_IN))
       .then(() =>  {
-        this.logger.debug(`Set email verification in cache`);
+        this.logger.verbose(`set email verification in cache for ${email}`);
       }).catch((error) => {
         this.logger.error(`Failed to set email verification in cache`, error);
     });

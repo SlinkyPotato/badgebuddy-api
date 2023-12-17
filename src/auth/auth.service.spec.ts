@@ -12,9 +12,11 @@ import { afterEach } from 'node:test';
 jest.mock('nodemailer', () => {
   return {
     createTransport: jest.fn().mockReturnValue({
-      sendMail: jest.fn().mockReturnValue({
-        messageId: '123456789',
-      }),
+      sendMail: jest.fn().mockReturnValue(
+        Promise.resolve({
+          messageId: 'testMessageId',
+        })
+      ),
     }),
   };
 });
@@ -34,8 +36,8 @@ describe('AuthService', () => {
   };
 
   const mockCacheManager = {
-    del: jest.fn().mockReturnThis(),
-    set: jest.fn().mockReturnThis(),
+    del: jest.fn().mockReturnValue(Promise.resolve()),
+    set: jest.fn().mockReturnValue(Promise.resolve()),
   };
 
   const mockTokenEntityRepository = {
@@ -88,5 +90,14 @@ describe('AuthService', () => {
       expect(result.code.length).toEqual(40);
       expect(result.state).toEqual(state);
     });
+
+    it('should mock sending email', async () => {
+      const result = await service.authorizeEmail({
+        email: 'test@email.com',
+        state: 'register'
+      });
+      expect(result).toEqual({state: 'register'});
+    });
+
   });
 });

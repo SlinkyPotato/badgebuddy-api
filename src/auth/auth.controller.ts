@@ -19,7 +19,17 @@ import { ClientIdGuard } from './guards/client-id/client-id.guard';
 import { UserTokenNoVerifyGuard } from './guards/user-token-no-verify/user-token-guard-no-verify.guard';
 import { EmailCode, EmailCodePipe } from './pipes/email-code.pipe';
 import { AuthService } from './auth.service';
-import { AuthorizeGetResponseDto, AuthorizeGetRequestDto, AuthorizeEmailPostRequestDto, AuthorizeGoogleGetResponseDto, AuthorizeDiscordGetResponseDto, TokenGetRequestDto, RefreshTokenPostResponseDto, RefreshTokenPostRequestDto, RegisterPostRequestDto, RegisterPostResponseDto, LoginPostRequestDto, LoginPostResponseDto, LoginEmailPostResponseDto, LoginGooglePostRequestDto, LoginGooglePostResponseDto, LoginDiscordPostResponseDto, LoginDiscordPostRequestDto, TokenGetResponseDto } from '@badgebuddy/common';
+import {
+  AuthorizeGetResponseDto, AuthorizeGetRequestDto,
+  AuthorizeEmailPostRequestDto, AuthorizeGoogleGetResponseDto,
+  AuthorizeDiscordGetResponseDto, TokenGetRequestDto,
+  RefreshTokenPostResponseDto, RefreshTokenPostRequestDto,
+  RegisterPostRequestDto, RegisterPostResponseDto,
+  LoginPostRequestDto, LoginPostResponseDto, LoginEmailPostResponseDto,
+  LoginGooglePostRequestDto, LoginGooglePostResponseDto,
+  LoginDiscordPostResponseDto, LoginDiscordPostRequestDto, TokenGetResponseDto,
+  AuthorizeEmailPostResponseDto,
+} from '@badgebuddy/common';
 
 @Controller('auth')
 @ApiTags('Authentication')
@@ -52,7 +62,7 @@ export class AuthController {
   })
   authorizeEmail(
     @Body() request: AuthorizeEmailPostRequestDto,
-  ): Promise<void> {
+  ): Promise<AuthorizeEmailPostResponseDto> {
     return this.authService.authorizeEmail(request);
   }
 
