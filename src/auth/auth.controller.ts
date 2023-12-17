@@ -17,7 +17,7 @@ import {
 import { AccessTokenGuard } from './guards/access-token/access-token.guard';
 import { ClientIdGuard } from './guards/client-id/client-id.guard';
 import { UserTokenNoVerifyGuard } from './guards/user-token-no-verify/user-token-guard-no-verify.guard';
-import { EmailCode, EmailCodePipe } from './pipes/email-code.pipe';
+import { EmailCode, EmailCodePipe } from './pipes/email-code/email-code.pipe';
 import { AuthService } from './auth.service';
 import {
   AuthorizeGetResponseDto, AuthorizeGetRequestDto,
@@ -30,6 +30,7 @@ import {
   LoginDiscordPostResponseDto, LoginDiscordPostRequestDto, TokenGetResponseDto,
   AuthorizeEmailPostResponseDto,
 } from '@badgebuddy/common';
+import { AuthTypePipe } from './pipes/auth-type/auth-type.pipe';
 
 @Controller('auth')
 @ApiTags('Authentication')
@@ -76,8 +77,9 @@ export class AuthController {
   })
   authorizeGoogle(
     @Headers('Authorization') clientToken: string,
+    @Query('type', AuthTypePipe) type: string,
   ): Promise<AuthorizeGoogleGetResponseDto> {
-    return this.authService.authorizeGoogle(clientToken);
+    return this.authService.authorizeGoogle(clientToken, type);
   }
 
   @UseGuards(AccessTokenGuard)
@@ -90,8 +92,9 @@ export class AuthController {
   })
   authorizeDiscord(
     @Headers('Authorization') clientToken: string,
+    @Query('type', AuthTypePipe) type: string,
   ): Promise<AuthorizeDiscordGetResponseDto> {
-    return this.authService.authorizeDiscord(clientToken);
+    return this.authService.authorizeDiscord(clientToken, type);
   }
 
   @UseGuards(ClientIdGuard)

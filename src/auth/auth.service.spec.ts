@@ -21,6 +21,21 @@ jest.mock('nodemailer', () => {
   };
 });
 
+jest.mock('google-auth-library', () => ({
+  OAuth2Client: jest.fn().mockImplementation(() => ({
+    generateCodeVerifierAsync: jest.fn().mockReturnValue(Promise.resolve({
+      codeVerifier: 'testCodeVerifier',
+      codeChallenge: 'testCodeChallenge',
+    })),
+    generateAuthUrl: jest.fn().mockReturnValue('testAuthUrl'),
+    getToken: jest.fn(),
+  })),
+  CodeChallengeMethod: {
+    Plain: 'plain',
+    S256: 's256',
+  }
+}));
+
 describe('AuthService', () => {
   let service: AuthService;
 
@@ -49,6 +64,9 @@ describe('AuthService', () => {
     signAsync: jest.fn().mockReturnThis(),
     sign: jest.fn().mockReturnThis(),
     verifyAsync: jest.fn().mockReturnThis(),
+    decode: jest.fn().mockReturnValue({
+      sessionId: 'testSessionId',
+    })
   };
 
   beforeEach(async () => {
@@ -97,6 +115,24 @@ describe('AuthService', () => {
         state: 'register'
       });
       expect(result).toEqual({state: 'register'});
+    });
+
+    it('should authorize google for new register', async () => {
+      const clientToken = process.env.TEST_CLIENT_TOKEN ?? '';
+      const {authorizeUrl} = await service.authorizeGoogle(
+        clientToken,
+        'register'
+      );
+      expect(authorizeUrl).toEqual('testAuthUrl');
+    });
+
+    it('should authorize google for login', async () => {
+      const clientToken = process.env.TEST_CLIENT_TOKEN ?? '';
+      const {authorizeUrl} = await service.authorizeGoogle(
+        clientToken,
+        'login',
+      );
+      expect(authorizeUrl).toEqual('testAuthUrl');
     });
 
   });

@@ -50,7 +50,7 @@ import {
 import nodemailer from 'nodemailer';
 import mjml2html from 'mjml';
 import base64url from 'base64url';
-import { EmailCode } from './pipes/email-code.pipe';
+import { EmailCode } from './pipes/email-code/email-code.pipe';
 import { CodeChallengeMethod, CodeVerifierResults, OAuth2Client } from 'google-auth-library';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
@@ -136,7 +136,7 @@ export class AuthService {
     const emailCode: string = this.genMagicEmailCode(email);
     const mjmlParse = this.genConfirmationEmailHtml(emailCode);
     
-    this.logger.log(`Sending magic email code to ${email}`);
+    this.logger.verbose(`Sending magic email code to ${email}`);
     this.transporter.sendMail({
       from: this.configService.get<string>('MAIL_FROM'),
       to: email,
@@ -144,46 +144,59 @@ export class AuthService {
       text: 'Please confirm your email.',
       html: mjmlParse.html,
     }).then((info) => {
-      this.logger.debug(`Sent magic email code`, info);
+      this.logger.log(`Sent magic email code`, info);
     }).catch((error) => {
       this.logger.error(`Failed to send magic email code`, error);
     });
+    this.logger.log(`Returning state to client: ${state}`);
     return {
       state,
     }
   }
 
-  async authorizeGoogle(auth: string): Promise<AuthorizeGoogleGetResponseDto> {
-    this.logger.debug('attempting to authorize google');
-    const sessionId = this.decodeToken<AccessTokenDto>(this.getTokenFromHeader(auth)).sessionId;
+  /**
+   * Authorize google login with clientToken
+   * @param clientToken clientToken oauth client access token with sessionId 
+   * @returns authorizeUrl rediect url to google oauth
+   */
+  async authorizeGoogle(
+    clientToken: string,
+    type: string,
+  ): Promise<AuthorizeGoogleGetResponseDto> {
+    this.logger.log('attempting to authorize google');
+    const sessionId = this.decodeToken<AccessTokenDto>(this.getTokenFromHeader(clientToken)).sessionId;
     const client = this.getGoogleClient();
-    const veriferValues: CodeVerifierResults = await client.generateCodeVerifierAsync();
+    const {codeVerifier, codeChallenge }: CodeVerifierResults = await client.generateCodeVerifierAsync();
     const authorizeUrl = client.generateAuthUrl({
       access_type: 'offline',
       scope: 'openid https://www.googleapis.com/auth/userinfo.email',
       code_challenge_method: CodeChallengeMethod.S256,
-      code_challenge: veriferValues.codeChallenge,
+      code_challenge: codeChallenge,
+      state: type,
     });
-
+    this.logger.verbose(`Storing google code verifier for ${sessionId}`);
     try {
-      await this.cacheManager.set(AUTH_REQUEST_GOOGLE(sessionId), veriferValues.codeVerifier, (1000 * 60 * 10));
+      await this.cacheManager.set(AUTH_REQUEST_GOOGLE(sessionId), codeVerifier, (1000 * 60 * 10));
     } catch (error) {
       this.logger.error(`Failed to set google auth code for ${sessionId}`, error);
       throw new InternalServerErrorException('Failed to set google auth code');
     }
-
+    this.logger.log(`Returning authorize url to client: ${authorizeUrl}`)
     return {
       authorizeUrl: authorizeUrl,
     }
   }
 
-  async authorizeDiscord(auth: string): Promise<AuthorizeDiscordGetResponseDto> {
+  async authorizeDiscord(
+    auth: string,
+    type: string,
+  ): Promise<AuthorizeDiscordGetResponseDto> {
     this.logger.debug('attempting to authorize discord');
     const sessionId = this.decodeToken<AccessTokenDto>(this.getTokenFromHeader(auth)).sessionId;
     const clientId = this.configService.get('DISCORD_BOT_APPLICATION_ID');
     const scopes = 'email%20applications.commands.permissions.update';
     const redirectUri = encodeURIComponent(this.configService.get('DISCORD_REDIRECT_URI')!);
-    const state = crypto.randomBytes(16).toString('hex');
+    const state = crypto.randomBytes(16).toString('hex') + '_' + type;
     const authorizeUrl = `https://discord.com/api/oauth2/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&scope=${scopes}&state=${state}`;
 
     try {
@@ -477,7 +490,10 @@ export class AuthService {
     return this.getLoginResponse(user, accessToken, refreshToken);
   }
 
-  async loginDiscord(clientToken: string, {authCode, state}: LoginDiscordPostRequestDto): Promise<LoginDiscordPostResponseDto> {
+  async loginDiscord(
+    clientToken: string, 
+    {authCode, state}: LoginDiscordPostRequestDto
+  ): Promise<LoginDiscordPostResponseDto> {
     this.logger.log(`Attempting to login user with discord`);
     
     const resultFromHeader = this.getTokenFromHeader(clientToken);
@@ -769,6 +785,7 @@ export class AuthService {
   }
 
   private genMagicEmailCode(email: string): string {
+    this.logger.verbose(`Generating email verification for ${email}`);
     const randomHash = crypto.randomBytes(16).toString('base64url');
     const encoding = base64url(`${email}:${randomHash}`);
     const CODE_EXPIRES_IN = 1000 * 60 * 60 * 24; // 24 hours
@@ -779,6 +796,7 @@ export class AuthService {
       }).catch((error) => {
         this.logger.error(`Failed to set email verification in cache`, error);
     });
+    this.logger.verbose(`Generated email verification for ${email}`)
     return encoding;
   }
 

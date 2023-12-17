@@ -3,7 +3,7 @@ import { AuthController } from './auth.controller';
 import { describe, beforeEach, it, expect, jest } from '@jest/globals';
 import { AuthService } from './auth.service';
 import { ClientIdGuard } from './guards/client-id/client-id.guard';
-import { EmailCodePipe } from './pipes/email-code.pipe';
+import { EmailCodePipe } from './pipes/email-code/email-code.pipe';
 import { AccessTokenGuard } from './guards/access-token/access-token.guard';
 import { ConfigService } from '@nestjs/config';
 import {

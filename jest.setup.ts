@@ -8,3 +8,4 @@ process.env.DISCORD_BOT_APPLICATION_ID = 'discord-bot-application-id';
 process.env.DISCORD_BOT_PUBLIC_KEY = 'discord-bot-public-key';
 process.env.DISCORD_OWNER_ID = 'discord-owner-id';
 process.env.LOG_LEVEL = 'trace';
+process.env.TEST_CLIENT_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZXNzaW9uSWQiOiJkMDE3ZWM3Zi0zNGRmLTRjYmItYmY1Yy0wZTRlYmEyNGFjN2QiLCJpYXQiOjE3MDI4MzI2NjEsImV4cCI6MTcwMjgzNjI2MSwiaXNzIjoiaHR0cHM6Ly90ZXN0LmFwcC8iLCJzdWIiOiJ0ZXN0X3N1YiJ9.Boppf31dLMX0BYNmfgSn_tCxr3rVAO1oRO1tDP_LlZo';
