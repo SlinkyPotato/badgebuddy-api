@@ -1,4 +1,4 @@
-import { ENV_AUTH_PROCESSOR_CLIENT_ID, ENV_AUTH_PROCESSOR_CLIENT_SECRET } from '@/app.constants';
+import { AUTH_PROCESSOR_CLIENT_ID_ENV, AUTH_PROCESSOR_CLIENT_SECRET_ENV } from '@/app.constants';
 import { AccessTokenDto } from '@badgebuddy/common';
 import { CanActivate, ExecutionContext, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -36,13 +36,13 @@ export class ProcessorTokenGuard implements CanActivate {
     }
     try {
       const decodedAccessToken: AccessTokenDto = this.jwtService.verify<AccessTokenDto>(accessToken, {
-        secret: this.configService.get<string>(ENV_AUTH_PROCESSOR_CLIENT_SECRET),
+        secret: this.configService.get<string>(AUTH_PROCESSOR_CLIENT_SECRET_ENV),
       });
       if (!decodedAccessToken.sessionId) {
         this.logger.warn('Invalid discord bot token');
         return false;
       }
-      const processorClientId = this.configService.get<string>(ENV_AUTH_PROCESSOR_CLIENT_ID);
+      const processorClientId = this.configService.get<string>(AUTH_PROCESSOR_CLIENT_ID_ENV);
       if (!decodedAccessToken.sub || decodedAccessToken.sub !== processorClientId) {
         this.logger.warn('Unauthorized client tried to access the API');
         return false;

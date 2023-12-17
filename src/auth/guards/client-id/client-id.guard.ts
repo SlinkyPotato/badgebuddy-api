@@ -1,4 +1,4 @@
-import { ENV_AUTH_ALLOWED_CLIENT_IDS } from '@/app.constants';
+import { AUTH_ALLOWED_CLIENT_IDS_ENV } from '@/app.constants';
 import { BadRequestException, CanActivate, ExecutionContext, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Observable } from 'rxjs';
@@ -14,7 +14,7 @@ export class ClientIdGuard implements CanActivate {
   canActivate(
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
-    const allowedClients = this.configService.get<string>(ENV_AUTH_ALLOWED_CLIENT_IDS)?.split(',') ?? [];
+    const allowedClients = this.configService.get<string>(AUTH_ALLOWED_CLIENT_IDS_ENV)?.split(',') ?? [];
     const request = context.switchToHttp().getRequest();
     let clientId: string;
     try {

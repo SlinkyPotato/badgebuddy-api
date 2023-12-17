@@ -135,5 +135,23 @@ describe('AuthService', () => {
       expect(authorizeUrl).toEqual('testAuthUrl');
     });
 
+    it('should authorize discord for login', async () => {
+      const clientToken = process.env.TEST_CLIENT_TOKEN ?? '';
+      const {authorizeUrl} = await service.authorizeGoogle(
+        clientToken,
+        'login',
+      );
+      expect(authorizeUrl).toEqual('testAuthUrl');
+    });
+
+    it('should authorize discord for register', async () => {
+      const clientToken = process.env.TEST_CLIENT_TOKEN ?? '';
+      const {authorizeUrl} = await service.authorizeGoogle(
+        clientToken,
+        'register',
+      );
+      expect(authorizeUrl).toEqual('testAuthUrl');
+    });
+
   });
 });

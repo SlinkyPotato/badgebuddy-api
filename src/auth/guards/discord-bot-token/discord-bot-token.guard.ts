@@ -3,7 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { Observable } from 'rxjs';
 import { DiscordBotTokenDto } from '@badgebuddy/common';
 import { ConfigService } from '@nestjs/config';
-import { ENV_AUTH_DISCORD_BOT_CLIENT_ID, ENV_AUTH_DISCORD_BOT_CLIENT_SECRET } from '@/app.constants';
+import { AUTH_DISCORD_BOT_CLIENT_ID_ENV, AUTH_DISCORD_BOT_CLIENT_SECRET_ENV } from '@/app.constants';
 
 @Injectable()
 export class DiscordBotTokenGuard implements CanActivate {
@@ -36,13 +36,13 @@ export class DiscordBotTokenGuard implements CanActivate {
     }
     try {
       const decodedAccessToken: DiscordBotTokenDto = this.jwtService.verify<DiscordBotTokenDto>(accessToken, {
-        secret: this.configService.get<string>(ENV_AUTH_DISCORD_BOT_CLIENT_SECRET),
+        secret: this.configService.get<string>(AUTH_DISCORD_BOT_CLIENT_SECRET_ENV),
       });
       if (!decodedAccessToken.discordUserSId) {
         this.logger.warn('Invalid discord bot token');
         return false;
       }
-      const discordBotClientId = this.configService.get<string>(ENV_AUTH_DISCORD_BOT_CLIENT_ID);
+      const discordBotClientId = this.configService.get<string>(AUTH_DISCORD_BOT_CLIENT_ID_ENV);
       if (!decodedAccessToken.sub || decodedAccessToken.sub !== discordBotClientId) {
         this.logger.warn('Unauthorized client tried to access the API');
         return false;

@@ -2,7 +2,7 @@ import { CanActivate, ExecutionContext, Injectable, Logger } from '@nestjs/commo
 import { JwtService } from '@nestjs/jwt';
 import { Observable } from 'rxjs';
 import { ConfigService } from '@nestjs/config';
-import { ENV_AUTH_ALLOWED_CLIENT_IDS } from '@/app.constants';
+import { AUTH_ALLOWED_CLIENT_IDS_ENV } from '@/app.constants';
 import { UserTokenDto } from '@badgebuddy/common';
 
 @Injectable()
@@ -40,7 +40,7 @@ export class UserTokenGuard implements CanActivate {
         this.logger.warn('Invalid user token');
         return false;
       }
-      const allowedClients = this.configService.get<string>(ENV_AUTH_ALLOWED_CLIENT_IDS)?.split(',') ?? [];
+      const allowedClients = this.configService.get<string>(AUTH_ALLOWED_CLIENT_IDS_ENV)?.split(',') ?? [];
       if (!allowedClients.includes(decodedAccessToken.sub)) {
         this.logger.warn('Unauthorized client tried to access the API');
         return false;

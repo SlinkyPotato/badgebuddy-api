@@ -9,7 +9,7 @@ import { Observable } from 'rxjs';
 import { JwtService } from '@nestjs/jwt';
 import { AccessTokenDto } from '@badgebuddy/common';
 import { ConfigService } from '@nestjs/config';
-import { ENV_AUTH_ALLOWED_CLIENT_IDS } from '@/app.constants';
+import { AUTH_ALLOWED_CLIENT_IDS_ENV } from '@/app.constants';
 
 @Injectable()
 export class AccessTokenGuard implements CanActivate {
@@ -45,7 +45,7 @@ export class AccessTokenGuard implements CanActivate {
       if (!decoded || !decoded.sessionId) {
         throw new UnauthorizedException();
       }
-      const allowedClients = this.configService.get<string>(ENV_AUTH_ALLOWED_CLIENT_IDS)?.split(',') ?? [];
+      const allowedClients = this.configService.get<string>(AUTH_ALLOWED_CLIENT_IDS_ENV)?.split(',') ?? [];
       if (!allowedClients.includes(decoded.sub)) {
         this.logger.warn('Unauthorized client tried to access the API');
         return false;

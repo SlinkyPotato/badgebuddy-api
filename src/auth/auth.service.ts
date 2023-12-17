@@ -56,6 +56,7 @@ import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import qs from 'qs';
 import { InjectRepository } from '@nestjs/typeorm';
+import { AUTH_GOOGLE_CLIENT_ID_ENV, AUTH_GOOGLE_CLIENT_SECRET_ENV, AUTH_GOOGLE_REDIRECT_URI_ENV, DISCORD_BOT_APPLICATION_ID_ENV, DISCORD_REDIRECT_URI_ENV } from '@/app.constants';
 
 type RedisAuthCode = {
   codeChallengeMethod: string;
@@ -155,7 +156,7 @@ export class AuthService {
   }
 
   /**
-   * Authorize google login with clientToken
+   * Generate authorization URL for google login
    * @param clientToken clientToken oauth client access token with sessionId 
    * @returns authorizeUrl rediect url to google oauth
    */
@@ -187,28 +188,35 @@ export class AuthService {
     }
   }
 
+  /**
+   * Generate authorization URL for discord login
+   * @param auth clientToken oauth client access token with sessionId
+   * @param type authorize type (login, register)
+   * @returns authorizeUrl rediect url to discord oauth
+   */
   async authorizeDiscord(
     auth: string,
     type: string,
   ): Promise<AuthorizeDiscordGetResponseDto> {
-    this.logger.debug('attempting to authorize discord');
+    this.logger.log('attempting to authorize discord');
     const sessionId = this.decodeToken<AccessTokenDto>(this.getTokenFromHeader(auth)).sessionId;
-    const clientId = this.configService.get('DISCORD_BOT_APPLICATION_ID');
+    const clientId = this.configService.get(DISCORD_BOT_APPLICATION_ID_ENV);
     const scopes = 'email%20applications.commands.permissions.update';
-    const redirectUri = encodeURIComponent(this.configService.get('DISCORD_REDIRECT_URI')!);
+    const redirectUri = encodeURIComponent(this.configService.get(DISCORD_REDIRECT_URI_ENV)!);
     const state = crypto.randomBytes(16).toString('hex') + '_' + type;
     const authorizeUrl = `https://discord.com/api/oauth2/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&scope=${scopes}&state=${state}`;
 
     try {
+      this.logger.verbose(`Storing discord state for ${sessionId}`);
       await this.cacheManager.set(AUTH_REQUEST_DISCORD(sessionId), state, (1000 * 60 * 10));
-      this.logger.debug(`Stored discord state for ${sessionId}`);
+      this.logger.verbose(`Stored discord state for ${sessionId}`);
     } catch (error) {
       this.logger.error(`Failed to set discord auth code for ${sessionId}`, error);
       throw new InternalServerErrorException('Failed to set discord auth code');
     }
-
+    this.logger.log(`Returning authorize url to client: ${authorizeUrl}`)
     return {
-      authorizeUrl: authorizeUrl,
+      authorizeUrl,
     }
   }
 
@@ -723,9 +731,9 @@ export class AuthService {
 
   private getGoogleClient(): OAuth2Client {
     return new OAuth2Client(
-      process.env.AUTH_GOOGLE_CLIENT_ID,
-      process.env.AUTH_GOOGLE_CLIENT_SECRET,
-      process.env.AUTH_GOOGLE_REDIRECT_URI,
+      this.configService.get(AUTH_GOOGLE_CLIENT_ID_ENV),
+      this.configService.get(AUTH_GOOGLE_CLIENT_SECRET_ENV),
+      this.configService.get(AUTH_GOOGLE_REDIRECT_URI_ENV),
     );
   }
 
