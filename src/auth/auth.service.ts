@@ -353,7 +353,7 @@ export class AuthService {
     this.logger.debug(`Registered user ${userId}`);
     
     return {
-      user: userId,
+      userId,
     }
   }
 
