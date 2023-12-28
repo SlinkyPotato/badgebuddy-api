@@ -21,9 +21,7 @@ import { ProcessorTokenGuard } from './guards/processor-token/processor-token.gu
       },
     }),
     HttpModule,
-    TypeOrmModule.forFeature([
-      TokenEntity
-    ])
+    TypeOrmModule.forFeature([TokenEntity]),
   ],
   controllers: [AuthController],
   providers: [
@@ -40,6 +38,6 @@ import { ProcessorTokenGuard } from './guards/processor-token/processor-token.gu
     UserTokenGuard,
     DiscordBotTokenGuard,
     ProcessorTokenGuard,
-  ]
+  ],
 })
 export class AuthModule {}

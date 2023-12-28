@@ -1,4 +1,10 @@
-import { ArgumentMetadata, Injectable, InternalServerErrorException, PipeTransform, UnprocessableEntityException } from '@nestjs/common';
+import {
+  ArgumentMetadata,
+  Injectable,
+  InternalServerErrorException,
+  PipeTransform,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import base64url from 'base64url';
 
 export type EmailCode = {
@@ -7,12 +13,16 @@ export type EmailCode = {
 };
 
 @Injectable()
-export class EmailCodePipe implements PipeTransform {
-  transform(value: any, metadata: ArgumentMetadata): EmailCode {
+export class EmailCodePipe implements PipeTransform<string, EmailCode> {
+  transform(value: string, metadata: ArgumentMetadata): EmailCode {
     if (metadata.type !== 'body') {
-      throw new InternalServerErrorException('EmailCodePipe only supports body');
+      throw new InternalServerErrorException(
+        'EmailCodePipe only supports body',
+      );
     }
-    const [requestEmail, requestRandomHash] = base64url.decode(value).split(':');
+    const [requestEmail, requestRandomHash] = base64url
+      .decode(value)
+      .split(':');
     if (!requestEmail || !requestRandomHash) {
       throw new UnprocessableEntityException('Email verification invalid');
     }

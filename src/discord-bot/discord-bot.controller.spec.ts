@@ -25,9 +25,7 @@ describe('DiscordBotController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [DiscordBotController],
-      providers: [
-        { provide: DiscordBotService, useValue: mockService },
-      ],
+      providers: [{ provide: DiscordBotService, useValue: mockService }],
     }).compile();
 
     controller = module.get<DiscordBotController>(DiscordBotController);

@@ -32,9 +32,9 @@ describe('ProcessorTokenGuard', () => {
         { provide: ConfigService, useValue: mockConfigService },
       ],
     }).compile();
-    processorTokenGuard = testModule.get<ProcessorTokenGuard>(ProcessorTokenGuard);
+    processorTokenGuard =
+      testModule.get<ProcessorTokenGuard>(ProcessorTokenGuard);
   });
-
 
   it('should be defined', () => {
     expect(processorTokenGuard).toBeDefined();

@@ -8,7 +8,7 @@ describe('ClientIdGuard', () => {
   let guard: ClientIdGuard;
 
   const mockConfigService = {
-    get: jest.fn().mockReturnValue('')
+    get: jest.fn().mockReturnValue(''),
   };
 
   const mockLogger = {
@@ -26,7 +26,7 @@ describe('ClientIdGuard', () => {
     }).compile();
 
     guard = module.get<ClientIdGuard>(ClientIdGuard);
-  })
+  });
 
   it('should be defined', () => {
     expect(guard).toBeDefined();

@@ -13,16 +13,10 @@ import { AuthModule } from '@/auth/auth.module';
     DiscordModule.forFeature(),
     CommonTypeOrmModule,
     HttpModule,
-    TypeOrmModule.forFeature([
-      DiscordBotSettingsEntity,
-      TokenEntity,
-    ]),
+    TypeOrmModule.forFeature([DiscordBotSettingsEntity, TokenEntity]),
     AuthModule,
   ],
   controllers: [DiscordBotController],
-  providers: [
-    DiscordBotService,
-    Logger,
-  ],
+  providers: [DiscordBotService, Logger],
 })
 export class DiscordBotModule {}

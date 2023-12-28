@@ -1,4 +1,18 @@
-import { Controller, Get, Post, Body, Delete, UseInterceptors, Query, HttpStatus, HttpCode, UsePipes, ValidationPipe, Patch, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Delete,
+  UseInterceptors,
+  Query,
+  HttpStatus,
+  HttpCode,
+  UsePipes,
+  ValidationPipe,
+  Patch,
+  UseGuards,
+} from '@nestjs/common';
 import { DiscordBotService } from './discord-bot.service';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CacheInterceptor } from '@nestjs/cache-manager';
@@ -10,7 +24,7 @@ import {
   DiscordBotPostResponseDto,
   DiscordBotPostRequestDto,
   DiscordBotPermissionsPatchRequestDto,
-  DiscordBotDeleteRequestDto
+  DiscordBotDeleteRequestDto,
 } from '@badgebuddy/common';
 
 @Controller('discord/bot')
@@ -18,10 +32,7 @@ import {
 @UseInterceptors(CacheInterceptor)
 @UsePipes(ValidationPipe)
 export class DiscordBotController {
-  
-  constructor(
-    private readonly discordBotService: DiscordBotService
-  ) {}
+  constructor(private readonly discordBotService: DiscordBotService) {}
 
   @Get('settings')
   @UseGuards(UserTokenGuard)
@@ -54,7 +65,7 @@ export class DiscordBotController {
     description: 'Discord bot already exists',
   })
   addBot(
-    @Body() request: DiscordBotPostRequestDto
+    @Body() request: DiscordBotPostRequestDto,
   ): Promise<DiscordBotPostResponseDto> {
     return this.discordBotService.addBotToGuild(request);
   }
@@ -87,9 +98,7 @@ export class DiscordBotController {
     status: HttpStatus.NOT_FOUND,
     description: 'Guild not found',
   })
-  removeBot(
-    @Body() request: DiscordBotDeleteRequestDto,
-  ) {
+  removeBot(@Body() request: DiscordBotDeleteRequestDto) {
     return this.discordBotService.removeBotFromGuild(request);
   }
 }

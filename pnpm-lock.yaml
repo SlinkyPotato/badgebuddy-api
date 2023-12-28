@@ -6,8 +6,8 @@ settings:
 
 dependencies:
   '@badgebuddy/common':
-    specifier: 2.1.0-7
-    version: 2.1.0-7(@discord-nestjs/common@5.2.10)(@discord-nestjs/core@5.3.12)(@nestjs/bull@10.0.1)(@nestjs/cache-manager@2.1.1)(@nestjs/common@10.3.0)(@nestjs/config@3.1.1)(@nestjs/core@10.3.0)(@nestjs/jwt@10.2.0)(@nestjs/schematics@10.0.3)(@nestjs/swagger@7.1.17)(@nestjs/testing@10.3.0)(@nestjs/typeorm@10.0.1)(bull@4.12.0)(cache-manager-redis-yet@4.1.2)(cache-manager@5.3.2)(class-transformer@0.5.1)(class-validator@0.14.0)(discord.js@14.14.1)(joi@17.11.0)(mysql2@3.6.5)(redis@4.6.12)(reflect-metadata@0.1.14)(rxjs@7.8.1)(standard-version@9.5.0)(typeorm@0.3.17)
+    specifier: 2.1.0-8
+    version: 2.1.0-8(@discord-nestjs/common@5.2.10)(@discord-nestjs/core@5.3.12)(@nestjs/bull@10.0.1)(@nestjs/cache-manager@2.1.1)(@nestjs/common@10.3.0)(@nestjs/config@3.1.1)(@nestjs/core@10.3.0)(@nestjs/jwt@10.2.0)(@nestjs/schematics@10.0.3)(@nestjs/swagger@7.1.17)(@nestjs/testing@10.3.0)(@nestjs/typeorm@10.0.1)(bull@4.12.0)(cache-manager-redis-yet@4.1.2)(cache-manager@5.3.2)(class-transformer@0.5.1)(class-validator@0.14.0)(discord.js@14.14.1)(joi@17.11.0)(mysql2@3.6.5)(redis@4.6.12)(reflect-metadata@0.1.14)(rxjs@7.8.1)(standard-version@9.5.0)(typeorm@0.3.17)
   '@discord-nestjs/common':
     specifier: ^5.2.10
     version: 5.2.10(@discord-nestjs/core@5.3.12)(@nestjs/common@10.3.0)(@nestjs/core@10.3.0)(discord.js@14.14.1)(reflect-metadata@0.1.14)(rxjs@7.8.1)
@@ -160,9 +160,15 @@ devDependencies:
   eslint:
     specifier: ^8.56.0
     version: 8.56.0
+  eslint-config-prettier:
+    specifier: ^9.1.0
+    version: 9.1.0(eslint@8.56.0)
   jest:
     specifier: ^29.7.0
     version: 29.7.0(@types/node@20.10.5)(ts-node@10.9.2)
+  prettier:
+    specifier: ^3.1.1
+    version: 3.1.1
   source-map-support:
     specifier: ^0.5.21
     version: 0.5.21
@@ -576,8 +582,8 @@ packages:
       to-fast-properties: 2.0.0
     dev: true
 
-  /@badgebuddy/common@2.1.0-7(@discord-nestjs/common@5.2.10)(@discord-nestjs/core@5.3.12)(@nestjs/bull@10.0.1)(@nestjs/cache-manager@2.1.1)(@nestjs/common@10.3.0)(@nestjs/config@3.1.1)(@nestjs/core@10.3.0)(@nestjs/jwt@10.2.0)(@nestjs/schematics@10.0.3)(@nestjs/swagger@7.1.17)(@nestjs/testing@10.3.0)(@nestjs/typeorm@10.0.1)(bull@4.12.0)(cache-manager-redis-yet@4.1.2)(cache-manager@5.3.2)(class-transformer@0.5.1)(class-validator@0.14.0)(discord.js@14.14.1)(joi@17.11.0)(mysql2@3.6.5)(redis@4.6.12)(reflect-metadata@0.1.14)(rxjs@7.8.1)(standard-version@9.5.0)(typeorm@0.3.17):
-    resolution: {integrity: sha512-0yBwL/Jgco/GUfLUUgBDpFFABPagq/AxI411QaprFGhojlRwYj0CiI1ydtVXAwCzCH0QWNarkvVPIITeai17Mw==}
+  /@badgebuddy/common@2.1.0-8(@discord-nestjs/common@5.2.10)(@discord-nestjs/core@5.3.12)(@nestjs/bull@10.0.1)(@nestjs/cache-manager@2.1.1)(@nestjs/common@10.3.0)(@nestjs/config@3.1.1)(@nestjs/core@10.3.0)(@nestjs/jwt@10.2.0)(@nestjs/schematics@10.0.3)(@nestjs/swagger@7.1.17)(@nestjs/testing@10.3.0)(@nestjs/typeorm@10.0.1)(bull@4.12.0)(cache-manager-redis-yet@4.1.2)(cache-manager@5.3.2)(class-transformer@0.5.1)(class-validator@0.14.0)(discord.js@14.14.1)(joi@17.11.0)(mysql2@3.6.5)(redis@4.6.12)(reflect-metadata@0.1.14)(rxjs@7.8.1)(standard-version@9.5.0)(typeorm@0.3.17):
+    resolution: {integrity: sha512-A2mVrTR21GCFJEpqHbG+gzIKc/hA+InM/ZZVAJsY2obKE8dSSiKHRN8DA9xbc9p7j0qCbYzYEOmgV+mcap8NdQ==}
     engines: {node: 20.10.0, pnpm: 8.13.1}
     peerDependencies:
       '@discord-nestjs/common': ^5.2.9
@@ -4179,6 +4185,15 @@ packages:
     engines: {node: '>=12'}
     dev: true
 
+  /eslint-config-prettier@9.1.0(eslint@8.56.0):
+    resolution: {integrity: sha512-NSWl5BFQWEPi1j4TjVNItzYV7dZXZ+wP6I6ZhrBGpChQhZRUaElihE9uRRkcbRnNb76UMKDF3r+WTmNcGPKsqw==}
+    hasBin: true
+    peerDependencies:
+      eslint: '>=7.0.0'
+    dependencies:
+      eslint: 8.56.0
+    dev: true
+
   /eslint-scope@5.1.1:
     resolution: {integrity: sha512-2NxwbF/hZ0KpepYN0cNbo+FN6XoK7GaHlQhgx/hIZl6Va0bF45RQOOwhLIy8lQDbuCiadSLCBnH2CFYquit5bw==}
     engines: {node: '>=8.0.0'}
@@ -7453,6 +7468,12 @@ packages:
   /prelude-ls@1.2.1:
     resolution: {integrity: sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==}
     engines: {node: '>= 0.8.0'}
+    dev: true
+
+  /prettier@3.1.1:
+    resolution: {integrity: sha512-22UbSzg8luF4UuZtzgiUOfcGM8s4tjBv6dJRT7j275NXsy2jb4aJa4NNveul5x4eqlF1wuhuR2RElK71RvmVaw==}
+    engines: {node: '>=14'}
+    hasBin: true
     dev: true
 
   /pretty-format@29.7.0:

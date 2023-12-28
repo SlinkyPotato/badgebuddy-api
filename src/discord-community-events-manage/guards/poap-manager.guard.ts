@@ -10,11 +10,13 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { InjectDiscordClient } from '@discord-nestjs/core';
 import { Client, GuildMember } from 'discord.js';
-import { DISCORD_BOT_SETTINGS_GUILDSID, DiscordBotTokenDto, UserTokenDto } from '@badgebuddy/common';
-import { DataSource } from 'typeorm';
 import {
-  DiscordBotSettingsGetResponseDto,
+  DISCORD_BOT_SETTINGS_GUILDSID,
+  DiscordBotTokenDto,
+  UserTokenDto,
 } from '@badgebuddy/common';
+import { DataSource } from 'typeorm';
+import { DiscordBotSettingsGetResponseDto } from '@badgebuddy/common';
 import { DiscordBotSettingsEntity } from '@badgebuddy/common/dist/common-typeorm/entities/discord/discord-bot-settings.entity';
 import { JwtService } from '@nestjs/jwt';
 import { ProcessorTokenGuard } from '@/auth/guards/processor-token/processor-token.guard';
@@ -27,7 +29,6 @@ import { UserTokenGuard } from '@/auth/guards/user-token/user-token.guard';
  */
 @Injectable()
 export class PoapManagerGuard implements CanActivate {
-
   constructor(
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
     @InjectDiscordClient() private readonly discordClient: Client,
@@ -37,24 +38,35 @@ export class PoapManagerGuard implements CanActivate {
     private readonly userTokenGuard: UserTokenGuard,
     private readonly discordBotTokenGuard: DiscordBotTokenGuard,
     private readonly dataSource: DataSource,
-  ) { }
+  ) {}
 
-  async canActivate(
-    context: ExecutionContext,
-  ): Promise<boolean> {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     if (await this.processorTokenGuard.canActivate(context)) {
       return true;
     }
 
     if (
-      !await this.userTokenGuard.canActivate(context) && 
-      !await this.discordBotTokenGuard.canActivate(context)
+      !(await this.userTokenGuard.canActivate(context)) &&
+      !(await this.discordBotTokenGuard.canActivate(context))
     ) {
       return false;
     }
-    
-    const accessToken = context.switchToHttp().getRequest().headers['authorization'].split(' ')[1];
-    const decodedToken: DiscordBotTokenDto | UserTokenDto = this.jwtService.decode<DiscordBotTokenDto | UserTokenDto>(accessToken);
+
+    const accessToken = context
+      .switchToHttp()
+      .getRequest<{
+        headers: { authorization: string | undefined } | undefined;
+      }>()
+      .headers?.authorization?.split(' ')[1];
+
+    if (!accessToken) {
+      this.logger.warn(
+        `Auth request rejected. Missing accessToken. accessToken: ${accessToken}`,
+      );
+      throw new UnauthorizedException('Missing accessToken');
+    }
+    const decodedToken: DiscordBotTokenDto | UserTokenDto =
+      this.jwtService.decode<DiscordBotTokenDto | UserTokenDto>(accessToken);
     const organizerSId = decodedToken.discordUserSId;
 
     if (!organizerSId) {
@@ -64,7 +76,9 @@ export class PoapManagerGuard implements CanActivate {
       throw new UnauthorizedException('Missing discordUserSId');
     }
 
-    const { guildSId } = context.switchToHttp().getRequest().body;
+    const { guildSId } = context
+      .switchToHttp()
+      .getRequest<{ body: { guildSId: string | undefined } }>().body;
 
     if (!guildSId) {
       this.logger.warn(
@@ -73,9 +87,7 @@ export class PoapManagerGuard implements CanActivate {
       throw new UnauthorizedException('Missing guildSId or organizerSId');
     }
 
-    this.logger.log(
-      `Checking auth request for guildSId: ${guildSId}`
-    );
+    this.logger.log(`Checking auth request for guildSId: ${guildSId}`);
 
     let poapManagerRoleSId: string | undefined;
     const botSettingsCache = await this.getBotSettingsFromCache(guildSId);
@@ -83,17 +95,34 @@ export class PoapManagerGuard implements CanActivate {
 
     if (botSettingsCache) {
       poapManagerRoleSId = botSettingsCache.poapManagerRoleId;
-      this.logger.verbose(`found poapManagerRoleSId in cache for guildSId: ${guildSId}, poapManagerRoleSId: ${poapManagerRoleSId}`)
+      this.logger.verbose(
+        `found poapManagerRoleSId in cache for guildSId: ${guildSId}, poapManagerRoleSId: ${poapManagerRoleSId}`,
+      );
     }
 
     if (!botSettingsCache) {
-      this.logger.verbose(`Bot settings not found in cache for guildSId: ${guildSId}, attempting to pull from db`);
+      this.logger.verbose(
+        `Bot settings not found in cache for guildSId: ${guildSId}, attempting to pull from db`,
+      );
       botSettingsDb = await this.getBotSettingsFromDb(guildSId);
 
       if (botSettingsDb) {
         poapManagerRoleSId = botSettingsDb.poapManagerRoleSId;
-        this.logger.verbose(`poapManagerRoleSId found in db for guildSId: ${guildSId}, poapManagerRoleSId: ${poapManagerRoleSId}`);
-        this.storeBotSettingsInCache(botSettingsDb);
+        this.logger.verbose(
+          `poapManagerRoleSId found in db for guildSId: ${guildSId}, poapManagerRoleSId: ${poapManagerRoleSId}`,
+        );
+        this.storeBotSettingsInCache(botSettingsDb)
+          .then(() => {
+            this.logger.verbose(
+              `Bot settings stored in cache for guildSId: ${guildSId}`,
+            );
+          })
+          .catch((error) => {
+            this.logger.error(
+              `Failed to store bot settings in cache for guildSId: ${guildSId}`,
+              error,
+            );
+          });
       }
     }
 
@@ -106,7 +135,9 @@ export class PoapManagerGuard implements CanActivate {
 
     try {
       const guildMember = await this.fetchGuildMember(guildSId, organizerSId);
-      this.logger.verbose(`Guild member found for guildSId: ${guildSId} and organizerSId: ${organizerSId}`);
+      this.logger.verbose(
+        `Guild member found for guildSId: ${guildSId} and organizerSId: ${organizerSId}`,
+      );
       if (!guildMember.roles.cache.has(poapManagerRoleSId)) {
         this.logger.warn(
           `Auth request rejected. User is not a POAP manager for organizerId: ${organizerSId}`,
@@ -127,7 +158,7 @@ export class PoapManagerGuard implements CanActivate {
   }
 
   private async storeBotSettingsInCache(botSettings: DiscordBotSettingsEntity) {
-    return this.cacheManager.set(
+    return await this.cacheManager.set(
       DISCORD_BOT_SETTINGS_GUILDSID(botSettings.guildSId),
       {
         id: botSettings.id,
@@ -137,11 +168,7 @@ export class PoapManagerGuard implements CanActivate {
         privateChannelId: botSettings.privateChannelSId,
         newsChannelId: botSettings.newsChannelSId,
       } as DiscordBotSettingsGetResponseDto,
-    ).then(() => {
-      this.logger.verbose(`Bot settings stored in cache for guildSId: ${botSettings.guildSId}`);
-    }).catch((error) => {
-      this.logger.error(`Failed to store bot settings in cache for guildSId: ${botSettings.guildSId}`, error);
-    });
+    );
   }
 
   private async getBotSettingsFromCache(guildSId: string) {
@@ -151,15 +178,20 @@ export class PoapManagerGuard implements CanActivate {
   }
 
   private async getBotSettingsFromDb(guildSId: string) {
-    return await this.dataSource.createQueryBuilder()
+    return await this.dataSource
+      .createQueryBuilder()
       .select('discordBotSettings')
       .from(DiscordBotSettingsEntity, 'discordBotSettings')
       .where('discordBotSettings.guildSId = :guildSId', { guildSId })
       .getOne();
   }
 
-  private async fetchGuildMember(guildSId: string, organizerSId: string): Promise<GuildMember> {
-    return (await this.discordClient.guilds.fetch(guildSId)).members.fetch(organizerSId);
+  private async fetchGuildMember(
+    guildSId: string,
+    organizerSId: string,
+  ): Promise<GuildMember> {
+    return (await this.discordClient.guilds.fetch(guildSId)).members.fetch(
+      organizerSId,
+    );
   }
-
 }

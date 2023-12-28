@@ -1,5 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { CommunityEventDiscordEntity, DiscordActiveCommunityEventsGetResponseDto, DiscordActiveCommunityEventDto } from '@badgebuddy/common';
+import {
+  CommunityEventDiscordEntity,
+  DiscordActiveCommunityEventsGetResponseDto,
+  DiscordActiveCommunityEventDto,
+} from '@badgebuddy/common';
 import { MoreThan, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
@@ -7,17 +11,17 @@ import {
   DiscordCommunityEventsActiveByGuildGetRequestDto,
   DiscordCommunityEventsActiveByOrganizerGetRequestDto,
   DiscordCommunityEventsActiveByVoiceChannelGetRequestDto,
-  DiscordCommunityEventsActiveByGuildAndOrganizerGetRequestDto
+  DiscordCommunityEventsActiveByGuildAndOrganizerGetRequestDto,
 } from '@badgebuddy/common';
 
 @Injectable()
 export class DiscordCommunityEventsActiveService {
-
   constructor(
-    @InjectRepository(CommunityEventDiscordEntity) private communityEventRepo: Repository<CommunityEventDiscordEntity>,
+    @InjectRepository(CommunityEventDiscordEntity)
+    private communityEventRepo: Repository<CommunityEventDiscordEntity>,
     private readonly logger: Logger,
   ) {}
-  
+
   async getActiveEvents() {
     this.logger.log('Getting all active events');
     let activeEvents: CommunityEventDiscordEntity[] = [];
@@ -32,8 +36,8 @@ export class DiscordCommunityEventsActiveService {
         where: {
           communityEvent: {
             endDate: MoreThan(currentDate),
-          }
-        }
+          },
+        },
       });
     } catch (e) {
       this.logger.error('Error getting all active events');
@@ -41,10 +45,10 @@ export class DiscordCommunityEventsActiveService {
     }
     return this.mapEventToResponse(activeEvents);
   }
-  
-  async getActiveEventsById(
-    {communityEventId}: DiscordCommunityEventsActiveByIdGetRequestDto
-  ): Promise<DiscordActiveCommunityEventsGetResponseDto> {
+
+  async getActiveEventsById({
+    communityEventId,
+  }: DiscordCommunityEventsActiveByIdGetRequestDto): Promise<DiscordActiveCommunityEventsGetResponseDto> {
     this.logger.log(`Getting active event for eventId: ${communityEventId}`);
     let activeEvents: CommunityEventDiscordEntity[] = [];
     try {
@@ -59,19 +63,21 @@ export class DiscordCommunityEventsActiveService {
           communityEventId,
           communityEvent: {
             endDate: MoreThan(currentDate),
-          }
-        }
+          },
+        },
       });
     } catch (e) {
-      this.logger.log(`Error getting active event for eventId: ${communityEventId}`);
+      this.logger.log(
+        `Error getting active event for eventId: ${communityEventId}`,
+      );
       throw e;
     }
     return this.mapEventToResponse(activeEvents);
   }
-  
-  async getActiveEventsByGuildId(
-    { guildSId }: DiscordCommunityEventsActiveByGuildGetRequestDto
-  ): Promise<DiscordActiveCommunityEventsGetResponseDto> {
+
+  async getActiveEventsByGuildId({
+    guildSId,
+  }: DiscordCommunityEventsActiveByGuildGetRequestDto): Promise<DiscordActiveCommunityEventsGetResponseDto> {
     console.log(guildSId);
     this.logger.log(`Getting active event for guildSId: ${guildSId}`);
     let activeEvents: CommunityEventDiscordEntity[] = [];
@@ -89,8 +95,8 @@ export class DiscordCommunityEventsActiveService {
           },
           communityEvent: {
             endDate: MoreThan(currentDate),
-          }
-        }
+          },
+        },
       });
     } catch (e) {
       this.logger.log(`Error getting active event for guildSId: ${guildSId}`);
@@ -98,10 +104,10 @@ export class DiscordCommunityEventsActiveService {
     }
     return this.mapEventToResponse(activeEvents);
   }
-  
-  async getActiveEventsByOrganizerId(
-    {organizerSId}: DiscordCommunityEventsActiveByOrganizerGetRequestDto
-  ): Promise<DiscordActiveCommunityEventsGetResponseDto> {
+
+  async getActiveEventsByOrganizerId({
+    organizerSId,
+  }: DiscordCommunityEventsActiveByOrganizerGetRequestDto): Promise<DiscordActiveCommunityEventsGetResponseDto> {
     this.logger.log(`Getting active event for organizerSId: ${organizerSId}`);
     let activeEvents: CommunityEventDiscordEntity[] = [];
     try {
@@ -118,20 +124,24 @@ export class DiscordCommunityEventsActiveService {
           },
           communityEvent: {
             endDate: MoreThan(currentDate),
-          }
-        }
+          },
+        },
       });
     } catch (e) {
-      this.logger.log(`Error getting active event for organizerSId: ${organizerSId}`);
+      this.logger.log(
+        `Error getting active event for organizerSId: ${organizerSId}`,
+      );
       throw e;
     }
     return this.mapEventToResponse(activeEvents);
   }
-  
-  async getActiveEventsByVoiceChannelId(
-    {voiceChannelSId}: DiscordCommunityEventsActiveByVoiceChannelGetRequestDto
-  ): Promise<DiscordActiveCommunityEventsGetResponseDto> {
-    this.logger.log(`Getting active event for voiceChannelSId: ${voiceChannelSId}`);
+
+  async getActiveEventsByVoiceChannelId({
+    voiceChannelSId,
+  }: DiscordCommunityEventsActiveByVoiceChannelGetRequestDto): Promise<DiscordActiveCommunityEventsGetResponseDto> {
+    this.logger.log(
+      `Getting active event for voiceChannelSId: ${voiceChannelSId}`,
+    );
     let activeEvents: CommunityEventDiscordEntity[] = [];
     try {
       const currentDate = new Date();
@@ -145,20 +155,25 @@ export class DiscordCommunityEventsActiveService {
           voiceChannelSId: voiceChannelSId,
           communityEvent: {
             endDate: MoreThan(currentDate),
-          }
-        }
+          },
+        },
       });
     } catch (e) {
-      this.logger.log(`Error getting active event for voiceChannelSId: ${voiceChannelSId}`);
+      this.logger.log(
+        `Error getting active event for voiceChannelSId: ${voiceChannelSId}`,
+      );
       throw e;
     }
     return this.mapEventToResponse(activeEvents);
   }
-  
-  async getActiveEventsByGuildIdAndOrganizerId(
-    { guildSId, organizerSId }: DiscordCommunityEventsActiveByGuildAndOrganizerGetRequestDto
-  ): Promise<DiscordActiveCommunityEventsGetResponseDto> {
-    this.logger.log(`Getting active event for guildSId: ${guildSId}, organizerSId: ${organizerSId}`);
+
+  async getActiveEventsByGuildIdAndOrganizerId({
+    guildSId,
+    organizerSId,
+  }: DiscordCommunityEventsActiveByGuildAndOrganizerGetRequestDto): Promise<DiscordActiveCommunityEventsGetResponseDto> {
+    this.logger.log(
+      `Getting active event for guildSId: ${guildSId}, organizerSId: ${organizerSId}`,
+    );
     let activeEvents: CommunityEventDiscordEntity[] = [];
     try {
       const currentDate = new Date();
@@ -177,17 +192,21 @@ export class DiscordCommunityEventsActiveService {
           },
           communityEvent: {
             endDate: MoreThan(currentDate),
-          }
-        }
+          },
+        },
       });
     } catch (e) {
-      this.logger.log(`Error getting active event for guildSId: ${guildSId}, organizerSId: ${organizerSId}`);
+      this.logger.log(
+        `Error getting active event for guildSId: ${guildSId}, organizerSId: ${organizerSId}`,
+      );
       throw e;
     }
     return this.mapEventToResponse(activeEvents);
   }
 
-  private mapEventToResponse(activeEvents: CommunityEventDiscordEntity[]): DiscordActiveCommunityEventsGetResponseDto {
+  private mapEventToResponse(
+    activeEvents: CommunityEventDiscordEntity[],
+  ): DiscordActiveCommunityEventsGetResponseDto {
     const events = activeEvents.map<DiscordActiveCommunityEventDto>((event) => {
       return {
         communityEventId: event.communityEventId,
@@ -203,6 +222,6 @@ export class DiscordCommunityEventsActiveService {
     this.logger.log(`Found ${events.length} active events`);
     return {
       events: events,
-    }
+    };
   }
 }

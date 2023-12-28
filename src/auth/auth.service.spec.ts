@@ -15,7 +15,7 @@ jest.mock('nodemailer', () => {
       sendMail: jest.fn().mockReturnValue(
         Promise.resolve({
           messageId: 'testMessageId',
-        })
+        }),
       ),
     }),
   };
@@ -23,17 +23,19 @@ jest.mock('nodemailer', () => {
 
 jest.mock('google-auth-library', () => ({
   OAuth2Client: jest.fn().mockImplementation(() => ({
-    generateCodeVerifierAsync: jest.fn().mockReturnValue(Promise.resolve({
-      codeVerifier: 'testCodeVerifier',
-      codeChallenge: 'testCodeChallenge',
-    })),
+    generateCodeVerifierAsync: jest.fn().mockReturnValue(
+      Promise.resolve({
+        codeVerifier: 'testCodeVerifier',
+        codeChallenge: 'testCodeChallenge',
+      }),
+    ),
     generateAuthUrl: jest.fn().mockReturnValue('testAuthUrl'),
     getToken: jest.fn(),
   })),
   CodeChallengeMethod: {
     Plain: 'plain',
     S256: 's256',
-  }
+  },
 }));
 
 describe('AuthService', () => {
@@ -66,7 +68,7 @@ describe('AuthService', () => {
     verifyAsync: jest.fn().mockReturnThis(),
     decode: jest.fn().mockReturnValue({
       sessionId: 'testSessionId',
-    })
+    }),
   };
 
   beforeEach(async () => {
@@ -79,7 +81,10 @@ describe('AuthService', () => {
         { provide: ConfigService, useValue: mockConfigService },
         { provide: DataSource, useValue: jest.fn() },
         { provide: HttpService, useValue: jest.fn() },
-        { provide: 'TokenEntityRepository', useValue: mockTokenEntityRepository },
+        {
+          provide: 'TokenEntityRepository',
+          useValue: mockTokenEntityRepository,
+        },
       ],
     }).compile();
 
@@ -95,7 +100,6 @@ describe('AuthService', () => {
   });
 
   describe('authorize', () => {
-    
     it('should generate an auth code', async () => {
       mockJwtService.sign.mockReturnValue('testJWTValue');
       const state = crypto.randomUUID();
@@ -103,32 +107,32 @@ describe('AuthService', () => {
         clientId: 'testClient',
         codeChallenge: 'testCodeChallenge',
         codeChallengeMethod: 's256',
-        state
+        state,
       });
       expect(result.code.length).toEqual(40);
       expect(result.state).toEqual(state);
     });
 
-    it('should mock sending email', async () => {
-      const result = await service.authorizeEmail({
+    it('should mock sending email', () => {
+      const result = service.authorizeEmail({
         email: 'test@email.com',
-        state: 'register'
+        state: 'register',
       });
-      expect(result).toEqual({state: 'register'});
+      expect(result).toEqual({ state: 'register' });
     });
 
     it('should authorize google for new register', async () => {
       const clientToken = process.env.TEST_CLIENT_TOKEN ?? '';
-      const {authorizeUrl} = await service.authorizeGoogle(
+      const { authorizeUrl } = await service.authorizeGoogle(
         clientToken,
-        'register'
+        'register',
       );
       expect(authorizeUrl).toEqual('testAuthUrl');
     });
 
     it('should authorize google for login', async () => {
       const clientToken = process.env.TEST_CLIENT_TOKEN ?? '';
-      const {authorizeUrl} = await service.authorizeGoogle(
+      const { authorizeUrl } = await service.authorizeGoogle(
         clientToken,
         'login',
       );
@@ -137,7 +141,7 @@ describe('AuthService', () => {
 
     it('should authorize discord for login', async () => {
       const clientToken = process.env.TEST_CLIENT_TOKEN ?? '';
-      const {authorizeUrl} = await service.authorizeGoogle(
+      const { authorizeUrl } = await service.authorizeGoogle(
         clientToken,
         'login',
       );
@@ -146,12 +150,11 @@ describe('AuthService', () => {
 
     it('should authorize discord for register', async () => {
       const clientToken = process.env.TEST_CLIENT_TOKEN ?? '';
-      const {authorizeUrl} = await service.authorizeGoogle(
+      const { authorizeUrl } = await service.authorizeGoogle(
         clientToken,
         'register',
       );
       expect(authorizeUrl).toEqual('testAuthUrl');
     });
-
   });
 });

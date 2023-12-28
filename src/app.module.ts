@@ -12,6 +12,7 @@ import { DiscordBotModule } from './discord-bot/discord-bot.module';
 import Joi from 'joi';
 import { DiscordCommunityEventsActiveModule } from './discord-community-events-active/discord-community-events-active.module';
 import { DiscordCommunityEventsManageModule } from './discord-community-events-manage/discord-community-events-manage.module';
+import { PoapsModule } from './poaps/poaps.module';
 
 @Module({
   imports: [
@@ -34,7 +35,7 @@ import { DiscordCommunityEventsManageModule } from './discord-community-events-m
         REDIS_HOST: Joi.string().optional(),
         REDIS_PORT: Joi.number().optional(),
         REDIS_CACHE_MIN: Joi.number().required(),
-      }
+      },
     }),
     CommonTypeOrmModule.forRootAsync(),
     RedisConfigModule.forRootAsync(),
@@ -45,6 +46,7 @@ import { DiscordCommunityEventsManageModule } from './discord-community-events-m
     DiscordBotModule,
     DiscordCommunityEventsManageModule,
     DiscordCommunityEventsActiveModule,
+    PoapsModule,
   ],
 })
-export class AppModule { }
+export class AppModule {}

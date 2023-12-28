@@ -6,9 +6,7 @@ import { ClientIdGuard } from './guards/client-id/client-id.guard';
 import { EmailCodePipe } from './pipes/email-code/email-code.pipe';
 import { AccessTokenGuard } from './guards/access-token/access-token.guard';
 import { ConfigService } from '@nestjs/config';
-import {
-  UserTokenNoVerifyGuard
-} from './guards/user-token-no-verify/user-token-guard-no-verify.guard';
+import { UserTokenNoVerifyGuard } from './guards/user-token-no-verify/user-token-guard-no-verify.guard';
 import { Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 
@@ -64,7 +62,7 @@ describe('AuthController', () => {
         {
           provide: JwtService,
           useValue: jest.fn(),
-        }
+        },
       ],
     }).compile();
 

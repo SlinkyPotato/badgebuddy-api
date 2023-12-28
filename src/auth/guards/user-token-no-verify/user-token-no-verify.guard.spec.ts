@@ -30,7 +30,7 @@ describe('UserTokenNoVerifyGuard', () => {
     }).compile();
 
     guard = module.get<UserTokenNoVerifyGuard>(UserTokenNoVerifyGuard);
-  })
+  });
   it('should be defined', () => {
     expect(guard).toBeDefined();
   });

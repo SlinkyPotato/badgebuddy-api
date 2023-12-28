@@ -54,7 +54,6 @@ describe('PoapManagerGuard', () => {
       ],
     }).compile();
     guard = module.get<PoapManagerGuard>(PoapManagerGuard);
-
   });
 
   afterEach(() => {
@@ -64,7 +63,6 @@ describe('PoapManagerGuard', () => {
   it('should be defined', () => {
     expect(guard).toBeDefined();
     expect(guard).toBeInstanceOf(PoapManagerGuard);
-    expect(guard.canActivate).toBeDefined();
+    expect(guard.canActivate.name).toBeDefined();
   });
-
 });

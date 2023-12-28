@@ -32,7 +32,6 @@ describe('DiscordBotService', () => {
         { provide: '__inject_discord_client__', useValue: jest.fn() },
         { provide: ConfigService, useValue: jest.fn() },
         { provide: AuthService, useValue: jest.fn() },
-        
       ],
     }).compile();
 

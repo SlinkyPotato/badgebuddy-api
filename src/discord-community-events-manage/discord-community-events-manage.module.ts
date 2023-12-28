@@ -1,7 +1,11 @@
 import { Logger, Module, ValidationPipe } from '@nestjs/common';
 import { DiscordModule } from '@discord-nestjs/core';
 import { BullModule } from '@nestjs/bull';
-import { CommunityEventDiscordEntity, DISCORD_COMMUNITY_EVENTS_QUEUE, DiscordUserEntity } from '@badgebuddy/common';
+import {
+  CommunityEventDiscordEntity,
+  DISCORD_COMMUNITY_EVENTS_QUEUE,
+  DiscordUserEntity,
+} from '@badgebuddy/common';
 import { PoapManagerGuard } from './guards/poap-manager.guard';
 import { DiscordCommunityEventsManageController } from './discord-community-events-manage.controller';
 import { DiscordCommunityEventsManageService } from './discord-community-events-manage.service';
@@ -24,9 +28,7 @@ import { HttpModule } from '@nestjs/axios';
     AuthModule,
     HttpModule,
   ],
-  controllers: [
-    DiscordCommunityEventsManageController
-  ],
+  controllers: [DiscordCommunityEventsManageController],
   providers: [
     Logger,
     DiscordCommunityEventsManageService,

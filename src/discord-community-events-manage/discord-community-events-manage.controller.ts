@@ -1,4 +1,12 @@
-import { Body, Controller, HttpStatus, Patch, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpStatus,
+  Patch,
+  UseGuards,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
 import { Post } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { DiscordCommunityEventsManageService } from './discord-community-events-manage.service';
@@ -7,7 +15,7 @@ import {
   DiscordCommunityEventPostResponseDto,
   DiscordCommunityEventPostRequestDto,
   DiscordCommunityEventPatchResponseDto,
-  DiscordCommunityEventPatchRequestDto
+  DiscordCommunityEventPatchRequestDto,
 } from '@badgebuddy/common';
 
 @Controller('discord/community-events/manage')
@@ -15,11 +23,10 @@ import {
 @UsePipes(ValidationPipe)
 @UseGuards(PoapManagerGuard)
 export class DiscordCommunityEventsManageController {
-
   constructor(
-    private readonly discordCommunityEventsManageService: DiscordCommunityEventsManageService
-  ) { }
-  
+    private readonly discordCommunityEventsManageService: DiscordCommunityEventsManageService,
+  ) {}
+
   @Post()
   @ApiOperation({ summary: 'Start tracking voice channel event.' })
   @ApiResponse({
@@ -32,7 +39,7 @@ export class DiscordCommunityEventsManageController {
     description: 'Event in this channel is already active',
   })
   startEvent(
-    @Body() request: DiscordCommunityEventPostRequestDto
+    @Body() request: DiscordCommunityEventPostRequestDto,
   ): Promise<DiscordCommunityEventPostResponseDto> {
     return this.discordCommunityEventsManageService.startEvent(request);
   }
@@ -53,9 +60,8 @@ export class DiscordCommunityEventsManageController {
     description: 'Active event not found',
   })
   stopEvent(
-    @Body() request: DiscordCommunityEventPatchRequestDto
+    @Body() request: DiscordCommunityEventPatchRequestDto,
   ): Promise<DiscordCommunityEventPatchResponseDto> {
     return this.discordCommunityEventsManageService.endEvent(request);
   }
-
 }

@@ -33,7 +33,8 @@ describe('DiscordBotTokenGuard', () => {
       ],
     }).compile();
 
-    discordBotTokenGuard = testModule.get<DiscordBotTokenGuard>(DiscordBotTokenGuard);
+    discordBotTokenGuard =
+      testModule.get<DiscordBotTokenGuard>(DiscordBotTokenGuard);
   });
 
   it('should be defined', () => {

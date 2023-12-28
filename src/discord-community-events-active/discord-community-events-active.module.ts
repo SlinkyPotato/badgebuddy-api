@@ -1,7 +1,11 @@
 import { Logger, Module, ValidationPipe } from '@nestjs/common';
 import { DiscordModule } from '@discord-nestjs/core';
 import { BullModule } from '@nestjs/bull';
-import { CommunityEventDiscordEntity, DISCORD_COMMUNITY_EVENTS_QUEUE, DiscordUserEntity } from '@badgebuddy/common';
+import {
+  CommunityEventDiscordEntity,
+  DISCORD_COMMUNITY_EVENTS_QUEUE,
+  DiscordUserEntity,
+} from '@badgebuddy/common';
 import { DiscordCommunityEventsActiveService } from '../discord-community-events-active/discord-community-events-active.service';
 import { DiscordBotSettingsEntity } from '@badgebuddy/common/dist/common-typeorm/entities/discord/discord-bot-settings.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -21,13 +25,7 @@ import { AuthModule } from '@/auth/auth.module';
     ]),
     AuthModule,
   ],
-  controllers: [
-    DiscordCommunityEventsActiveController,
-  ],
-  providers: [
-    Logger,
-    DiscordCommunityEventsActiveService,
-    ValidationPipe,
-  ],
+  controllers: [DiscordCommunityEventsActiveController],
+  providers: [Logger, DiscordCommunityEventsActiveService, ValidationPipe],
 })
 export class DiscordCommunityEventsActiveModule {}

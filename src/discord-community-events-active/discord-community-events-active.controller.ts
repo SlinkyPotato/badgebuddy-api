@@ -17,7 +17,7 @@ import {
   DiscordCommunityEventsActiveByGuildGetRequestDto,
   DiscordCommunityEventsActiveByOrganizerGetRequestDto,
   DiscordCommunityEventsActiveByVoiceChannelGetRequestDto,
-  DiscordCommunityEventsActiveByGuildAndOrganizerGetRequestDto
+  DiscordCommunityEventsActiveByGuildAndOrganizerGetRequestDto,
 } from '@badgebuddy/common';
 import { UserTokenGuard } from '@/auth/guards/user-token/user-token.guard';
 
@@ -27,10 +27,9 @@ import { UserTokenGuard } from '@/auth/guards/user-token/user-token.guard';
 @UsePipes(ValidationPipe)
 @UseGuards(UserTokenGuard)
 export class DiscordCommunityEventsActiveController {
-
   constructor(
     private readonly activeEventsService: DiscordCommunityEventsActiveService,
-  ) { }
+  ) {}
 
   @Get()
   @ApiOperation({ summary: 'Retrieve active events.' })
@@ -104,8 +103,11 @@ export class DiscordCommunityEventsActiveController {
     type: DiscordActiveCommunityEventsGetResponseDto,
   })
   getActiveEventsByGuildIdAndOrganizerId(
-    @Param() params: DiscordCommunityEventsActiveByGuildAndOrganizerGetRequestDto,
+    @Param()
+    params: DiscordCommunityEventsActiveByGuildAndOrganizerGetRequestDto,
   ): Promise<DiscordActiveCommunityEventsGetResponseDto> {
-    return this.activeEventsService.getActiveEventsByGuildIdAndOrganizerId(params);
+    return this.activeEventsService.getActiveEventsByGuildIdAndOrganizerId(
+      params,
+    );
   }
 }

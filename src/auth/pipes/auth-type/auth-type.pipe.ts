@@ -1,12 +1,17 @@
-import { ArgumentMetadata, BadRequestException, Injectable, PipeTransform } from '@nestjs/common';
+import {
+  ArgumentMetadata,
+  BadRequestException,
+  Injectable,
+  PipeTransform,
+} from '@nestjs/common';
 
 @Injectable()
-export class AuthTypePipe implements PipeTransform {
-  transform(value: any, metadata: ArgumentMetadata) {
+export class AuthTypePipe implements PipeTransform<string, string> {
+  transform(value: string, metadata: ArgumentMetadata) {
     if (metadata.type !== 'query') {
       throw new BadRequestException('AuthTypePipe only supports query');
     }
-    if (value === undefined || value === '') {
+    if (value === '') {
       throw new BadRequestException('type is required');
     }
     if (value === 'register' || value === 'login') {

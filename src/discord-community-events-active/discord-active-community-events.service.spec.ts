@@ -18,12 +18,17 @@ describe('ActiveCommunityEventsServiceService', () => {
       providers: [
         DiscordCommunityEventsActiveService,
         { provide: Logger, useValue: mockLogger },
-        { provide: 'CommunityEventDiscordEntityRepository', useValue: jest.fn() },
+        {
+          provide: 'CommunityEventDiscordEntityRepository',
+          useValue: jest.fn(),
+        },
         { provide: ConfigService, useValue: jest.fn() },
       ],
     }).compile();
 
-    service = module.get<DiscordCommunityEventsActiveService>(DiscordCommunityEventsActiveService);
+    service = module.get<DiscordCommunityEventsActiveService>(
+      DiscordCommunityEventsActiveService,
+    );
   });
 
   it('should be defined', () => {

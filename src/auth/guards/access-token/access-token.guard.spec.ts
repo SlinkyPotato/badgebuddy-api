@@ -31,7 +31,7 @@ describe('AccessTokenGuard', () => {
     }).compile();
 
     guard = module.get<AccessTokenGuard>(AccessTokenGuard);
-  })
+  });
 
   it('should be defined', () => {
     expect(guard).toBeDefined();
