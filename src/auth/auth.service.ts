@@ -194,7 +194,7 @@ export class AuthService {
    * Generate authorization URL for discord login
    * @param auth clientToken oauth client access token with sessionId
    * @param type authorize type (login, register)
-   * @returns authorizeUrl rediect url to discord oauth
+   * @returns authorizeUrl redirect url to discord oauth
    */
   async authorizeDiscord(
     auth: string,
@@ -438,7 +438,9 @@ export class AuthService {
       throw new InternalServerErrorException('Email not verified');
     }
 
+    this.logger.verbose(`Removing email verification from cache`);
     await this.cacheManager.del(AUTH_EMAIL_VERIFY(request.email));
+    this.logger.verbose(`Removed email verification from cache`);
 
     const clientId = this.decodeToken<AccessTokenDto>(this.getTokenFromHeader(auth)).sub;
     const { accessToken, refreshToken } = this.generateTokens(clientId, user.id);

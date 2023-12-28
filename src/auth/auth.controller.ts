@@ -1,7 +1,7 @@
 import {
   Body,
   Controller,
-  Get, Headers, 
+  Get, Headers,
   Post,
   Query,
   UseGuards,
@@ -10,9 +10,9 @@ import {
 } from '@nestjs/common';
 import {
   ApiHeaders,
-  ApiOperation,
+  ApiOperation, ApiQuery,
   ApiResponse,
-  ApiTags
+  ApiTags,
 } from '@nestjs/swagger';
 import { AccessTokenGuard } from './guards/access-token/access-token.guard';
 import { ClientIdGuard } from './guards/client-id/client-id.guard';
@@ -89,6 +89,12 @@ export class AuthController {
     status: 200,
     description: 'Success',
     type: AuthorizeDiscordGetResponseDto,
+  })
+  @ApiQuery({
+    name: 'type',
+    description: 'Type of auth',
+    required: true,
+    enum: ['register', 'login'],
   })
   authorizeDiscord(
     @Headers('Authorization') clientToken: string,
