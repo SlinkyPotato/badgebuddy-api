@@ -226,6 +226,7 @@ export class DiscordCommunityEventsManageService {
       relations: {
         botSettings: true,
         communityEvent: true,
+        organizer: true,
       },
       where: {
         botSettings: {
@@ -251,9 +252,9 @@ export class DiscordCommunityEventsManageService {
     }
 
     this.removeEventsFromCacheInterceptor(
-      discordEvent.botSettings.guildSId,
+      discordEvent.botSettings!.guildSId,
       discordEvent.voiceChannelSId,
-      discordEvent.organizer.userSId,
+      discordEvent.organizer!.userSId,
       discordEvent.communityEventId,
     ).then(() => {
       this.logger.log(`Removed active event from cache, communityEventId: ${discordEvent?.communityEventId}, voiceChannelSId: ${discordEvent?.voiceChannelSId}`);
@@ -286,7 +287,7 @@ export class DiscordCommunityEventsManageService {
       title: discordEvent.communityEvent.title,
       description: discordEvent.communityEvent.description,
       endDate: discordEvent.communityEvent.endDate.toISOString(),
-      organizerUsername: discordEvent.organizer.username,
+      organizerUsername: discordEvent.organizer!.username,
       startDate: discordEvent.communityEvent.startDate.toISOString(),
       availablePOAPs,
     };

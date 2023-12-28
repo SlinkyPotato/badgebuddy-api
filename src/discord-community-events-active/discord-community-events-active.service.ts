@@ -27,6 +27,7 @@ export class DiscordCommunityEventsActiveService {
         relations: {
           communityEvent: true,
           botSettings: true,
+          organizer: true,
         },
         where: {
           communityEvent: {
@@ -51,6 +52,8 @@ export class DiscordCommunityEventsActiveService {
       activeEvents = await this.communityEventRepo.find({
         relations: {
           communityEvent: true,
+          botSettings: true,
+          organizer: true,
         },
         where: {
           communityEventId,
@@ -78,6 +81,7 @@ export class DiscordCommunityEventsActiveService {
         relations: {
           communityEvent: true,
           botSettings: true,
+          organizer: true,
         },
         where: {
           botSettings: {
@@ -105,6 +109,7 @@ export class DiscordCommunityEventsActiveService {
       activeEvents = await this.communityEventRepo.find({
         relations: {
           communityEvent: true,
+          botSettings: true,
           organizer: true,
         },
         where: {
@@ -133,6 +138,8 @@ export class DiscordCommunityEventsActiveService {
       activeEvents = await this.communityEventRepo.find({
         relations: {
           communityEvent: true,
+          botSettings: true,
+          organizer: true,
         },
         where: {
           voiceChannelSId: voiceChannelSId,
@@ -186,9 +193,9 @@ export class DiscordCommunityEventsActiveService {
         communityEventId: event.communityEventId,
         title: event.communityEvent.title,
         description: event.communityEvent.description ?? undefined,
-        guildSId: event.botSettings.guildSId,
+        guildSId: event.botSettings!.guildSId,
         voiceChannelSId: event.voiceChannelSId,
-        organizerSId: event.organizer.userSId,
+        organizerSId: event.organizer!.userSId,
         startDate: event.communityEvent.startDate,
         endDate: event.communityEvent.endDate,
       } as DiscordActiveCommunityEventDto;

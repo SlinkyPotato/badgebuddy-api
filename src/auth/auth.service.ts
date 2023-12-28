@@ -66,7 +66,7 @@ type RedisAuthCode = {
 
 @Injectable()
 export class AuthService {
-  
+
   private static readonly ACCESS_TOKEN_EXPIRES_IN = 86400;
   private static readonly REFRESH_TOKEN_EXPIRES_IN = 604800;
 
@@ -129,14 +129,15 @@ export class AuthService {
 
   /**
    * Send out an email with a magic link.
-   * @param email the email to send the magic link to 
+   * @param email the email to send the magic link to
+   * @param state the state to return to the client
    */
   async authorizeEmail({email, state}: AuthorizeEmailPostRequestDto): Promise<AuthorizeEmailPostResponseDto> {
     this.logger.log(`Attempting to authorize email: ${email}`);
 
     const emailCode: string = this.genMagicEmailCode(email);
     const mjmlParse = this.genConfirmationEmailHtml(emailCode);
-    
+
     this.logger.verbose(`Sending magic email code to ${email}`);
     this.transporter.sendMail({
       from: this.configService.get<string>('MAIL_FROM'),
@@ -157,7 +158,8 @@ export class AuthService {
 
   /**
    * Generate authorization URL for google login
-   * @param clientToken clientToken oauth client access token with sessionId 
+   * @param clientToken clientToken oauth client access token with sessionId
+   * @param type authorize type (login, register)
    * @returns authorizeUrl rediect url to google oauth
    */
   async authorizeGoogle(
@@ -228,7 +230,7 @@ export class AuthService {
    * @see https://tools.ietf.org/html/rfc6749#section-4.1.3
    */
   async generateClientToken(request: TokenGetRequestDto): Promise<TokenGetResponseDto> {
-    this.logger.debug(`Attempting to generate access token for client ${request.clientId}`);
+    this.logger.verbose(`Attempting to generate access token for client ${request.clientId}`);
     const cacheAuthCode = await this.cacheManager.get<string>(AUTH_REQUEST(request.clientId, request.code));
     if (!cacheAuthCode) {
       throw new NotFoundException('Auth code not found');
@@ -244,8 +246,8 @@ export class AuthService {
     switch (verifiedStored.codeChallengeMethod) {
       case 's256':
         const codeChallenge = crypto.createHash('sha256').update(request.codeVerifier).digest('hex').toString();
-        this.logger.debug(codeChallenge);
-        this.logger.debug(verifiedStored.codeChallenge);
+        this.logger.verbose(codeChallenge);
+        this.logger.verbose(verifiedStored.codeChallenge);
         if (codeChallenge !== verifiedStored.codeChallenge) {
           throw new UnprocessableEntityException('Code challenge invalid');
         }
@@ -264,7 +266,7 @@ export class AuthService {
       subject: request.clientId,
     });
 
-    this.logger.debug(`Generated access token for client ${request.clientId} with auth code ${request.code}`);
+    this.logger.verbose(`Generated access token for client ${request.clientId} with auth code ${request.code}`);
     return {
       tokenType: 'Bearer',
       expiresIn: 3600,
@@ -279,8 +281,8 @@ export class AuthService {
    *
    * @see https://tools.ietf.org/html/rfc6749#section-6
    */
-  async refreshAccessToken(request: RefreshTokenPostRequestDto, requestAccessToken: string): Promise<RefreshTokenPostResponseDto> {    
-    this.logger.debug(`Attempting to refresh access token for client`);
+  async refreshAccessToken(request: RefreshTokenPostRequestDto, requestAccessToken: string): Promise<RefreshTokenPostResponseDto> {
+    this.logger.verbose(`Attempting to refresh access token for client`);
     const decodedAccessToken = this.jwtService.decode<UserTokenDto>(requestAccessToken);
     let decodedRefresh: UserTokenDto;
     try {
@@ -298,7 +300,7 @@ export class AuthService {
     if (!cacheRefreshToken || cacheRefreshToken !== request.refreshToken) {
       throw new NotFoundException('Invalid refresh token');
     }
-    
+
     const { accessToken , refreshToken } = this.generateTokens(decodedAccessToken.sub, decodedAccessToken.userId);
 
     return {
@@ -315,7 +317,7 @@ export class AuthService {
    * @returns Promise<RegisterPostResponseDto>
    */
   async register({email, passwordHash}: RegisterPostRequestDto): Promise<RegisterPostResponseDto> {
-    this.logger.debug('Attempting to register user');
+    this.logger.log('Attempting to register user');
     const foundUser = await this.dataSource.createQueryBuilder()
         .select('user.id')
         .from(UserEntity, 'user')
@@ -334,10 +336,10 @@ export class AuthService {
         passwordHash: passwordHash,
       })
       .execute()).identifiers[0].id;
-    
+
     const emailCode: string = this.genMagicEmailCode(email);
     const mjmlParse = this.genConfirmationEmailHtml(emailCode);
-    
+
     this.transporter.sendMail({
       from: this.configService.get<string>('MAIL_FROM'),
       to: email,
@@ -345,13 +347,12 @@ export class AuthService {
       text: 'Please confirm your email.',
       html: mjmlParse.html,
     }).then((info) => {
-      this.logger.debug(`Sent confirmation email to userId: ${userId}`, info);
+      this.logger.verbose(`Sent confirmation email to userId: ${userId}`, info);
     }).catch((error) => {
       this.logger.error(`Failed to send confirmation email to ${userId}`, error);
     });
-    
-    this.logger.debug(`Registered user ${userId}`);
-    
+
+    this.logger.log(`Registered user ${userId}`);
     return {
       userId,
     }
@@ -363,7 +364,7 @@ export class AuthService {
    * @returns Promise<LoginPostResponseDto>
    */
   async login(auth: string, request: LoginPostRequestDto): Promise<LoginPostResponseDto> {
-    this.logger.debug(`Attempting to login user`);
+    this.logger.verbose(`Attempting to login user`);
 
     const user = await this.dataSource.createQueryBuilder()
       .select('user')
@@ -383,19 +384,19 @@ export class AuthService {
     const clientId = this.decodeToken<AccessTokenDto>(this.getTokenFromHeader(auth)).sub;
     const { accessToken, refreshToken } = this.generateTokens(clientId, user.id);
 
-    this.logger.debug(`Logged in user ${user.id}`);
+    this.logger.verbose(`Logged in user ${user.id}`);
     return this.getLoginResponse(user, accessToken, refreshToken);
   }
 
   /**
    * Generate an access token for the registered email.
-   * @param clientId the approved client id
+   * @param auth clientToken oauth client access token with sessionId
    * @param request emailCode
    * @returns LoginEmailPostResponseDtos
    */
   async loginEmail(auth: string, request: EmailCode): Promise<LoginEmailPostResponseDto> {
-    this.logger.debug(`Attempting to verify email code`);
-    
+    this.logger.log(`Attempting to verify email code`);
+
     const encoding = await this.cacheManager.get<string>(AUTH_EMAIL_VERIFY(request.email));
     if (!encoding) {
       throw new NotFoundException('Email verification not found');
@@ -412,32 +413,41 @@ export class AuthService {
         .from(UserEntity, 'user')
         .where('user.email = :email', { email: request.email })
         .getOne();
-      if (!user) {
-        throw new NotFoundException('User not found');
-      }
-      const result = await this.dataSource.createQueryBuilder()
-        .update(UserEntity)
-        .set({ emailVerifiedOn: new Date() })
-        .where('email = :email', { email: request.email })
-        .andWhere('email_verified_on IS NULL')
-        .execute();
-      if (result.affected === 1) {
-        this.logger.debug(`Updated user ${user.id} with email verification`);
-      }
     } catch(error) {
       this.logger.error(error);
       throw new InternalServerErrorException('Failed update db');
+    }
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    if (!user.emailVerifiedOn) {
+      const emailVerifiedOn = new Date();
+      const result = await this.dataSource.createQueryBuilder()
+      .update(UserEntity)
+      .set({ emailVerifiedOn: emailVerifiedOn })
+      .where('email = :email', { email: request.email })
+      .andWhere('email_verified_on IS NULL')
+      .execute();
+      if (result.affected === 1) {
+        user.emailVerifiedOn = emailVerifiedOn;
+        this.logger.verbose(`Updated user ${user.id} with email verification`);
+      }
+    }
+
+    if (!user.emailVerifiedOn) {
+      throw new InternalServerErrorException('Email not verified');
     }
 
     await this.cacheManager.del(AUTH_EMAIL_VERIFY(request.email));
 
     const clientId = this.decodeToken<AccessTokenDto>(this.getTokenFromHeader(auth)).sub;
     const { accessToken, refreshToken } = this.generateTokens(clientId, user.id);
+    this.logger.log(`Logged in user ${user.id}`);
     return this.getLoginResponse(user, accessToken, refreshToken);
   }
 
   async loginGoogle(clientToken: string, {authCode}: LoginGooglePostRequestDto): Promise<LoginGooglePostResponseDto> {
-    this.logger.debug(`Attempting to login user with google`);
+    this.logger.log(`Attempting to login user with google`);
     const client = this.getGoogleClient();
     const resultFromHeader = this.getTokenFromHeader(clientToken);
     const decodedClientToken = this.decodeToken<AccessTokenDto>(resultFromHeader);
@@ -449,7 +459,7 @@ export class AuthService {
     }
 
     const codeVerifier = await this.cacheManager.get<string>(AUTH_REQUEST_GOOGLE(sessionId));
-    
+
     if (!codeVerifier) {
       this.logger.warn(`Code verifier not found for ${sessionId}`)
       throw new NotFoundException('Code verifier not found');
@@ -465,7 +475,7 @@ export class AuthService {
       this.logger.error(`Failed to get token for ${sessionId}`, error);
       throw new InternalServerErrorException('Failed to get token from google');
     }
-    
+
     type GoogleToken = {
       iss: string,
       azp: string,
@@ -486,24 +496,24 @@ export class AuthService {
 
     const user = await this.getOrInsertUser(idToken.email.trim());
     const account = await this.insertAccountForUser(user.id, idToken.sub, 'google');
-    
+
     this.upsertTokenForAccount(account.id, tokenResult.tokens.id_token!, 'id_token', idToken.exp, tokenResult.tokens.scope)
       .catch((error) => {
         this.logger.error(`Failed to insert id_token for ${user.id}`, error);
       });
 
     const { accessToken, refreshToken } = this.generateTokens(decodedClientToken.sub, user.id);
-    
-    this.logger.debug(`Logged in user ${sessionId}`);
+
+    this.logger.log(`Logged in user ${sessionId}`);
     return this.getLoginResponse(user, accessToken, refreshToken);
   }
 
   async loginDiscord(
-    clientToken: string, 
+    clientToken: string,
     {authCode, state}: LoginDiscordPostRequestDto
   ): Promise<LoginDiscordPostResponseDto> {
     this.logger.log(`Attempting to login user with discord`);
-    
+
     const resultFromHeader = this.getTokenFromHeader(clientToken);
     const decodedClientToken = this.decodeToken<AccessTokenDto>(resultFromHeader);
     const sessionId = decodedClientToken.sessionId;
@@ -515,7 +525,7 @@ export class AuthService {
     }
 
     const storedState = await this.cacheManager.get<string>(AUTH_REQUEST_DISCORD(sessionId));
-    
+
     if (!storedState) {
       this.logger.warn(`State not found for ${sessionId}`)
       throw new NotFoundException('Session ID for discord login not found');
@@ -553,7 +563,7 @@ export class AuthService {
     let discordToken: DiscordToken;
     let discordProfile: DiscordProfile;
     try {
-      const tokenResult = (await firstValueFrom(this.httpService.post<DiscordToken>('https://discord.com/api/oauth2/token', 
+      const tokenResult = (await firstValueFrom(this.httpService.post<DiscordToken>('https://discord.com/api/oauth2/token',
       qs.stringify({
         grant_type: 'authorization_code',
         code: authCode,
@@ -587,7 +597,7 @@ export class AuthService {
       this.logger.error(`Failed to get token for ${sessionId}`, error);
       throw new InternalServerErrorException('Failed to get token from discord');
     }
-    
+
     if (!discordProfile.verified) {
       //TODO: send out email confirmation, throw partial update exception
       throw new NotImplementedException('Should send out email verification');
@@ -595,7 +605,7 @@ export class AuthService {
 
     const user = await this.getOrInsertUser(discordProfile.email);
     const account = await this.insertAccountForUser(user.id, discordProfile.id, 'discord');
-    
+
     this.upsertTokenForAccount(account.id, discordToken.access_token!, 'access_token', discordToken.expires_in, discordToken.scope).catch((error) => {this.logger.error(`Failed to insert access_token for ${user.id}`, error);});
     this.upsertTokenForAccount(account.id, discordToken.refresh_token!, 'refresh_token', undefined, discordToken.scope).catch((error) => {this.logger.error(`Failed to insert refresh_token for ${user.id}`, error);});
 
@@ -609,9 +619,9 @@ export class AuthService {
     } catch(error) {
       this.logger.error(`Failed to sign id_token for ${user.id}`, error);
     }
-    
+
     const { accessToken, refreshToken } = this.generateTokens(decodedClientToken.sub, user.id, discordProfile.id);
-    
+
     this.logger.log(`Logged in user ${sessionId}`);
     return this.getLoginResponse(user, accessToken, refreshToken);
   }
@@ -628,7 +638,7 @@ export class AuthService {
       .getOne();
 
     if (!user) {
-      this.logger.debug(`User not found, creating user`);
+      this.logger.verbose(`User not found, creating user`);
       const result = await this.dataSource.createQueryBuilder()
         .insert()
         .into(UserEntity)
@@ -646,7 +656,7 @@ export class AuthService {
         email: email,
         emailVerifiedOn: new Date(),
       };
-      this.logger.debug(`Created user ${user.id}`);
+      this.logger.verbose(`Created user ${user.id}`);
     }
 
     return user;
@@ -655,6 +665,7 @@ export class AuthService {
   private getLoginResponse(
     user: UserEntity, accessToken: string, refreshToken: string
   ): { user: any, accessToken: {token: string, type: string, expiresIn: number}, refreshToken: {token: string, type: string, expiresIn: number} } {
+    this.logger.verbose('generating login response');
     return {
       user: {
         id: user.id,
@@ -675,7 +686,7 @@ export class AuthService {
   }
 
   private async insertAccountForUser(userId: string, providerAccountId: string, provider: 'google' | 'discord'): Promise<AccountEntity>{
-    this.logger.debug(`Attempting to insert account for user: ${userId}`);
+    this.logger.verbose(`Attempting to insert account for user: ${userId}`);
 
     let account = await this.dataSource.createQueryBuilder()
       .select('account.id')
@@ -685,7 +696,7 @@ export class AuthService {
       .getOne();
 
     if (!account) {
-      this.logger.debug(`Account not found, creating account for user: ${userId}`);
+      this.logger.verbose(`Account not found, creating account for user: ${userId}`);
       const accountResult = await this.dataSource.createQueryBuilder()
         .insert()
         .into(AccountEntity)
@@ -704,7 +715,7 @@ export class AuthService {
         provider: provider,
         providerAccountId: providerAccountId,
       } as AccountEntity;
-      this.logger.debug(`Linked ${provider} account for user ${userId}`);
+      this.logger.verbose(`Linked ${provider} account for user ${userId}`);
     }
     return account;
   }
@@ -713,7 +724,7 @@ export class AuthService {
     accountId: string, token: string, tokenType: TokenType, exp?: number, scope?: string
   ): Promise<TokenEntity> {
     try {
-      this.logger.debug(`Attempting to insert token ${tokenType}`);
+      this.logger.verbose(`Attempting to insert token ${tokenType}`);
       const result = await this.tokenRepository.save<TokenEntity>({
         accountId: accountId,
         expiresOn: exp ? new Date(new Date().getTime() + exp) : undefined,
@@ -729,6 +740,7 @@ export class AuthService {
     }
   }
 
+  // TODO: fix client timeout error
   private getGoogleClient(): OAuth2Client {
     return new OAuth2Client(
       this.configService.get(AUTH_GOOGLE_CLIENT_ID_ENV),
@@ -741,7 +753,7 @@ export class AuthService {
     sub: string, userId: string, discordUserSId?: string | undefined
   ): { accessToken: string, refreshToken: string } {
     const sessionId = crypto.randomUUID().toString();
-    
+
     const accessToken = this.jwtService.sign({
       userId: userId,
       sessionId: sessionId,
@@ -761,7 +773,7 @@ export class AuthService {
     });
 
     this.cacheManager.set(AUTH_REFRESH_TOKEN(userId), refreshToken, (AuthService.REFRESH_TOKEN_EXPIRES_IN * 1000)).then(() =>  {
-      this.logger.debug(`Set refresh token for ${userId} in cache`);
+      this.logger.verbose(`Set refresh token for ${userId} in cache`);
     }).catch((error) => {
       this.logger.error(`Failed to store refresh token for ${userId}`, error);
     });
@@ -774,9 +786,9 @@ export class AuthService {
 
   /**
    * Extract token from header.
-   * 
+   *
    * Must be used with ClientTokenGuard.
-   * 
+   *
    * @param authorizationHeader the authorization header
    * @returns the token
    */
@@ -797,7 +809,7 @@ export class AuthService {
     const randomHash = crypto.randomBytes(16).toString('base64url');
     const encoding = base64url(`${email}:${randomHash}`);
     const CODE_EXPIRES_IN = 1000 * 60 * 60 * 24; // 24 hours
-    
+
     this.cacheManager.set(AUTH_EMAIL_VERIFY(email), encoding, (CODE_EXPIRES_IN))
       .then(() =>  {
         this.logger.verbose(`set email verification in cache for ${email}`);
