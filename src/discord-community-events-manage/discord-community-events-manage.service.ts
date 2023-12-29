@@ -426,10 +426,10 @@ export class DiscordCommunityEventsManageService {
       DISCORD_COMMUNITY_EVENTS_ACTIVE_ORGANIZER(organizerSId),
     );
     await this.cacheManager.del(
-      DISCORD_COMMUNITY_EVENTS_ACTIVE_GUILD_ORGANIZER({
+      DISCORD_COMMUNITY_EVENTS_ACTIVE_GUILD_ORGANIZER(
         organizerSId,
         guildSId,
-      }),
+      ),
     );
     this.logger.verbose('Removed active event from cache');
   }
