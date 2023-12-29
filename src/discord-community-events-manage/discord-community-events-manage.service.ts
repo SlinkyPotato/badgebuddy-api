@@ -25,27 +25,18 @@ import {
   DiscordBotSettingsEntity,
   CommunityEventEntity,
   DiscordActiveCommunityEventDto,
-  PoapLinksEntity,
   DISCORD_COMMUNITY_EVENTS_START_JOB,
   DISCORD_COMMUNITY_EVENTS_END_JOB,
-} from '@badgebuddy/common';
-import { DataSource, MoreThan, Repository } from 'typeorm';
-import {
   DiscordCommunityEventPostRequestDto,
   DiscordCommunityEventPostResponseDto,
   DiscordCommunityEventPatchRequestDto,
   DiscordCommunityEventPatchResponseDto,
 } from '@badgebuddy/common';
+import { DataSource, MoreThan, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { InjectDiscordClient } from '@discord-nestjs/core';
 import { Client } from 'discord.js';
-import { HttpService } from '@nestjs/axios';
-import { firstValueFrom } from 'rxjs';
-
-type PoapLink = {
-  qrCode: string | undefined;
-  claimUrl: string;
-};
+import { PoapService } from '@/poap/poap.service';
 
 @Injectable()
 export class DiscordCommunityEventsManageService {
@@ -60,8 +51,8 @@ export class DiscordCommunityEventsManageService {
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
     @InjectQueue(DISCORD_COMMUNITY_EVENTS_QUEUE) private eventsQueue: Queue,
     @InjectDiscordClient() private discordClient: Client,
-    private readonly httpService: HttpService,
     private dataSource: DataSource,
+    private readonly poapService: PoapService,
   ) {}
 
   async startEvent({
@@ -262,14 +253,20 @@ export class DiscordCommunityEventsManageService {
       });
 
     let availablePOAPs = 0;
-
-    try {
-      availablePOAPs = await this.savePoapLinks(newEvent, poapLinksUrl);
-    } catch (e) {
-      this.logger.error(
-        `Error saving poap links for event, eventId: ${newEvent.communityEventId}`,
-        e,
-      );
+    if (poapLinksUrl) {
+      try {
+        availablePOAPs = (
+          await this.poapService.insertPoapClaimsToDb(
+            newEvent.communityEventId,
+            poapLinksUrl,
+          )
+        ).length;
+      } catch (e) {
+        this.logger.error(
+          `Error saving poap links for event, eventId: ${newEvent.communityEventId}`,
+          e,
+        );
+      }
     }
 
     this.logger.log(
@@ -373,13 +370,20 @@ export class DiscordCommunityEventsManageService {
     });
 
     let availablePOAPs = 0;
-    try {
-      availablePOAPs = await this.savePoapLinks(discordEvent, poapLinksUrl);
-    } catch (e) {
-      this.logger.error(
-        `Error saving poap links for event, eventId: ${discordEvent.communityEventId}`,
-        e,
-      );
+    if (poapLinksUrl) {
+      try {
+        availablePOAPs = (
+          await this.poapService.insertPoapClaimsToDb(
+            discordEvent.communityEventId,
+            poapLinksUrl,
+          )
+        ).length;
+      } catch (e) {
+        this.logger.error(
+          `Error saving poap links for event, eventId: ${discordEvent.communityEventId}`,
+          e,
+        );
+      }
     }
 
     return {
@@ -426,10 +430,7 @@ export class DiscordCommunityEventsManageService {
       DISCORD_COMMUNITY_EVENTS_ACTIVE_ORGANIZER(organizerSId),
     );
     await this.cacheManager.del(
-      DISCORD_COMMUNITY_EVENTS_ACTIVE_GUILD_ORGANIZER(
-        organizerSId,
-        guildSId,
-      ),
+      DISCORD_COMMUNITY_EVENTS_ACTIVE_GUILD_ORGANIZER(organizerSId, guildSId),
     );
     this.logger.verbose('Removed active event from cache');
   }
@@ -468,79 +469,5 @@ export class DiscordCommunityEventsManageService {
     this.logger.verbose(
       `Removed active event from processor cache, eventId: ${communityEventId}, voiceChannelSId: ${voiceChannelSId}`,
     );
-  }
-
-  public async parsePoapLinksUrl(poapLinksUrl: string): Promise<PoapLink[]> {
-    const POAP_LINK_REGEX = /^http[s]?:\/\/poap\.xyz\/.*$/i;
-    const QR_CLAIM_REGEX = /^http[s]?:\/\/poap\.xyz\/claim\//i;
-
-    this.logger.verbose(`Fetching poap links from url: ${poapLinksUrl}`);
-    const contents = await firstValueFrom(
-      this.httpService.get<string>(poapLinksUrl),
-    );
-
-    this.logger.verbose(`Fetched poap links from url: ${poapLinksUrl}`);
-    const lines: string[] = contents.data.split('\n');
-    const poapLinks: PoapLink[] = [];
-
-    this.logger.verbose(`Parsing poap links from url: ${poapLinksUrl}`);
-
-    for (const line of lines) {
-      if (!line.match(POAP_LINK_REGEX)) {
-        this.logger.verbose(
-          `Skipping line, does not contain poap link: ${line}`,
-        );
-        continue;
-      }
-      let qrCode: string | undefined;
-      try {
-        qrCode = line.split(QR_CLAIM_REGEX)[1];
-      } catch (e) {
-        this.logger.error(`Error parsing poap link: ${line}`, e);
-      }
-      poapLinks.push({
-        qrCode,
-        claimUrl: line,
-      });
-    }
-    this.logger.verbose(
-      `Finished parsing poap links from url: ${poapLinksUrl}, found ${poapLinks.length} links`,
-    );
-    return poapLinks;
-  }
-
-  private async savePoapLinks(
-    newEvent: CommunityEventDiscordEntity,
-    poapLinksUrl?: string,
-  ): Promise<number> {
-    let savedPOAPs = 0;
-    if (poapLinksUrl) {
-      this.logger.verbose('found poap links url');
-      const poapLinks = await this.parsePoapLinksUrl(poapLinksUrl);
-      if (poapLinks.length <= 0) {
-        this.logger.warn('No poap links found');
-      }
-
-      this.logger.verbose(
-        `Saving poap links for event, eventId: ${newEvent.communityEventId}`,
-      );
-      const result = await this.dataSource
-        .createQueryBuilder()
-        .insert()
-        .into(PoapLinksEntity)
-        .values(
-          poapLinks.map((poapLink) => ({
-            communityEventId: newEvent.communityEventId,
-            qrCode: poapLink.qrCode,
-            claimUrl: poapLink.claimUrl,
-          })),
-        )
-        .execute();
-      savedPOAPs = result.identifiers.length;
-      this.logger.verbose(
-        `Saved poap links for event, eventId: ${newEvent.communityEventId}`,
-      );
-    }
-    return savedPOAPs;
   }
 }

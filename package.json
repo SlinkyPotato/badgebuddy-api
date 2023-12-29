@@ -40,7 +40,7 @@
     "sync": "git fetch && git pull && pnpm install && dotenv-vault pull"
   },
   "dependencies": {
-    "@badgebuddy/common": "2.1.0-10",
+    "@badgebuddy/common": "2.1.0-16",
     "@discord-nestjs/common": "^5.2.10",
     "@discord-nestjs/core": "^5.3.12",
     "@fastify/static": "^6.12.0",

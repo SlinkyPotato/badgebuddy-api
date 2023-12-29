@@ -12,7 +12,7 @@ import { DiscordCommunityEventsManageService } from './discord-community-events-
 import { DiscordBotSettingsEntity } from '@badgebuddy/common/dist/common-typeorm/entities/discord/discord-bot-settings.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from '@/auth/auth.module';
-import { HttpModule } from '@nestjs/axios';
+import { PoapModule } from '@/poap/poap.module';
 
 @Module({
   imports: [
@@ -26,7 +26,7 @@ import { HttpModule } from '@nestjs/axios';
       DiscordUserEntity,
     ]),
     AuthModule,
-    HttpModule,
+    PoapModule,
   ],
   controllers: [DiscordCommunityEventsManageController],
   providers: [

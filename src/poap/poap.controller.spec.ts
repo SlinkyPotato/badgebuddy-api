@@ -1,11 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { PoapsController } from './poaps.controller';
-import { PoapsService } from './poaps.service';
+import { PoapController } from './poap.controller';
+import { PoapService } from './poap.service';
 import { describe, beforeEach, it, expect, jest } from '@jest/globals';
 import { Logger } from '@nestjs/common';
 
-describe('PoapsController', () => {
-  let controller: PoapsController;
+describe('PoapController', () => {
+  let controller: PoapController;
 
   const mockLogger = {
     log: jest.fn(),
@@ -17,11 +17,11 @@ describe('PoapsController', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [PoapsController],
-      providers: [PoapsService, { provide: Logger, useValue: mockLogger }],
+      controllers: [PoapController],
+      providers: [PoapService, { provide: Logger, useValue: mockLogger }],
     }).compile();
 
-    controller = module.get<PoapsController>(PoapsController);
+    controller = module.get<PoapController>(PoapController);
   });
 
   it('should be defined', () => {

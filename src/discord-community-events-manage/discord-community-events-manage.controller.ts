@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   HttpStatus,
   Patch,
   UseGuards,
@@ -44,7 +45,7 @@ export class DiscordCommunityEventsManageController {
     return this.discordCommunityEventsManageService.startEvent(request);
   }
 
-  @Patch()
+  @Delete()
   @ApiOperation({ summary: 'Stop tracking voice channel event.' })
   @ApiResponse({
     status: HttpStatus.OK,

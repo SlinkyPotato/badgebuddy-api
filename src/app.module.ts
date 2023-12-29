@@ -12,7 +12,7 @@ import { DiscordBotModule } from './discord-bot/discord-bot.module';
 import Joi from 'joi';
 import { DiscordCommunityEventsActiveModule } from './discord-community-events-active/discord-community-events-active.module';
 import { DiscordCommunityEventsManageModule } from './discord-community-events-manage/discord-community-events-manage.module';
-import { PoapsModule } from './poaps/poaps.module';
+import { PoapModule } from './poap/poap.module';
 
 @Module({
   imports: [
@@ -46,7 +46,7 @@ import { PoapsModule } from './poaps/poaps.module';
     DiscordBotModule,
     DiscordCommunityEventsManageModule,
     DiscordCommunityEventsActiveModule,
-    PoapsModule,
+    PoapModule,
   ],
 })
 export class AppModule {}

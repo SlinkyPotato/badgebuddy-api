@@ -5,18 +5,18 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import { PoapsService } from '@/poaps/poaps.service';
+import { PoapService } from '@/poap/poap.service';
 import {
   PoapsDistributeDiscordPostRequestDto,
-  PoapsDistributeDiscordPostResponseDto
+  PoapsDistributeDiscordPostResponseDto,
 } from '@badgebuddy/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @Controller('poaps')
 @ApiTags('POAPs')
 @UsePipes(ValidationPipe)
-export class PoapsController {
-  constructor(private readonly poapsService: PoapsService) {}
+export class PoapController {
+  constructor(private readonly poapsService: PoapService) {}
 
   @Post('distribute/discord')
   @ApiResponse({

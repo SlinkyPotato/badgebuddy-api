@@ -1,10 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { PoapsService } from './poaps.service';
+import { PoapService } from './poap.service';
 import { describe, it, expect, beforeEach, jest } from '@jest/globals';
 import { Logger } from '@nestjs/common';
 
-describe('PoapsService', () => {
-  let service: PoapsService;
+describe('PoapService', () => {
+  let service: PoapService;
 
   const mockLogger = {
     log: jest.fn(),
@@ -16,10 +16,10 @@ describe('PoapsService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [PoapsService, { provide: Logger, useValue: mockLogger }],
+      providers: [PoapService, { provide: Logger, useValue: mockLogger }],
     }).compile();
 
-    service = module.get<PoapsService>(PoapsService);
+    service = module.get<PoapService>(PoapService);
   });
 
   it('should be defined', () => {
