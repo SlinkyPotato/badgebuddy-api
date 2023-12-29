@@ -72,8 +72,9 @@ export class PoapService {
       `found ${participants.length} participants for community event ${communityEventId}`,
     );
 
+    let poapLinkIds: { id: string; claimUrl: string }[] = [];
     await this.dataSource.transaction(async (manager) => {
-      const poapLinkIds: string[] = await this.insertPoapClaimsToDb(
+      poapLinkIds = await this.insertPoapClaimsToDb(
         communityEventId,
         poapClaimsUrl,
         manager,
@@ -88,19 +89,22 @@ export class PoapService {
         );
       }
 
+      this.logger.verbose(
+        `attempting to insert poap claims for all participants in community event ${communityEventId}`,
+      );
       const result = await manager
         .createQueryBuilder()
         .insert()
         .into(PoapDiscordClaimsEntity)
         .values(
-          participants.map((participant) => ({
-            poapLinkId: poapLinkIds.pop(),
-            assigned_discord_user_sid: participant.discord_user_sid,
-            assigned_on: new Date(),
-            expires_on: new Date(
-              new Date().getTime() + 1000 * 60 * 60 * 24 * 7 * 4,
-            ),
-          })),
+          participants.map(
+            (participant) =>
+              ({
+                poapLinkId: poapLinkIds.pop()?.id,
+                assignedDiscordUserSId: participant.discord_user_sid,
+                assignedOn: new Date(),
+              }) as PoapDiscordClaimsEntity,
+          ),
         )
         .execute();
 
@@ -113,6 +117,21 @@ export class PoapService {
           `failed to insert poap claims for community event ${communityEventId}`,
         );
       }
+
+      this.logger.verbose(
+        `inserted poap claims for all participants in community event ${communityEventId}`,
+      );
+
+      // remove remaining poap links
+      await manager
+        .createQueryBuilder()
+        .delete()
+        .from(PoapLinksEntity)
+        .where('id IN (:...ids)', { ids: poapLinkIds.map((link) => link.id) })
+        .execute();
+      this.logger.verbose(
+        `removed poap links for community event ${communityEventId}`,
+      );
     });
 
     this.logger.log(
@@ -120,6 +139,7 @@ export class PoapService {
     );
     return {
       poapsDistributed: participants.length,
+      poapsRemaining: poapLinkIds.map((poapLink) => poapLink.claimUrl),
     };
   }
 
@@ -176,7 +196,7 @@ export class PoapService {
     communityEventId: string,
     poapLinksUrl: string,
     manager?: EntityManager,
-  ): Promise<string[]> {
+  ): Promise<{ id: string; claimUrl: string }[]> {
     this.logger.verbose('found poap links url');
     const poapLinks = await this.parsePoapLinksUrl(poapLinksUrl);
     if (poapLinks.length <= 0) {
@@ -205,6 +225,9 @@ export class PoapService {
     this.logger.verbose(
       `Saved poap links for event, eventId: ${communityEventId}, poapLinks: ${poapLinkIds.length}`,
     );
-    return poapLinkIds;
+    return poapLinkIds.map((id, index) => ({
+      id,
+      claimUrl: poapLinks[index].claimUrl,
+    }));
   }
 }
