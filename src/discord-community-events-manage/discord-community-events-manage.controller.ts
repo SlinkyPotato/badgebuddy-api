@@ -3,20 +3,19 @@ import {
   Controller,
   Delete,
   HttpStatus,
-  Patch,
+  Post,
   UseGuards,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import { Post } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { DiscordCommunityEventsManageService } from './discord-community-events-manage.service';
 import { PoapManagerGuard } from './guards/poap-manager.guard';
 import {
-  DiscordCommunityEventPostResponseDto,
-  DiscordCommunityEventPostRequestDto,
-  DiscordCommunityEventPatchResponseDto,
   DiscordCommunityEventPatchRequestDto,
+  DiscordCommunityEventPatchResponseDto,
+  DiscordCommunityEventPostRequestDto,
+  DiscordCommunityEventPostResponseDto,
 } from '@badgebuddy/common';
 
 @Controller('discord/community-events/manage')

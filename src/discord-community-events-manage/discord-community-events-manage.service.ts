@@ -255,10 +255,12 @@ export class DiscordCommunityEventsManageService {
     let availablePOAPs = 0;
     if (poapLinksUrl) {
       try {
+        const poapLinks =
+          await this.poapService.parsePoapLinksUrl(poapLinksUrl);
         availablePOAPs = (
           await this.poapService.insertPoapClaimsToDb(
             newEvent.communityEventId,
-            poapLinksUrl,
+            poapLinks,
           )
         ).length;
       } catch (e) {
@@ -372,10 +374,12 @@ export class DiscordCommunityEventsManageService {
     let availablePOAPs = 0;
     if (poapLinksUrl) {
       try {
+        const poapLinks =
+          await this.poapService.parsePoapLinksUrl(poapLinksUrl);
         availablePOAPs = (
           await this.poapService.insertPoapClaimsToDb(
             discordEvent.communityEventId,
-            poapLinksUrl,
+            poapLinks,
           )
         ).length;
       } catch (e) {

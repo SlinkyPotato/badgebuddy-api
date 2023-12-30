@@ -6,14 +6,17 @@ import {
 } from '@nestjs/common';
 import {
   CommunityEventDiscordEntity,
+  CommunityEventEntity,
   CommunityEventParticipantDiscordEntity,
-  PoapClaimDiscordEntity, PoapClaimEntity,
+  PoapClaimDiscordEntity,
+  PoapClaimEntity,
   PoapsDistributeDiscordPostRequestDto,
   PoapsDistributeDiscordPostResponseDto,
 } from '@badgebuddy/common';
 import { DataSource, EntityManager } from 'typeorm';
 import { firstValueFrom, retry, timeout } from 'rxjs';
 import { HttpService } from '@nestjs/axios';
+import { ResultSetHeader } from 'mysql2';
 
 type PoapLink = {
   qrCode: string | undefined;
@@ -35,11 +38,18 @@ export class PoapService {
     this.logger.log(
       `attempting to distribute poaps for community event ${communityEventId}`,
     );
+    // only fetch events that have disbanded
     const communityEvent = await this.dataSource
       .createQueryBuilder()
       .select('dce')
       .from(CommunityEventDiscordEntity, 'dce')
+      .leftJoinAndSelect(
+        CommunityEventEntity,
+        'ce',
+        'ce.id = dce.communityEventId',
+      )
       .where('dce.communityEventId = :id', { id: communityEventId })
+      .andWhere('ce.disbandedDate IS NOT NULL')
       .getOne();
 
     if (!communityEvent) {
@@ -51,11 +61,18 @@ export class PoapService {
 
     this.logger.verbose(`community event ${communityEventId} found in db`);
 
+    // fetch only participants without poap claims
     const participants = await this.dataSource
       .createQueryBuilder()
-      .select('p.discord_user_sid')
-      .from(CommunityEventParticipantDiscordEntity, 'p')
-      .where('p.community_event_id = :id', { id: communityEventId })
+      .select('participants.discord_user_sid')
+      .from(CommunityEventParticipantDiscordEntity, 'participants')
+      .leftJoinAndSelect(
+        PoapClaimDiscordEntity,
+        'claims',
+        'participants.discord_user_sid = claims.assigned_discord_user_sid',
+      )
+      .where('participants.community_event_id = :id', { id: communityEventId })
+      .andWhere('claims.assigned_discord_user_sid IS NULL')
       .getRawMany<{ discord_user_sid: string }>();
 
     if (participants.length <= 0) {
@@ -71,15 +88,21 @@ export class PoapService {
       `found ${participants.length} participants for community event ${communityEventId}`,
     );
 
-    let poapLinkIds: { id: string; claimUrl: string }[] = [];
+    let poapClaims: { id: string; claimUrl: string }[] = [];
+
+    this.logger.verbose(
+      'starting transaction for poap insertion and assigning operations',
+    );
     await this.dataSource.transaction(async (manager) => {
-      poapLinkIds = await this.insertPoapClaimsToDb(
+      const poapLinks = await this.parsePoapLinksUrl(poapClaimsUrl);
+
+      poapClaims = await this.insertPoapClaimsToDb(
         communityEventId,
-        poapClaimsUrl,
+        poapLinks,
         manager,
       );
 
-      if (poapLinkIds.length <= 0) {
+      if (poapClaims.length <= 0) {
         this.logger.warn(
           `no poap links found for community event ${communityEventId}`,
         );
@@ -99,7 +122,7 @@ export class PoapService {
           participants.map(
             (participant) =>
               ({
-                poapClaimId: poapLinkIds.pop()?.id,
+                poapClaimId: poapClaims.pop()?.id,
                 assignedDiscordUserSId: participant.discord_user_sid,
                 assignedOn: new Date(),
               }) as PoapClaimDiscordEntity,
@@ -108,7 +131,6 @@ export class PoapService {
         .execute();
 
       if (result.identifiers.length !== participants.length) {
-        // todo: revert if 1 fails or report?
         this.logger.warn(
           `failed to insert poap claims for all participants in community event ${communityEventId}`,
         );
@@ -126,7 +148,7 @@ export class PoapService {
         .createQueryBuilder()
         .delete()
         .from(PoapClaimEntity)
-        .where('id IN (:...ids)', { ids: poapLinkIds.map((link) => link.id) })
+        .where('id IN (:...ids)', { ids: poapClaims.map((link) => link.id) })
         .execute();
       this.logger.verbose(
         `removed poap links for community event ${communityEventId}`,
@@ -134,11 +156,11 @@ export class PoapService {
     });
 
     this.logger.log(
-      `distributed poaps for community event ${communityEventId}`,
+      `finished transaction, distributed poaps for community event ${communityEventId}`,
     );
     return {
       poapsDistributed: participants.length,
-      poapsRemaining: poapLinkIds.map((poapLink) => poapLink.claimUrl),
+      poapsRemaining: poapClaims.map((poapLink) => poapLink.claimUrl),
     };
   }
 
@@ -150,6 +172,7 @@ export class PoapService {
     const POAP_LINK_REGEX = /^http[s]?:\/\/poap\.xyz\/.*$/i;
     const QR_CLAIM_REGEX = /^http[s]?:\/\/poap\.xyz\/claim\//i;
 
+    // TODO: consider creating a fetch poap links endpoint
     this.logger.verbose(`Fetching poap links from url: ${poapLinksUrl}`);
     const contents = await firstValueFrom(
       this.httpService.get<string>(poapLinksUrl).pipe(timeout(500), retry(3)),
@@ -188,16 +211,14 @@ export class PoapService {
   /**
    * Inserts poap claims into the database
    * @param communityEventId
-   * @param poapLinksUrl
+   * @param poapLinks - array of poap links
    * @param manager - optional transaction manager
    */
   async insertPoapClaimsToDb(
     communityEventId: string,
-    poapLinksUrl: string,
+    poapLinks: PoapLink[],
     manager?: EntityManager,
   ): Promise<{ id: string; claimUrl: string }[]> {
-    this.logger.verbose('found poap links url');
-    const poapLinks = await this.parsePoapLinksUrl(poapLinksUrl);
     if (poapLinks.length <= 0) {
       this.logger.warn('No poap links found');
       throw new NotFoundException('No poap links found');
@@ -206,27 +227,47 @@ export class PoapService {
       `Saving poap links for event, eventId: ${communityEventId}`,
     );
     const executor = manager ?? this.dataSource;
-    const result = await executor
+    const insertResult: ResultSetHeader = (
+      await executor
+        .createQueryBuilder()
+        .insert()
+        .into(PoapClaimEntity)
+        .values(
+          poapLinks.map((poapLink) => ({
+            communityEventId: communityEventId,
+            qrCode: poapLink.qrCode,
+            claimUrl: poapLink.claimUrl,
+          })),
+        )
+        .orIgnore()
+        .execute()
+    ).raw as ResultSetHeader;
+
+    this.logger.verbose(`inserted ${insertResult.affectedRows} poap claims`);
+
+    if (insertResult.affectedRows !== poapLinks.length) {
+      this.logger.warn(
+        `failed to insert all poap links for communityEventId: ${communityEventId}`,
+      );
+    }
+
+    const availablePoapClaims = await executor
       .createQueryBuilder()
-      .insert()
-      .into(PoapClaimEntity)
-      .values(
-        poapLinks.map((poapLink) => ({
-          communityEventId: communityEventId,
-          qrCode: poapLink.qrCode,
-          claimUrl: poapLink.claimUrl,
-        })),
+      .select('claims.id')
+      .addSelect('claims.claim_url')
+      .from(PoapClaimEntity, 'claims')
+      .leftJoin(
+        PoapClaimDiscordEntity,
+        'discord_claims',
+        'discord_claims.poap_claim_id = claims.id',
       )
-      .execute();
-    const poapLinkIds = result.identifiers.map((identifier: { id: string }) =>
-      identifier.id.toString(),
-    );
-    this.logger.verbose(
-      `Saved poap links for event, eventId: ${communityEventId}, poapLinks: ${poapLinkIds.length}`,
-    );
-    return poapLinkIds.map((id, index) => ({
-      id,
-      claimUrl: poapLinks[index].claimUrl,
+      .where('claims.community_event_id = :id', { id: communityEventId })
+      .andWhere('discord_claims.poap_claim_id IS NULL')
+      .getRawMany<{ claims_id: string; claim_url: string }>();
+
+    return availablePoapClaims.map((claim) => ({
+      id: claim.claims_id,
+      claimUrl: claim.claim_url,
     }));
   }
 }

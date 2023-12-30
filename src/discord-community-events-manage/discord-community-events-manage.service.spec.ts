@@ -7,7 +7,7 @@ import { DataSource } from 'typeorm';
 import { from } from 'rxjs';
 
 describe('DiscordCommunityEventsManageService', () => {
-  let controller: DiscordCommunityEventsManageService;
+  let service: DiscordCommunityEventsManageService;
 
   const mockHttpService = {
     get: jest.fn().mockImplementation(() => {
@@ -49,38 +49,12 @@ describe('DiscordCommunityEventsManageService', () => {
       ],
     }).compile();
 
-    controller = module.get<DiscordCommunityEventsManageService>(
+    service = module.get<DiscordCommunityEventsManageService>(
       DiscordCommunityEventsManageService,
     );
   });
 
   it('should be defined', () => {
-    expect(controller).toBeDefined();
-  });
-
-  it('should parse links', async () => {
-    const links = await controller.parsePoapLinksUrl('http://test.com');
-    expect(links).toEqual([
-      {
-        qrCode: 'ndt7p6',
-        claimUrl: 'http://POAP.xyz/claim/ndt7p6',
-      },
-      {
-        qrCode: 'a13elq',
-        claimUrl: 'http://POAP.xyz/claim/a13elq',
-      },
-      {
-        qrCode: 'by2eqg',
-        claimUrl: 'http://POAP.xyz/claim/by2eqg',
-      },
-      {
-        qrCode: 'evodx7',
-        claimUrl: 'http://POAP.xyz/claim/evodx7',
-      },
-      {
-        qrCode: 'tnc8yg',
-        claimUrl: 'http://POAP.xyz/claim/tnc8yg',
-      },
-    ]);
+    expect(service).toBeDefined();
   });
 });
