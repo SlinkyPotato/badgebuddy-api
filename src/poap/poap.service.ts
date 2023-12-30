@@ -6,9 +6,8 @@ import {
 } from '@nestjs/common';
 import {
   CommunityEventDiscordEntity,
-  CommunityParticipantDiscordEntity,
-  PoapDiscordClaimsEntity,
-  PoapLinksEntity,
+  CommunityEventParticipantDiscordEntity,
+  PoapClaimDiscordEntity, PoapClaimEntity,
   PoapsDistributeDiscordPostRequestDto,
   PoapsDistributeDiscordPostResponseDto,
 } from '@badgebuddy/common';
@@ -55,7 +54,7 @@ export class PoapService {
     const participants = await this.dataSource
       .createQueryBuilder()
       .select('p.discord_user_sid')
-      .from(CommunityParticipantDiscordEntity, 'p')
+      .from(CommunityEventParticipantDiscordEntity, 'p')
       .where('p.community_event_id = :id', { id: communityEventId })
       .getRawMany<{ discord_user_sid: string }>();
 
@@ -95,15 +94,15 @@ export class PoapService {
       const result = await manager
         .createQueryBuilder()
         .insert()
-        .into(PoapDiscordClaimsEntity)
+        .into(PoapClaimDiscordEntity)
         .values(
           participants.map(
             (participant) =>
               ({
-                poapLinkId: poapLinkIds.pop()?.id,
+                poapClaimId: poapLinkIds.pop()?.id,
                 assignedDiscordUserSId: participant.discord_user_sid,
                 assignedOn: new Date(),
-              }) as PoapDiscordClaimsEntity,
+              }) as PoapClaimDiscordEntity,
           ),
         )
         .execute();
@@ -126,7 +125,7 @@ export class PoapService {
       await manager
         .createQueryBuilder()
         .delete()
-        .from(PoapLinksEntity)
+        .from(PoapClaimEntity)
         .where('id IN (:...ids)', { ids: poapLinkIds.map((link) => link.id) })
         .execute();
       this.logger.verbose(
@@ -210,7 +209,7 @@ export class PoapService {
     const result = await executor
       .createQueryBuilder()
       .insert()
-      .into(PoapLinksEntity)
+      .into(PoapClaimEntity)
       .values(
         poapLinks.map((poapLink) => ({
           communityEventId: communityEventId,
