@@ -18,7 +18,10 @@ describe('PoapController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [PoapController],
-      providers: [PoapService, { provide: Logger, useValue: mockLogger }],
+      providers: [
+        { provide: PoapService, useValue: jest.fn() },
+        { provide: Logger, useValue: mockLogger },
+      ],
     }).compile();
 
     controller = module.get<PoapController>(PoapController);
