@@ -166,7 +166,6 @@ export class PoapService {
     const POAP_LINK_REGEX = /^http[s]?:\/\/poap\.xyz\/.*$/i;
     const QR_CLAIM_REGEX = /^http[s]?:\/\/poap\.xyz\/claim\//i;
 
-    // TODO: consider creating a fetch poap links endpoint
     this.logger.verbose(`Fetching poap links from url: ${poapLinksUrl}`);
     const contents = await firstValueFrom(
       this.httpService.get<string>(poapLinksUrl).pipe(timeout(500), retry(3)),
