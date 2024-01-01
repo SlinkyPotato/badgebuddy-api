@@ -12,6 +12,8 @@ import {
   PoapClaimEntity,
   PoapsDistributeDiscordPostRequestDto,
   PoapsDistributeDiscordPostResponseDto,
+  PoapsStoreDiscordPostRequestDto,
+  PoapsStoreDiscordPostResponseDto,
 } from '@badgebuddy/common';
 import { DataSource, EntityManager } from 'typeorm';
 import { firstValueFrom, retry, timeout } from 'rxjs';
@@ -33,7 +35,6 @@ export class PoapService {
 
   async distributeForDiscord({
     communityEventId,
-    poapClaimsUrl,
   }: PoapsDistributeDiscordPostRequestDto): Promise<PoapsDistributeDiscordPostResponseDto> {
     this.logger.log(
       `attempting to distribute poaps for community event ${communityEventId}`,
@@ -94,14 +95,7 @@ export class PoapService {
       'starting transaction for poap insertion and assigning operations',
     );
     await this.dataSource.transaction(async (manager) => {
-      const poapLinks = await this.parsePoapLinksUrl(poapClaimsUrl);
-
-      poapClaims = await this.insertPoapClaimsToDb(
-        communityEventId,
-        poapLinks,
-        manager,
-      );
-
+      poapClaims = await this.fetchAvailablePoaps(communityEventId, manager);
       if (poapClaims.length <= 0) {
         this.logger.warn(
           `no poap links found for community event ${communityEventId}`,
@@ -143,7 +137,7 @@ export class PoapService {
         `inserted poap claims for all participants in community event ${communityEventId}`,
       );
 
-      // remove remaining poap links
+      // remove remaining poap claims
       await manager
         .createQueryBuilder()
         .delete()
@@ -212,13 +206,11 @@ export class PoapService {
    * Inserts poap claims into the database
    * @param communityEventId
    * @param poapLinks - array of poap links
-   * @param manager - optional transaction manager
    */
-  async insertPoapClaimsToDb(
+  async insertPoapClaims(
     communityEventId: string,
     poapLinks: PoapLink[],
-    manager?: EntityManager,
-  ): Promise<{ id: string; claimUrl: string }[]> {
+  ): Promise<ResultSetHeader> {
     if (poapLinks.length <= 0) {
       this.logger.warn('No poap links found');
       throw new NotFoundException('No poap links found');
@@ -226,9 +218,8 @@ export class PoapService {
     this.logger.verbose(
       `Saving poap links for event, eventId: ${communityEventId}`,
     );
-    const executor = manager ?? this.dataSource;
     const insertResult: ResultSetHeader = (
-      await executor
+      await this.dataSource
         .createQueryBuilder()
         .insert()
         .into(PoapClaimEntity)
@@ -250,8 +241,15 @@ export class PoapService {
         `failed to insert all poap links for communityEventId: ${communityEventId}`,
       );
     }
+    return insertResult;
+  }
 
-    const availablePoapClaims = await executor
+  async fetchAvailablePoaps(
+    communityEventId: string,
+    executor: EntityManager | DataSource,
+  ): Promise<{id: string, claimUrl: string}[]> {
+    this.logger.verbose(`Fetching available poaps for event, eventId: ${communityEventId}`);
+    const result = await executor
       .createQueryBuilder()
       .select('claims.id')
       .addSelect('claims.claim_url')
@@ -264,10 +262,49 @@ export class PoapService {
       .where('claims.community_event_id = :id', { id: communityEventId })
       .andWhere('discord_claims.poap_claim_id IS NULL')
       .getRawMany<{ claims_id: string; claim_url: string }>();
-
-    return availablePoapClaims.map((claim) => ({
+    this.logger.verbose(`Fetched ${result.length} available poaps for event, eventId: ${communityEventId}`);
+    return result.map((claim) => ({
       id: claim.claims_id,
       claimUrl: claim.claim_url,
     }));
+  }
+
+  /**
+   * Stores poap claims for discord users
+   * @param communityEventId
+   * @param poapClaimsUrl
+   */
+  async storeForDiscord({
+    communityEventId,
+    poapClaimsUrl,
+  }: PoapsStoreDiscordPostRequestDto): Promise<PoapsStoreDiscordPostResponseDto> {
+    this.logger.log(
+      `attempting to store poaps for community event ${communityEventId}`,
+    );
+    const communityEvent = await this.dataSource
+      .createQueryBuilder()
+      .select('event.id')
+      .from(CommunityEventEntity, 'event')
+      .where('event.id = :id', { id: communityEventId })
+      .getOne();
+
+    if (!communityEvent) {
+      this.logger.warn(`community event ${communityEventId} not found`);
+      throw new NotFoundException(
+        `community event ${communityEventId} not found`,
+      );
+    }
+
+    const poapLinks = await this.parsePoapLinksUrl(poapClaimsUrl);
+
+    this.logger.verbose(`community event ${communityEventId} found in db`);
+    await this.insertPoapClaims(
+      communityEventId,
+      poapLinks,
+    );
+    const poapClaims = await this.fetchAvailablePoaps(communityEventId, this.dataSource);
+    return {
+      poapsAvailable: poapClaims.map((poapLink) => poapLink.claimUrl),
+    };
   }
 }

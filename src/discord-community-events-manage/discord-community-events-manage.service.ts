@@ -258,11 +258,11 @@ export class DiscordCommunityEventsManageService {
         const poapLinks =
           await this.poapService.parsePoapLinksUrl(poapLinksUrl);
         availablePOAPs = (
-          await this.poapService.insertPoapClaimsToDb(
+          await this.poapService.insertPoapClaims(
             newEvent.communityEventId,
             poapLinks,
           )
-        ).length;
+        ).affectedRows;
       } catch (e) {
         this.logger.error(
           `Error saving poap links for event, eventId: ${newEvent.communityEventId}`,
@@ -377,11 +377,11 @@ export class DiscordCommunityEventsManageService {
         const poapLinks =
           await this.poapService.parsePoapLinksUrl(poapLinksUrl);
         availablePOAPs = (
-          await this.poapService.insertPoapClaimsToDb(
+          await this.poapService.insertPoapClaims(
             discordEvent.communityEventId,
             poapLinks,
           )
-        ).length;
+        ).affectedRows;
       } catch (e) {
         this.logger.error(
           `Error saving poap links for event, eventId: ${discordEvent.communityEventId}`,

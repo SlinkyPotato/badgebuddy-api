@@ -9,6 +9,8 @@ import { PoapService } from '@/poap/poap.service';
 import {
   PoapsDistributeDiscordPostRequestDto,
   PoapsDistributeDiscordPostResponseDto,
+  PoapsStoreDiscordPostRequestDto,
+  PoapsStoreDiscordPostResponseDto,
 } from '@badgebuddy/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 
@@ -26,5 +28,15 @@ export class PoapController {
   })
   distributeDiscord(@Body() request: PoapsDistributeDiscordPostRequestDto) {
     return this.poapsService.distributeForDiscord(request);
+  }
+
+  @Post('store/discord')
+  @ApiResponse({
+    type: PoapsStoreDiscordPostResponseDto,
+    description: 'Successfully stored POAPs',
+    status: 200,
+  })
+  storeDiscord(@Body() request: PoapsStoreDiscordPostRequestDto) {
+    return this.poapsService.storeForDiscord(request);
   }
 }
