@@ -410,19 +410,19 @@ export class DiscordCommunityEventsManageService {
    * @param guildSId
    * @param voiceChannelSId
    * @param organizerSId
-   * @param communnityEventId
+   * @param communityEventId
    * @private
    */
   private async removeEventsFromCacheInterceptor(
     guildSId: string,
     voiceChannelSId: string,
     organizerSId: string,
-    communnityEventId: string,
+    communityEventId: string,
   ) {
     this.logger.verbose('Removing active events from cache');
     await this.cacheManager.del(DISCORD_COMMUNITY_EVENTS_ACTIVE);
     await this.cacheManager.del(
-      DISCORD_COMMUNITY_EVENTS_ACTIVE_ID(communnityEventId),
+      DISCORD_COMMUNITY_EVENTS_ACTIVE_ID(communityEventId),
     );
     await this.cacheManager.del(
       DISCORD_COMMUNITY_EVENTS_ACTIVE_GUILD(guildSId),
