@@ -247,7 +247,7 @@ export class DiscordBotService {
     this.logger.verbose(`found guild in discord, guildSId: ${guildSId}`);
 
     const decodedUserToken =
-      this.authService.decodeTokenFromRawString<UserTokenDto>(userToken);
+      this.authService.decodeTokenFromHeader<UserTokenDto>(userToken);
 
     this.logger.verbose(
       `decoded user token for userId: ${decodedUserToken.userId}`,

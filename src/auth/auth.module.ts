@@ -9,9 +9,12 @@ import { TokenEntity } from '@badgebuddy/common';
 import { UserTokenGuard } from './guards/user-token/user-token.guard';
 import { DiscordBotTokenGuard } from './guards/discord-bot-token/discord-bot-token.guard';
 import { ProcessorTokenGuard } from './guards/processor-token/processor-token.guard';
+import { PoapManagerGuard } from '@/auth/guards/poap-manager/poap-manager.guard';
+import { DiscordModule } from '@discord-nestjs/core';
 
 @Module({
   imports: [
+    DiscordModule.forFeature(),
     ConfigModule,
     JwtModule.register({
       secret: process.env.AUTH_SECRET_ENCRYPT_KEY,
@@ -30,6 +33,7 @@ import { ProcessorTokenGuard } from './guards/processor-token/processor-token.gu
     UserTokenGuard,
     DiscordBotTokenGuard,
     ProcessorTokenGuard,
+    PoapManagerGuard,
   ],
   exports: [
     ConfigModule,
@@ -38,6 +42,7 @@ import { ProcessorTokenGuard } from './guards/processor-token/processor-token.gu
     UserTokenGuard,
     DiscordBotTokenGuard,
     ProcessorTokenGuard,
+    PoapManagerGuard,
   ],
 })
 export class AuthModule {}

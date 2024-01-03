@@ -6,13 +6,11 @@ import {
   DISCORD_COMMUNITY_EVENTS_QUEUE,
   DiscordUserEntity,
 } from '@badgebuddy/common';
-import { PoapManagerGuard } from './guards/poap-manager.guard';
-import { DiscordCommunityEventsManageController } from './discord-community-events-manage.controller';
-import { DiscordCommunityEventsManageService } from './discord-community-events-manage.service';
 import { DiscordBotSettingsEntity } from '@badgebuddy/common/dist/common-typeorm/entities/discord/discord-bot-settings.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from '@/auth/auth.module';
-import { PoapModule } from '@/poap/poap.module';
+import { CommunityEventsActiveDiscordService } from '@/community-events-active-discord/community-events-active-discord.service';
+import { CommunityEventsActiveDiscordController } from '@/community-events-active-discord/community-events-active-discord.controller';
 
 @Module({
   imports: [
@@ -26,14 +24,8 @@ import { PoapModule } from '@/poap/poap.module';
       DiscordUserEntity,
     ]),
     AuthModule,
-    PoapModule,
   ],
-  controllers: [DiscordCommunityEventsManageController],
-  providers: [
-    Logger,
-    DiscordCommunityEventsManageService,
-    ValidationPipe,
-    PoapManagerGuard,
-  ],
+  controllers: [CommunityEventsActiveDiscordController],
+  providers: [Logger, CommunityEventsActiveDiscordService, ValidationPipe],
 })
-export class DiscordCommunityEventsManageModule {}
+export class CommunityEventsActiveDiscordModule {}

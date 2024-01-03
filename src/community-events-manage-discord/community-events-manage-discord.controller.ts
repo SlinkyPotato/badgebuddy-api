@@ -9,22 +9,22 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { DiscordCommunityEventsManageService } from './discord-community-events-manage.service';
-import { PoapManagerGuard } from './guards/poap-manager.guard';
+import { CommunityEventsManageDiscordService } from './community-events-manage-discord.service';
 import {
-  DiscordCommunityEventPatchRequestDto,
-  DiscordCommunityEventPatchResponseDto,
-  DiscordCommunityEventPostRequestDto,
-  DiscordCommunityEventPostResponseDto,
+  CommunityEventsManageDiscordDeleteRequestDto,
+  CommunityEventsManageDiscordDeleteResponseDto,
+  CommunityEventsManageDiscordPostRequestDto,
+  CommunityEventsManageDiscordPostResponseDto,
 } from '@badgebuddy/common';
+import { PoapManagerGuard } from '@/auth/guards/poap-manager/poap-manager.guard';
 
-@Controller('discord/community-events/manage')
-@ApiTags('Discord Community Events Management')
+@Controller('community-events/manage/discord')
+@ApiTags('Community Events Management for Discord')
 @UsePipes(ValidationPipe)
 @UseGuards(PoapManagerGuard)
-export class DiscordCommunityEventsManageController {
+export class CommunityEventsManageDiscordController {
   constructor(
-    private readonly discordCommunityEventsManageService: DiscordCommunityEventsManageService,
+    private readonly discordCommunityEventsManageService: CommunityEventsManageDiscordService,
   ) {}
 
   @Post()
@@ -32,15 +32,15 @@ export class DiscordCommunityEventsManageController {
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: 'Event started',
-    type: DiscordCommunityEventPostResponseDto,
+    type: CommunityEventsManageDiscordPostResponseDto,
   })
   @ApiResponse({
     status: HttpStatus.CONFLICT,
     description: 'Event in this channel is already active',
   })
   startEvent(
-    @Body() request: DiscordCommunityEventPostRequestDto,
-  ): Promise<DiscordCommunityEventPostResponseDto> {
+    @Body() request: CommunityEventsManageDiscordPostRequestDto,
+  ): Promise<CommunityEventsManageDiscordPostResponseDto> {
     return this.discordCommunityEventsManageService.startEvent(request);
   }
 
@@ -49,7 +49,7 @@ export class DiscordCommunityEventsManageController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Event stopped',
-    type: DiscordCommunityEventPatchResponseDto,
+    type: CommunityEventsManageDiscordDeleteResponseDto,
   })
   @ApiResponse({
     status: HttpStatus.CONFLICT,
@@ -60,8 +60,8 @@ export class DiscordCommunityEventsManageController {
     description: 'Active event not found',
   })
   stopEvent(
-    @Body() request: DiscordCommunityEventPatchRequestDto,
-  ): Promise<DiscordCommunityEventPatchResponseDto> {
+    @Body() request: CommunityEventsManageDiscordDeleteRequestDto,
+  ): Promise<CommunityEventsManageDiscordDeleteResponseDto> {
     return this.discordCommunityEventsManageService.endEvent(request);
   }
 }

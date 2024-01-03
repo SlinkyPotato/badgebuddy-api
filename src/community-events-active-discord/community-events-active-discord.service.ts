@@ -1,28 +1,26 @@
 import { Injectable, Logger } from '@nestjs/common';
-import {
-  CommunityEventDiscordEntity,
-  DiscordActiveCommunityEventsGetResponseDto,
-  DiscordActiveCommunityEventDto,
-} from '@badgebuddy/common';
 import { MoreThan, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
-  DiscordCommunityEventsActiveByIdGetRequestDto,
-  DiscordCommunityEventsActiveByGuildGetRequestDto,
-  DiscordCommunityEventsActiveByOrganizerGetRequestDto,
-  DiscordCommunityEventsActiveByVoiceChannelGetRequestDto,
-  DiscordCommunityEventsActiveByGuildAndOrganizerGetRequestDto,
+  CommunityEventActiveDiscordDto,
+  CommunityEventDiscordEntity,
+  CommunityEventsActiveDiscordByGuildAndOrganizerGetRequestDto,
+  CommunityEventsActiveDiscordByGuildGetRequestDto,
+  CommunityEventsActiveDiscordByIdGetRequestDto,
+  CommunityEventsActiveDiscordByOrganizerGetRequestDto,
+  CommunityEventsActiveDiscordByVoiceChannelGetRequestDto,
+  CommunityEventsActiveDiscordGetResponseDto,
 } from '@badgebuddy/common';
 
 @Injectable()
-export class DiscordCommunityEventsActiveService {
+export class CommunityEventsActiveDiscordService {
   constructor(
     @InjectRepository(CommunityEventDiscordEntity)
     private communityEventRepo: Repository<CommunityEventDiscordEntity>,
     private readonly logger: Logger,
   ) {}
 
-  async getActiveEvents() {
+  async getActiveEvents(): Promise<CommunityEventsActiveDiscordGetResponseDto> {
     this.logger.log('Getting all active events');
     let activeEvents: CommunityEventDiscordEntity[] = [];
     try {
@@ -48,7 +46,7 @@ export class DiscordCommunityEventsActiveService {
 
   async getActiveEventsById({
     communityEventId,
-  }: DiscordCommunityEventsActiveByIdGetRequestDto): Promise<DiscordActiveCommunityEventsGetResponseDto> {
+  }: CommunityEventsActiveDiscordByIdGetRequestDto): Promise<CommunityEventsActiveDiscordGetResponseDto> {
     this.logger.log(`Getting active event for eventId: ${communityEventId}`);
     let activeEvents: CommunityEventDiscordEntity[] = [];
     try {
@@ -77,7 +75,7 @@ export class DiscordCommunityEventsActiveService {
 
   async getActiveEventsByGuildId({
     guildSId,
-  }: DiscordCommunityEventsActiveByGuildGetRequestDto): Promise<DiscordActiveCommunityEventsGetResponseDto> {
+  }: CommunityEventsActiveDiscordByGuildGetRequestDto): Promise<CommunityEventsActiveDiscordGetResponseDto> {
     console.log(guildSId);
     this.logger.log(`Getting active event for guildSId: ${guildSId}`);
     let activeEvents: CommunityEventDiscordEntity[] = [];
@@ -107,7 +105,7 @@ export class DiscordCommunityEventsActiveService {
 
   async getActiveEventsByOrganizerId({
     organizerSId,
-  }: DiscordCommunityEventsActiveByOrganizerGetRequestDto): Promise<DiscordActiveCommunityEventsGetResponseDto> {
+  }: CommunityEventsActiveDiscordByOrganizerGetRequestDto): Promise<CommunityEventsActiveDiscordGetResponseDto> {
     this.logger.log(`Getting active event for organizerSId: ${organizerSId}`);
     let activeEvents: CommunityEventDiscordEntity[] = [];
     try {
@@ -138,7 +136,7 @@ export class DiscordCommunityEventsActiveService {
 
   async getActiveEventsByVoiceChannelId({
     voiceChannelSId,
-  }: DiscordCommunityEventsActiveByVoiceChannelGetRequestDto): Promise<DiscordActiveCommunityEventsGetResponseDto> {
+  }: CommunityEventsActiveDiscordByVoiceChannelGetRequestDto): Promise<CommunityEventsActiveDiscordGetResponseDto> {
     this.logger.log(
       `Getting active event for voiceChannelSId: ${voiceChannelSId}`,
     );
@@ -170,7 +168,7 @@ export class DiscordCommunityEventsActiveService {
   async getActiveEventsByGuildIdAndOrganizerId({
     guildSId,
     organizerSId,
-  }: DiscordCommunityEventsActiveByGuildAndOrganizerGetRequestDto): Promise<DiscordActiveCommunityEventsGetResponseDto> {
+  }: CommunityEventsActiveDiscordByGuildAndOrganizerGetRequestDto): Promise<CommunityEventsActiveDiscordGetResponseDto> {
     this.logger.log(
       `Getting active event for guildSId: ${guildSId}, organizerSId: ${organizerSId}`,
     );
@@ -206,8 +204,8 @@ export class DiscordCommunityEventsActiveService {
 
   private mapEventToResponse(
     activeEvents: CommunityEventDiscordEntity[],
-  ): DiscordActiveCommunityEventsGetResponseDto {
-    const events = activeEvents.map<DiscordActiveCommunityEventDto>((event) => {
+  ): CommunityEventsActiveDiscordGetResponseDto {
+    const events = activeEvents.map<CommunityEventActiveDiscordDto>((event) => {
       return {
         communityEventId: event.communityEventId,
         title: event.communityEvent.title,
@@ -217,7 +215,7 @@ export class DiscordCommunityEventsActiveService {
         organizerSId: event.organizer!.userSId,
         startDate: event.communityEvent.startDate,
         endDate: event.communityEvent.endDate,
-      } as DiscordActiveCommunityEventDto;
+      } as CommunityEventActiveDiscordDto;
     });
     this.logger.log(`Found ${events.length} active events`);
     return {

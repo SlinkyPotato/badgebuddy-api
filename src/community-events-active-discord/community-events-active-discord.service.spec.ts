@@ -2,10 +2,10 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { describe, beforeEach, it, expect, jest } from '@jest/globals';
 import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { DiscordCommunityEventsActiveService } from './discord-community-events-active.service';
+import { CommunityEventsActiveDiscordService } from './community-events-active-discord.service';
 
 describe('ActiveCommunityEventsServiceService', () => {
-  let service: DiscordCommunityEventsActiveService;
+  let service: CommunityEventsActiveDiscordService;
 
   const mockLogger = {
     log: jest.fn().mockReturnThis(),
@@ -16,7 +16,7 @@ describe('ActiveCommunityEventsServiceService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        DiscordCommunityEventsActiveService,
+        CommunityEventsActiveDiscordService,
         { provide: Logger, useValue: mockLogger },
         {
           provide: 'CommunityEventDiscordEntityRepository',
@@ -26,8 +26,8 @@ describe('ActiveCommunityEventsServiceService', () => {
       ],
     }).compile();
 
-    service = module.get<DiscordCommunityEventsActiveService>(
-      DiscordCommunityEventsActiveService,
+    service = module.get<CommunityEventsActiveDiscordService>(
+      CommunityEventsActiveDiscordService,
     );
   });
 

@@ -1,18 +1,18 @@
 import { Module } from '@nestjs/common';
 import {
   CommonConfigModule,
-  RedisConfigModule,
-  RedisBullConfigModule,
-  DiscordConfigModule,
   CommonTypeOrmModule,
+  DiscordConfigModule,
+  RedisBullConfigModule,
+  RedisConfigModule,
 } from '@badgebuddy/common';
 import { AuthModule } from './auth/auth.module';
 import { HealthModule } from './health/health.module';
-import { DiscordBotModule } from './discord-bot/discord-bot.module';
 import Joi from 'joi';
-import { DiscordCommunityEventsActiveModule } from './discord-community-events-active/discord-community-events-active.module';
-import { DiscordCommunityEventsManageModule } from './discord-community-events-manage/discord-community-events-manage.module';
-import { PoapModule } from './poap/poap.module';
+import { PoapsModule } from '@/poaps/poaps.module';
+import { CommunityEventsActiveDiscordModule } from '@/community-events-active-discord/community-events-active-discord.module';
+import { CommunityEventsManageDiscordModule } from '@/community-events-manage-discord/community-events-manage-discord.module';
+import { DiscordBotModule } from '@/discord-bot/discord-bot.module';
 
 @Module({
   imports: [
@@ -43,10 +43,10 @@ import { PoapModule } from './poap/poap.module';
     DiscordConfigModule.forRootAsync(),
     HealthModule,
     AuthModule,
+    CommunityEventsActiveDiscordModule,
+    CommunityEventsManageDiscordModule,
     DiscordBotModule,
-    DiscordCommunityEventsManageModule,
-    DiscordCommunityEventsActiveModule,
-    PoapModule,
+    PoapsModule,
   ],
 })
 export class AppModule {}

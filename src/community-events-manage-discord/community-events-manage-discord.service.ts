@@ -13,33 +13,33 @@ import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
 import {
   CommunityEventDiscordEntity,
-  DISCORD_COMMUNITY_EVENTS_ACTIVE_GUILD,
-  DISCORD_COMMUNITY_EVENTS_ACTIVE_GUILD_ORGANIZER,
-  DISCORD_COMMUNITY_EVENTS_ACTIVE,
-  DISCORD_COMMUNITY_EVENTS_ACTIVE_ID,
-  DISCORD_COMMUNITY_EVENTS_ACTIVE_ORGANIZER,
-  DISCORD_COMMUNITY_EVENTS_ACTIVE_VOICE_CHANNEL,
   TRACKING_EVENTS_ACTIVE,
   DISCORD_COMMUNITY_EVENTS_QUEUE,
   DiscordUserEntity,
   DiscordBotSettingsEntity,
   CommunityEventEntity,
-  DiscordActiveCommunityEventDto,
   DISCORD_COMMUNITY_EVENTS_START_JOB,
   DISCORD_COMMUNITY_EVENTS_END_JOB,
-  DiscordCommunityEventPostRequestDto,
-  DiscordCommunityEventPostResponseDto,
-  DiscordCommunityEventPatchRequestDto,
-  DiscordCommunityEventPatchResponseDto,
+  COMMUNITY_EVENTS_ACTIVE_DISCORD_ID,
+  COMMUNITY_EVENTS_ACTIVE_DISCORD_GUILD,
+  COMMUNITY_EVENTS_ACTIVE_DISCORD_ORGANIZER,
+  COMMUNITY_EVENTS_ACTIVE_DISCORD_VOICE_CHANNEL,
+  COMMUNITY_EVENTS_ACTIVE_DISCORD_GUILD_ORGANIZER,
+  COMMUNITY_EVENTS_ACTIVE_DISCORD,
+  CommunityEventsManageDiscordPostRequestDto,
+  CommunityEventsManageDiscordPostResponseDto,
+  CommunityEventsManageDiscordDeleteResponseDto,
+  CommunityEventsManageDiscordDeleteRequestDto,
+  CommunityEventActiveDiscordDto,
 } from '@badgebuddy/common';
 import { DataSource, MoreThan, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { InjectDiscordClient } from '@discord-nestjs/core';
 import { Client } from 'discord.js';
-import { PoapService } from '@/poap/poap.service';
+import { PoapsService } from '@/poaps/poaps.service';
 
 @Injectable()
-export class DiscordCommunityEventsManageService {
+export class CommunityEventsManageDiscordService {
   constructor(
     private readonly logger: Logger,
     @InjectRepository(CommunityEventDiscordEntity)
@@ -52,7 +52,7 @@ export class DiscordCommunityEventsManageService {
     @InjectQueue(DISCORD_COMMUNITY_EVENTS_QUEUE) private eventsQueue: Queue,
     @InjectDiscordClient() private discordClient: Client,
     private dataSource: DataSource,
-    private readonly poapService: PoapService,
+    private readonly poapService: PoapsService,
   ) {}
 
   async startEvent({
@@ -63,11 +63,12 @@ export class DiscordCommunityEventsManageService {
     description,
     organizerSId,
     poapLinksUrl,
-  }: DiscordCommunityEventPostRequestDto): Promise<DiscordCommunityEventPostResponseDto> {
+  }: CommunityEventsManageDiscordPostRequestDto): Promise<CommunityEventsManageDiscordPostResponseDto> {
     this.logger.log('Attempting to start new event.');
 
     const endDateObj: Date = new Date(endDate);
     const startDateObj: Date = new Date();
+    this.logger.log(`found startDate: ${startDateObj.toISOString()}`);
     if (endDateObj < startDateObj) {
       this.logger.warn(`Event end date is in the past, endDate: ${endDate}`);
       throw new UnprocessableEntityException(
@@ -293,7 +294,7 @@ export class DiscordCommunityEventsManageService {
     guildSId,
     voiceChannelSId,
     poapLinksUrl,
-  }: DiscordCommunityEventPatchRequestDto): Promise<DiscordCommunityEventPatchResponseDto> {
+  }: CommunityEventsManageDiscordDeleteRequestDto): Promise<CommunityEventsManageDiscordDeleteResponseDto> {
     this.logger.log(
       `Stopping event for guildSId: ${guildSId}, voiceChannelSId: ${voiceChannelSId}`,
     );
@@ -420,21 +421,21 @@ export class DiscordCommunityEventsManageService {
     communityEventId: string,
   ) {
     this.logger.verbose('Removing active events from cache');
-    await this.cacheManager.del(DISCORD_COMMUNITY_EVENTS_ACTIVE);
+    await this.cacheManager.del(COMMUNITY_EVENTS_ACTIVE_DISCORD);
     await this.cacheManager.del(
-      DISCORD_COMMUNITY_EVENTS_ACTIVE_ID(communityEventId),
+      COMMUNITY_EVENTS_ACTIVE_DISCORD_ID(communityEventId),
     );
     await this.cacheManager.del(
-      DISCORD_COMMUNITY_EVENTS_ACTIVE_GUILD(guildSId),
+      COMMUNITY_EVENTS_ACTIVE_DISCORD_GUILD(guildSId),
     );
     await this.cacheManager.del(
-      DISCORD_COMMUNITY_EVENTS_ACTIVE_VOICE_CHANNEL(voiceChannelSId),
+      COMMUNITY_EVENTS_ACTIVE_DISCORD_VOICE_CHANNEL(voiceChannelSId),
     );
     await this.cacheManager.del(
-      DISCORD_COMMUNITY_EVENTS_ACTIVE_ORGANIZER(organizerSId),
+      COMMUNITY_EVENTS_ACTIVE_DISCORD_ORGANIZER(organizerSId),
     );
     await this.cacheManager.del(
-      DISCORD_COMMUNITY_EVENTS_ACTIVE_GUILD_ORGANIZER(organizerSId, guildSId),
+      COMMUNITY_EVENTS_ACTIVE_DISCORD_GUILD_ORGANIZER(organizerSId, guildSId),
     );
     this.logger.verbose('Removed active event from cache');
   }
@@ -456,7 +457,7 @@ export class DiscordCommunityEventsManageService {
         guildSId,
         startDate: newEvent.communityEvent.startDate,
         endDate: newEvent.communityEvent.endDate,
-      } as DiscordActiveCommunityEventDto,
+      } as CommunityEventActiveDiscordDto,
       newEvent.communityEvent.endDate.getTime() -
         newEvent.communityEvent.startDate.getTime(),
     );

@@ -342,6 +342,7 @@ export class AuthService {
   /**
    * Refresh an access token.
    * @param request RefreshTokenPostRequestDto
+   * @param requestAccessToken the access token from the request
    * @returns Promise<RefreshTokenPostResponseDto>
    *
    * @see https://tools.ietf.org/html/rfc6749#section-6
@@ -350,35 +351,35 @@ export class AuthService {
     request: RefreshTokenPostRequestDto,
     requestAccessToken: string,
   ): Promise<RefreshTokenPostResponseDto> {
-    this.logger.verbose(`Attempting to refresh access token for client`);
+    this.logger.log(`Attempting to refresh access token for client`);
     const decodedAccessToken =
       this.jwtService.decode<UserTokenDto>(requestAccessToken);
-    let decodedRefresh: UserTokenDto;
-    try {
-      decodedRefresh = this.jwtService.verify<UserTokenDto>(
-        request.refreshToken,
-      );
-      if (
-        !decodedRefresh.userId ||
-        decodedRefresh.sub !== decodedAccessToken.sub ||
-        decodedRefresh.iss !== decodedAccessToken.iss ||
-        decodedRefresh.userId !== decodedAccessToken.userId
-      ) {
-        throw new UnprocessableEntityException('Invalid refresh token');
-      }
-      if (
-        !decodedRefresh.sessionId ||
-        decodedRefresh.sessionId !== decodedAccessToken.sessionId
-      ) {
-        throw new UnprocessableEntityException('Invalid refresh token');
-      }
-    } catch (error) {
-      throw new UnprocessableEntityException('Invalid token invalid');
+    this.logger.verbose(`attempting to verify expired token`);
+    const decodedRefresh: UserTokenDto = this.jwtService.verify<UserTokenDto>(
+      request.refreshToken,
+    );
+    this.logger.verbose(`expired token verified`);
+    if (
+      !decodedRefresh.userId ||
+      decodedRefresh.sub !== decodedAccessToken.sub ||
+      decodedRefresh.iss !== decodedAccessToken.iss ||
+      decodedRefresh.userId !== decodedAccessToken.userId
+    ) {
+      this.logger.warn(`token mismatch`);
+      throw new UnprocessableEntityException('Invalid refresh token');
+    }
+    if (
+      !decodedRefresh.sessionId ||
+      decodedRefresh.sessionId !== decodedAccessToken.sessionId
+    ) {
+      this.logger.warn(`session id mismatch`);
+      throw new UnprocessableEntityException('Invalid refresh token');
     }
     const cacheRefreshToken = await this.cacheManager.get<string>(
       AUTH_REFRESH_TOKEN(decodedRefresh.userId),
     );
     if (!cacheRefreshToken || cacheRefreshToken !== request.refreshToken) {
+      this.logger.warn(`not found in cache`);
       throw new NotFoundException('Invalid refresh token');
     }
 
@@ -1044,8 +1045,26 @@ export class AuthService {
     return this.jwtService.decode<T>(token);
   }
 
-  public decodeTokenFromRawString<T>(token: string): T {
-    return this.decodeToken<T>(this.getTokenFromHeader(token));
+  /**
+   * Decode token from header.
+   * @param authHeader
+   */
+  public decodeTokenFromHeader<T>(authHeader: string): T {
+    return this.decodeToken<T>(this.getTokenFromHeader(authHeader));
+  }
+
+  /**
+   * Get discord user snowflake id from header.
+   * @param authHeader
+   */
+  public getDiscordUserSIdFromHeader(authHeader: string): string {
+    const discordUserSId = this.decodeTokenFromHeader<{
+      discordUserSId: string;
+    }>(authHeader).discordUserSId;
+    if (!discordUserSId) {
+      throw new UnauthorizedException('Discord User Snowflake ID not found');
+    }
+    return discordUserSId;
   }
 
   private genMagicEmailCode(email: string): string {

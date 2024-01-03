@@ -10,25 +10,25 @@ import {
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CacheInterceptor } from '@nestjs/cache-manager';
-import { DiscordCommunityEventsActiveService } from './discord-community-events-active.service';
-import { DiscordActiveCommunityEventsGetResponseDto } from '@badgebuddy/common';
+import { CommunityEventsActiveDiscordService } from './community-events-active-discord.service';
 import {
-  DiscordCommunityEventsActiveByIdGetRequestDto,
-  DiscordCommunityEventsActiveByGuildGetRequestDto,
-  DiscordCommunityEventsActiveByOrganizerGetRequestDto,
-  DiscordCommunityEventsActiveByVoiceChannelGetRequestDto,
-  DiscordCommunityEventsActiveByGuildAndOrganizerGetRequestDto,
+  CommunityEventsActiveDiscordByGuildAndOrganizerGetRequestDto,
+  CommunityEventsActiveDiscordByGuildGetRequestDto,
+  CommunityEventsActiveDiscordByIdGetRequestDto,
+  CommunityEventsActiveDiscordByOrganizerGetRequestDto,
+  CommunityEventsActiveDiscordByVoiceChannelGetRequestDto,
+  CommunityEventsActiveDiscordGetResponseDto,
 } from '@badgebuddy/common';
 import { UserTokenGuard } from '@/auth/guards/user-token/user-token.guard';
 
-@Controller('discord/community-events/active')
-@ApiTags('Active Discord Community Events')
+@Controller('community-events/active/discord')
+@ApiTags('Community Events Active For Discord')
 @UseInterceptors(CacheInterceptor)
 @UsePipes(ValidationPipe)
 @UseGuards(UserTokenGuard)
-export class DiscordCommunityEventsActiveController {
+export class CommunityEventsActiveDiscordController {
   constructor(
-    private readonly activeEventsService: DiscordCommunityEventsActiveService,
+    private readonly activeEventsService: CommunityEventsActiveDiscordService,
   ) {}
 
   @Get()
@@ -36,9 +36,9 @@ export class DiscordCommunityEventsActiveController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Active events retrieved.',
-    type: DiscordActiveCommunityEventsGetResponseDto,
+    type: CommunityEventsActiveDiscordGetResponseDto,
   })
-  getActiveEvents(): Promise<DiscordActiveCommunityEventsGetResponseDto> {
+  getActiveEvents(): Promise<CommunityEventsActiveDiscordGetResponseDto> {
     return this.activeEventsService.getActiveEvents();
   }
 
@@ -47,11 +47,11 @@ export class DiscordCommunityEventsActiveController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Active events retrieved.',
-    type: DiscordActiveCommunityEventsGetResponseDto,
+    type: CommunityEventsActiveDiscordGetResponseDto,
   })
   getActiveEventsById(
-    @Param() params: DiscordCommunityEventsActiveByIdGetRequestDto,
-  ): Promise<DiscordActiveCommunityEventsGetResponseDto> {
+    @Param() params: CommunityEventsActiveDiscordByIdGetRequestDto,
+  ): Promise<CommunityEventsActiveDiscordGetResponseDto> {
     console.log('called');
     return this.activeEventsService.getActiveEventsById(params);
   }
@@ -61,11 +61,11 @@ export class DiscordCommunityEventsActiveController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Active events retrieved.',
-    type: DiscordActiveCommunityEventsGetResponseDto,
+    type: CommunityEventsActiveDiscordGetResponseDto,
   })
   getActiveEventsByGuildId(
-    @Param() params: DiscordCommunityEventsActiveByGuildGetRequestDto,
-  ): Promise<DiscordActiveCommunityEventsGetResponseDto> {
+    @Param() params: CommunityEventsActiveDiscordByGuildGetRequestDto,
+  ): Promise<CommunityEventsActiveDiscordGetResponseDto> {
     return this.activeEventsService.getActiveEventsByGuildId(params);
   }
 
@@ -74,11 +74,11 @@ export class DiscordCommunityEventsActiveController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Active events retrieved.',
-    type: DiscordActiveCommunityEventsGetResponseDto,
+    type: CommunityEventsActiveDiscordGetResponseDto,
   })
   getActiveEventsByOrganizerId(
-    @Param() params: DiscordCommunityEventsActiveByOrganizerGetRequestDto,
-  ): Promise<DiscordActiveCommunityEventsGetResponseDto> {
+    @Param() params: CommunityEventsActiveDiscordByOrganizerGetRequestDto,
+  ): Promise<CommunityEventsActiveDiscordGetResponseDto> {
     return this.activeEventsService.getActiveEventsByOrganizerId(params);
   }
 
@@ -87,11 +87,11 @@ export class DiscordCommunityEventsActiveController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Active events retrieved.',
-    type: DiscordActiveCommunityEventsGetResponseDto,
+    type: CommunityEventsActiveDiscordGetResponseDto,
   })
   getActiveEventsByVoiceChannelId(
-    @Param() params: DiscordCommunityEventsActiveByVoiceChannelGetRequestDto,
-  ): Promise<DiscordActiveCommunityEventsGetResponseDto> {
+    @Param() params: CommunityEventsActiveDiscordByVoiceChannelGetRequestDto,
+  ): Promise<CommunityEventsActiveDiscordGetResponseDto> {
     return this.activeEventsService.getActiveEventsByVoiceChannelId(params);
   }
 
@@ -100,12 +100,12 @@ export class DiscordCommunityEventsActiveController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Active events retrieved.',
-    type: DiscordActiveCommunityEventsGetResponseDto,
+    type: CommunityEventsActiveDiscordGetResponseDto,
   })
   getActiveEventsByGuildIdAndOrganizerId(
     @Param()
-    params: DiscordCommunityEventsActiveByGuildAndOrganizerGetRequestDto,
-  ): Promise<DiscordActiveCommunityEventsGetResponseDto> {
+    params: CommunityEventsActiveDiscordByGuildAndOrganizerGetRequestDto,
+  ): Promise<CommunityEventsActiveDiscordGetResponseDto> {
     return this.activeEventsService.getActiveEventsByGuildIdAndOrganizerId(
       params,
     );

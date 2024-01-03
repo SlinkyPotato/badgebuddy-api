@@ -19,6 +19,12 @@ import { DataSource, EntityManager } from 'typeorm';
 import { firstValueFrom, retry, timeout } from 'rxjs';
 import { HttpService } from '@nestjs/axios';
 import { ResultSetHeader } from 'mysql2';
+import { PoapsClaimDiscordGetRequestDto } from '@/poaps/poaps-claim-discord-get-request/poaps-claim-discord-get-request.dto';
+import {
+  PoapsClaimDiscordDto,
+  PoapsClaimDiscordGetResponseDto,
+} from '@/poaps/poaps-claim-discord-get-response/poaps-claim-discord-get-response.dto';
+import { AuthService } from '@/auth/auth.service';
 
 type PoapLink = {
   qrCode: string | undefined;
@@ -26,14 +32,14 @@ type PoapLink = {
 };
 
 @Injectable()
-export class PoapService {
+export class PoapsService {
   constructor(
     private readonly logger: Logger,
     private readonly dataSource: DataSource,
     private readonly httpService: HttpService,
   ) {}
 
-  async distributeForDiscord({
+  async distributePoapsForDiscord({
     communityEventId,
   }: PoapsDistributeDiscordPostRequestDto): Promise<PoapsDistributeDiscordPostResponseDto> {
     this.logger.log(
@@ -246,8 +252,10 @@ export class PoapService {
   async fetchAvailablePoaps(
     communityEventId: string,
     executor: EntityManager | DataSource,
-  ): Promise<{id: string, claimUrl: string}[]> {
-    this.logger.verbose(`Fetching available poaps for event, eventId: ${communityEventId}`);
+  ): Promise<{ id: string; claimUrl: string }[]> {
+    this.logger.verbose(
+      `Fetching available poaps for event, eventId: ${communityEventId}`,
+    );
     const result = await executor
       .createQueryBuilder()
       .select('claims.id')
@@ -261,7 +269,9 @@ export class PoapService {
       .where('claims.community_event_id = :id', { id: communityEventId })
       .andWhere('discord_claims.poap_claim_id IS NULL')
       .getRawMany<{ claims_id: string; claim_url: string }>();
-    this.logger.verbose(`Fetched ${result.length} available poaps for event, eventId: ${communityEventId}`);
+    this.logger.verbose(
+      `Fetched ${result.length} available poaps for event, eventId: ${communityEventId}`,
+    );
     return result.map((claim) => ({
       id: claim.claims_id,
       claimUrl: claim.claim_url,
@@ -273,7 +283,7 @@ export class PoapService {
    * @param communityEventId
    * @param poapClaimsUrl
    */
-  async storeForDiscord({
+  async storePoapsForDiscord({
     communityEventId,
     poapClaimsUrl,
   }: PoapsStoreDiscordPostRequestDto): Promise<PoapsStoreDiscordPostResponseDto> {
@@ -297,13 +307,57 @@ export class PoapService {
     const poapLinks = await this.parsePoapLinksUrl(poapClaimsUrl);
 
     this.logger.verbose(`community event ${communityEventId} found in db`);
-    await this.insertPoapClaims(
+    await this.insertPoapClaims(communityEventId, poapLinks);
+    const poapClaims = await this.fetchAvailablePoaps(
       communityEventId,
-      poapLinks,
+      this.dataSource,
     );
-    const poapClaims = await this.fetchAvailablePoaps(communityEventId, this.dataSource);
     return {
       poapsAvailable: poapClaims.map((poapLink) => poapLink.claimUrl),
+    };
+  }
+
+  async claimPoapsForDiscord(
+    discordUserSId: string,
+  ): Promise<PoapsClaimDiscordGetResponseDto> {
+    this.logger.log(
+      `attempting to claim poaps for discord user ${discordUserSId}`,
+    );
+
+    this.logger.verbose(`updating all poaps with claimOn date if missing`);
+    await this.dataSource
+      .createQueryBuilder()
+      .update<PoapClaimDiscordEntity>(PoapClaimDiscordEntity)
+      .set({ claimedOn: () => 'NOW()' })
+      .where('assigned_discord_user_sid = :discordUserSId', {
+        discordUserSId,
+      })
+      .andWhere('claimed_on IS NULL')
+      .execute();
+
+    this.logger.verbose(
+      `updated all poaps with claimOn date, fetching all poaps`,
+    );
+
+    let poapClaims: PoapClaimDiscordEntity[] = [];
+
+    poapClaims = await this.dataSource
+      .getRepository<PoapClaimDiscordEntity>(PoapClaimDiscordEntity)
+      .findBy({
+        assignedDiscordUserSId: discordUserSId,
+      });
+
+    return {
+      poaps: poapClaims.map(
+        (poapClaim) =>
+          ({
+            id: poapClaim.poapClaimId,
+            qrCode: poapClaim.poapClaim.qrCode,
+            claimUrl: poapClaim.poapClaim.claimUrl,
+            claimedOn: poapClaim.claimedOn!.toISOString(),
+            communityEventId: poapClaim.poapClaim.communityEventId,
+          }) as PoapsClaimDiscordDto,
+      ),
     };
   }
 }

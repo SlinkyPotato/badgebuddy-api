@@ -1,14 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { describe, beforeEach, it, expect, jest } from '@jest/globals';
-import { DiscordCommunityEventsManageService } from './discord-community-events-manage.service';
+import { CommunityEventsManageDiscordService } from './community-events-manage-discord.service';
 import { Logger } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { DataSource } from 'typeorm';
 import { from } from 'rxjs';
-import { PoapService } from '@/poap/poap.service';
+import { PoapsService } from '@/poaps/poaps.service';
 
 describe('DiscordCommunityEventsManageService', () => {
-  let service: DiscordCommunityEventsManageService;
+  let service: CommunityEventsManageDiscordService;
 
   const mockHttpService = {
     get: jest.fn().mockImplementation(() => {
@@ -36,7 +36,7 @@ describe('DiscordCommunityEventsManageService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        DiscordCommunityEventsManageService,
+        CommunityEventsManageDiscordService,
         { provide: Logger, useValue: mockLogger },
         {
           provide: 'CommunityEventDiscordEntityRepository',
@@ -52,12 +52,12 @@ describe('DiscordCommunityEventsManageService', () => {
         { provide: '__inject_discord_client__', useValue: jest.fn() },
         { provide: HttpService, useValue: mockHttpService },
         { provide: DataSource, useValue: jest.fn() },
-        { provide: PoapService, useValue: mockPoapService },
+        { provide: PoapsService, useValue: mockPoapService },
       ],
     }).compile();
 
-    service = module.get<DiscordCommunityEventsManageService>(
-      DiscordCommunityEventsManageService,
+    service = module.get<CommunityEventsManageDiscordService>(
+      CommunityEventsManageDiscordService,
     );
   });
 
