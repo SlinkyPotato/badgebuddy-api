@@ -8,6 +8,7 @@ import {
   UsePipes,
   ValidationPipe,
   Headers,
+  UseInterceptors,
 } from '@nestjs/common';
 import { PoapsService } from '@/poaps/poaps.service';
 import {
@@ -20,10 +21,12 @@ import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { PoapManagerGuard } from '@/auth/guards/poap-manager/poap-manager.guard';
 import { PoapsClaimDiscordGetResponseDto } from '@/poaps/poaps-claim-discord-get-response/poaps-claim-discord-get-response.dto';
 import { AuthService } from '@/auth/auth.service';
+import { CacheInterceptor } from '@nestjs/cache-manager';
 
 @Controller('poaps')
 @ApiTags('POAPs')
 @UsePipes(ValidationPipe)
+@UseInterceptors(CacheInterceptor)
 export class PoapsController {
   constructor(
     private readonly poapsService: PoapsService,
