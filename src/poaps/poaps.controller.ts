@@ -3,7 +3,6 @@ import {
   Controller,
   Get,
   Post,
-  Query,
   UseGuards,
   UsePipes,
   ValidationPipe,

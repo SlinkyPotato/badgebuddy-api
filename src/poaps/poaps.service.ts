@@ -19,12 +19,10 @@ import { DataSource, EntityManager } from 'typeorm';
 import { firstValueFrom, retry, timeout } from 'rxjs';
 import { HttpService } from '@nestjs/axios';
 import { ResultSetHeader } from 'mysql2';
-import { PoapsClaimDiscordGetRequestDto } from '@/poaps/poaps-claim-discord-get-request/poaps-claim-discord-get-request.dto';
 import {
   PoapsClaimDiscordDto,
   PoapsClaimDiscordGetResponseDto,
 } from '@/poaps/poaps-claim-discord-get-response/poaps-claim-discord-get-response.dto';
-import { AuthService } from '@/auth/auth.service';
 
 type PoapLink = {
   qrCode: string | undefined;

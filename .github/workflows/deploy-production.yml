@@ -39,7 +39,6 @@ jobs:
       - name: Retrieve package.json
         id: package
         run: |
-          echo NODE_VERSION=$(node -e "console.log(require('./package.json').engines.node)") >> "$GITHUB_OUTPUT"
           echo PACKAGE_VERSION=$(node -e "console.log(require('./package.json').version)") >> "$GITHUB_OUTPUT"
       - run: git push --follow-tags
       - run: node -e "require('@badgebuddy/common')['parseReleaseUtil']();"
@@ -60,8 +59,6 @@ jobs:
             solidchain/badge-buddy-api:${{ steps.package.outputs.PACKAGE_VERSION }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          build-args: |
-            NODE_VERSION=${{ steps.package.outputs.NODE_VERSION }}
       - run: docker push solidchain/badge-buddy-api -a
       - run: docker cp $(docker run -d --rm solidchain/badge-buddy-api:latest):/app/dist ./dist
       - uses: vimtor/action-zip@v1

@@ -1,44 +1,42 @@
-name: badge-buddy-api_local
+name: local_badge-buddy-api
 services:
-  
+
   api:
-    container_name: api
     depends_on:
-      - redis_local
-      - mariadb_local
+      - redis
+      - mariadb
     build:
       context: .
       tags:
         - solidchain/badge-buddy-api:dev
-      args:
-        NODE_VERSION: 20.9.0
     env_file:
       - .env
+    environment:
+      MARIADB_HOST: mariadb
+      MARIADB_PASSWORD: local-pass
+      REDIS_HOST: redis
     networks:
       - local_server
     ports:
       - 3011:3000
     volumes:
       - ./logs:/app/logs
-  
-  redis_local:
-    container_name: redis_local
+
+  redis:
     image: redis:latest
     networks:
       - local_server
-    ports:
-      - 6389:6379
-  
-  mariadb_local:
-    container_name: mariadb_local
+
+  mariadb:
     image: mariadb:latest
     networks:
       - local_server
     environment:
-      - MARIADB_ROOT_USER=root
-      - MARIADB_ROOT_PASSWORD=some-password-for-root
-    ports:
-      - 3316:3306
+      MARIADB_ROOT_USER: root
+      MARIADB_ROOT_PASSWORD: local-pass
+      MARIADB_DATABASE: badge_buddy
+    volumes:
+      - ../../packages/common/src/common-typeorm/scripts/mysql.setup.sql:/docker-entrypoint-initdb.d/init.sql
 
 networks:
   local_server:

@@ -3,7 +3,7 @@ import { CommunityEventsManageDiscordController } from './community-events-manag
 import { describe, beforeEach, it, expect, jest } from '@jest/globals';
 import { CommunityEventsManageDiscordService } from './community-events-manage-discord.service';
 
-jest.mock('./guards/poap-manager.guard', () => {
+jest.mock('../auth/guards/poap-manager/poap-manager.guard', () => {
   return {
     PoapManagerGuard: {
       canActivate: jest.fn(() => true),
