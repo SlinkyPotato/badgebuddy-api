@@ -1,0 +1,19 @@
+### POST Request to register guild
+POST http://localhost:3000/api/discord/bot
+Accept: application/json
+Content-Type: application/json
+
+{
+  "guildSId": "850840267082563596",
+  "roleId": "123455",
+  "privateChannelId": "123345",
+  "newsChannelId": "123455"
+}
+
+### GET Request to get guild
+GET http://localhost:3000/api/discord/bot/settings?guildId=850840267082563596
+
+### DELETE Request to delete guild
+DELETE http://localhost:3000/api/discord/bot?guilds=850840267082563596
+Accept: application/json
+Content-Type: application/json

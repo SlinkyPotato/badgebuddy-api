@@ -1,0 +1,21 @@
+name: staging_badge-buddy-api
+services:
+
+  api:
+    image: solidchain/badge-buddy-api:next
+    restart: always
+    ports:
+      - 3010:3000
+    networks:
+      - staging_server
+    environment:
+      DOTENV_KEY: ${DOTENV_KEY}
+    volumes:
+      - ./logs:/app/logs
+      - type: bind
+        source: /run/redis-badge-buddy/redis-server-badge-buddy.sock
+        target: /app/redis/redis.sock
+
+networks:
+  staging_server:
+    external: true
