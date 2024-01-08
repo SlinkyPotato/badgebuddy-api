@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.6-16](https://github.com/SlinkyPotato/badge-buddy-api/compare/v0.0.6-15...v0.0.6-16) (2024-01-08)
+
+
+### Refactor
+
+* rename db ([2601713](https://github.com/SlinkyPotato/badge-buddy-api/commit/2601713541deb0b85917985fff9dec468503c9c9))
+
 ### [0.0.6-15](https://github.com/SlinkyPotato/badge-buddy-api/compare/v0.0.6-14...v0.0.6-15) (2024-01-08)
 
 
