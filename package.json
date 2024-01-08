@@ -1,6 +1,6 @@
 {
   "name": "badge-buddy-api",
-  "version": "0.0.6-13",
+  "version": "0.0.6-14",
   "description": "Microservices API for Badge Buddy",
   "author": "SlinkyPotato <patinobrian@gmail.com>",
   "private": true,
