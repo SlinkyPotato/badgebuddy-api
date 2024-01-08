@@ -73,8 +73,8 @@ jobs:
           envs: DOTENV_KEY
           script: |
             cd ${{ secrets.APP_PATH_STAGING }}
-            docker compose pull
-            docker compose stop
+            docker compose -f compose.staging.yml pull
+            docker compose -f compose.staging.yml stop
             DOTENV_KEY=$DOTENV_KEY docker compose up -d
       - run: git push --follow-tags
       - name: Remove prerelease tags
