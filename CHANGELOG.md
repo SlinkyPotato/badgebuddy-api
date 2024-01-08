@@ -2,6 +2,77 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.6-13](https://github.com/SlinkyPotato/badge-buddy-api/compare/v0.0.6-12...v0.0.6-13) (2024-01-08)
+
+
+### Features
+
+* /authorize/email magic link ([e436afa](https://github.com/SlinkyPotato/badge-buddy-api/commit/e436afad2c9941324a251b235768eb92f472ce82))
+* add /poaps/store/discord endpoint ([11c637d](https://github.com/SlinkyPotato/badge-buddy-api/commit/11c637d9548032e18e907e7acd6831754fbf96a8))
+* add auth guards ([cf8f255](https://github.com/SlinkyPotato/badge-buddy-api/commit/cf8f25567a393f7d8fe4b610f2d32e6546bc5131))
+* add partial poaps distribute endpoint ([2d77fe7](https://github.com/SlinkyPotato/badge-buddy-api/commit/2d77fe74107d0a55fe557b639fddf88c6d159ffa))
+* add poap claims endpoint ([a073c88](https://github.com/SlinkyPotato/badge-buddy-api/commit/a073c8868cca0c70e913b8e8cbecea8f07395e9c))
+* complete happy path for /poaps/distribute/discord ([1f7d222](https://github.com/SlinkyPotato/badge-buddy-api/commit/1f7d222754e6c9c43fc9e50279b66cb68cbe5a78))
+* implement /auth/login ([c2f7294](https://github.com/SlinkyPotato/badge-buddy-api/commit/c2f72945f5b161adb94b0db562a3f21b3e011ccd))
+* implement /login ([e05472e](https://github.com/SlinkyPotato/badge-buddy-api/commit/e05472eff369e17b90e6b09c9e26b5bd0bcd4e61))
+* implement /register endpoint ([7faeb9f](https://github.com/SlinkyPotato/badge-buddy-api/commit/7faeb9fdbaf7844945e177bb55f74ca3c8b7c900))
+* implement /verify/email ([47b34a9](https://github.com/SlinkyPotato/badge-buddy-api/commit/47b34a92fa01a9638ee3c620153d0712c4ba6198))
+* implement access token service ([7a18441](https://github.com/SlinkyPotato/badge-buddy-api/commit/7a184413f23eb8887d7ad0dd733a9acbb3b2ba83))
+* implement discord bot permissions update ([ae711af](https://github.com/SlinkyPotato/badge-buddy-api/commit/ae711affb301baf890dc853d230c15a8ab597b8a))
+* initial google oauth flow ([c590bae](https://github.com/SlinkyPotato/badge-buddy-api/commit/c590baeb566169ebea096999a2894766d8c2c1c7))
+* store POAP links ([09df1d2](https://github.com/SlinkyPotato/badge-buddy-api/commit/09df1d28c8413454cc566fd88796be31b9578f65))
+
+
+### Bug Fixes
+
+* update to latest common ([724b688](https://github.com/SlinkyPotato/badge-buddy-api/commit/724b688493d1c6e4d18164ef3498c90dbdf661fe))
+
+
+### Docs
+
+* add function docs ([8aba3d1](https://github.com/SlinkyPotato/badge-buddy-api/commit/8aba3d14c9537f1d462edb2fe5c4945d573646fe))
+
+
+### Tests
+
+* add passing tests ([e4bab89](https://github.com/SlinkyPotato/badge-buddy-api/commit/e4bab89b3b081fce5513c729e66efdfe082aa184))
+* fix DI in test cases ([9f35184](https://github.com/SlinkyPotato/badge-buddy-api/commit/9f351846b6e54252a3d7999a0801960f7c9f3cdf))
+* fix test cases ([8338971](https://github.com/SlinkyPotato/badge-buddy-api/commit/8338971e4fbf7b676384c7bbbc4945b40732bbfc))
+
+
+### Performance
+
+* add pulled auth guild db call to cache ([e35ff2a](https://github.com/SlinkyPotato/badge-buddy-api/commit/e35ff2ad1002c59e5f7e3bf6fd788d7657c18e76))
+* enhance discord organizer insertion ([125287d](https://github.com/SlinkyPotato/badge-buddy-api/commit/125287d980ea94c74a6ed18718081460708137f0))
+* handle duplicate poap claim entries ([58b412b](https://github.com/SlinkyPotato/badge-buddy-api/commit/58b412b4bca5b7fed98e64642520fc558e5784f0))
+* update deps ([e6b9014](https://github.com/SlinkyPotato/badge-buddy-api/commit/e6b9014b9887f3aa8bf1fa4de94ecd274531b507))
+
+
+### Refactor
+
+* add helper function for event management service ([d8e62f3](https://github.com/SlinkyPotato/badge-buddy-api/commit/d8e62f3300173dbd03a616aeab156f0c17eb6c7b))
+* api urls and files ([71ae280](https://github.com/SlinkyPotato/badge-buddy-api/commit/71ae280f0b5ad11d9cfc4a04dcdbc03fdaa1760f))
+* codebase and beging testing ([230dfdf](https://github.com/SlinkyPotato/badge-buddy-api/commit/230dfdf2047d297cc463cf7ae7f73c7947a78693))
+* docker compose files ([da526a8](https://github.com/SlinkyPotato/badge-buddy-api/commit/da526a8ae65d38f899bdee74680122f7194d7265))
+* include specific checks for PoapManagerGuard ([c0a5bb9](https://github.com/SlinkyPotato/badge-buddy-api/commit/c0a5bb9bfea026c7d8447c0273ac140727dabf4c))
+* integrate prettier and new eslint ([da050a9](https://github.com/SlinkyPotato/badge-buddy-api/commit/da050a937c5dea46fc6a892db58b9a2be6760c01))
+* migrate discord-guilds -> discord-bot and use mysql ([1ae7bac](https://github.com/SlinkyPotato/badge-buddy-api/commit/1ae7bac0a9de5adcf73664df5e7bd437793ce28a))
+* misc rename ([52bb448](https://github.com/SlinkyPotato/badge-buddy-api/commit/52bb448617962fceeffdec2052532c6444fd186c))
+* move api dtos to badge-buddy-common ([9a20372](https://github.com/SlinkyPotato/badge-buddy-api/commit/9a2037288770f77261ae9863c9f19e41a7892451))
+* organize auth guard ([2458a8b](https://github.com/SlinkyPotato/badge-buddy-api/commit/2458a8b9ff6015fb21b63699479909228dbb2e80))
+* production pipeline ([e7f49f2](https://github.com/SlinkyPotato/badge-buddy-api/commit/e7f49f278e3975f9572987e9d519d9b778f5d3e7))
+* reduce permissions for poapManagersRole ([b89f2bf](https://github.com/SlinkyPotato/badge-buddy-api/commit/b89f2bf02304b9bc07aa2d0ed190d4d99142b96e))
+* remove active discord events dto and use common ([9ea7573](https://github.com/SlinkyPotato/badge-buddy-api/commit/9ea75736bf38590d126587ad3566780e0554e343))
+* remove mongo ([fbb2239](https://github.com/SlinkyPotato/badge-buddy-api/commit/fbb2239df02231f129ffdef30c09cb6832a08caf))
+* remove organizerSId from endEvent, add auth guards ([c47072f](https://github.com/SlinkyPotato/badge-buddy-api/commit/c47072ff70782f73db9711fa99ab7477efb03dea))
+* rename app constants and add service test ([ea997be](https://github.com/SlinkyPotato/badge-buddy-api/commit/ea997be49acfa26f951a6c275e827bd51bf21704))
+* rename bot permissions command names ([589d8d7](https://github.com/SlinkyPotato/badge-buddy-api/commit/589d8d7953d1f217685f5d5a4dd71fe140f8c587))
+* rename redis index ([60971e0](https://github.com/SlinkyPotato/badge-buddy-api/commit/60971e0f91befe0638639a919f71aea9c5668518))
+* specify env requirement ([41c55a6](https://github.com/SlinkyPotato/badge-buddy-api/commit/41c55a60d5a037baa36895b7785aeb9f690acfd1))
+* specify processor constants and require mariadb log .env ([9f5e0bb](https://github.com/SlinkyPotato/badge-buddy-api/commit/9f5e0bb8077603ddd2c59dea54e0a6f16c3b0a66))
+* specify redis configs ([28b5a60](https://github.com/SlinkyPotato/badge-buddy-api/commit/28b5a60c1f9cc5cce17a68242d95e38340304a23))
+* staging pipeline ([8e3062c](https://github.com/SlinkyPotato/badge-buddy-api/commit/8e3062c58a996270f815faf8a0bffc5e9abea114))
+
 ### [0.0.6-12](https://github.com/SlinkyPotato/badge-buddy-api/compare/v0.0.6-11...v0.0.6-12) (2023-11-04)
 
 
