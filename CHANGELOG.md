@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.6-17](https://github.com/SlinkyPotato/badge-buddy-api/compare/v0.0.6-16...v0.0.6-17) (2024-01-09)
+
+
+### Refactor
+
+* rename docker container names ([e4aa27c](https://github.com/SlinkyPotato/badge-buddy-api/commit/e4aa27c1f73ddd4f7c624d5ef79fecff3f990183))
+
 ### [0.0.6-16](https://github.com/SlinkyPotato/badge-buddy-api/compare/v0.0.6-15...v0.0.6-16) (2024-01-08)
 
 
