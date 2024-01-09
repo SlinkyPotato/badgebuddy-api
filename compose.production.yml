@@ -1,7 +1,7 @@
-name: prod_badge-buddy-api
+name: production_badge-buddy
 services:
-
-  api:
+  api-1:
+    container_name: api-1_production-badge-buddy-api
     image: solidchain/badge-buddy-api:latest
     restart: always
     ports:

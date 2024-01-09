@@ -1,7 +1,7 @@
-name: local_badge-buddy-api
+name: local_badge-buddy
 services:
-
-  api:
+  api-1:
+    container_name: api-1_local-badge-buddy
     depends_on:
       - redis
       - mariadb
@@ -12,9 +12,9 @@ services:
     env_file:
       - .env
     environment:
-      MARIADB_HOST: mariadb
+      MARIADB_HOST: local_badge-buddy-mariadb-1
       MARIADB_PASSWORD: local-pass
-      REDIS_HOST: redis
+      REDIS_HOST: local_badge-buddy-redis-1
     networks:
       - local_server
     ports:
@@ -34,7 +34,7 @@ services:
     environment:
       MARIADB_ROOT_USER: root
       MARIADB_ROOT_PASSWORD: local-pass
-      MARIADB_DATABASE: badge_buddy
+      MARIADB_DATABASE: badgebuddy
     volumes:
       - ../../packages/common/src/common-typeorm/scripts/mysql.setup.sql:/docker-entrypoint-initdb.d/init.sql
 
