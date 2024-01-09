@@ -1,7 +1,7 @@
 name: staging_badgebuddy
 services:
   api-1:
-    container_name: api-1_staging-badgebuddy-api
+    container_name: api-1_stage-badgebuddy-api
     image: solidchain/badge-buddy-api:next
     restart: always
     ports:
