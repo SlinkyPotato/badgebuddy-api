@@ -1,4 +1,4 @@
-name: staging_badgebuddy
+name: stage_badgebuddy
 services:
   api-1:
     container_name: api-1_stage-badgebuddy-api

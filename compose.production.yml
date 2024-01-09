@@ -1,4 +1,4 @@
-name: production_badgebuddy
+name: prod_badgebuddy
 services:
   api-1:
     container_name: api-1_prod-badgebuddy-api
