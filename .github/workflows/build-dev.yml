@@ -1,5 +1,5 @@
 #file: noinspection YAMLSchemaValidation
-name: Build dev
+name: build dev
 on:
   push:
     branches:
@@ -41,7 +41,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/badge-buddy-api:dev
+          tags: ${{ secrets.DOCKER_USERNAME }}/api:dev
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: |
