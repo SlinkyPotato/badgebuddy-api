@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.6-21](https://github.com/SlinkyPotato/badge-buddy-api/compare/v0.0.6-20...v0.0.6-21) (2024-01-09)
+
+
+### Bug Fixes
+
+* docker deploy ([c2c85e0](https://github.com/SlinkyPotato/badge-buddy-api/commit/c2c85e0a6b9260794f4be241c5c84928ca4c4bed))
+
 ### [0.0.6-20](https://github.com/SlinkyPotato/badge-buddy-api/compare/v0.0.6-19...v0.0.6-20) (2024-01-09)
 
 
