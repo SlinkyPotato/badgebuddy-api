@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.6-20](https://github.com/SlinkyPotato/badge-buddy-api/compare/v0.0.6-19...v0.0.6-20) (2024-01-09)
+
+
+### Refactor
+
+* update docker compose namespace ([db9d358](https://github.com/SlinkyPotato/badge-buddy-api/commit/db9d358c11f91cbd0d377f08cf02b8116480e868))
+
 ### [0.0.6-19](https://github.com/SlinkyPotato/badge-buddy-api/compare/v0.0.6-18...v0.0.6-19) (2024-01-09)
 
 
