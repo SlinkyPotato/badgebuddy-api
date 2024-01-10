@@ -18,7 +18,7 @@
     "clean:dep": "rm -rf dist && rm -rf node_modules",
     "start": "nest start",
     "dev": "nest start --watch",
-    "dev:docker": "docker compose -f compose.local.yml up",
+    "dev:docker": "docker compose up --build",
     "dev:debug": "nest start --debug --watch",
     "dev:api": "cd ../badge-buddy-api && pnpm dev",
     "dev:bot": "cd ../badge-buddy-bot && pnpm dev",
