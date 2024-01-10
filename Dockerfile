@@ -1,5 +1,7 @@
+ARG DOTENV_KEY
+
 FROM node:20.10.0-alpine
-LABEL description="Microservices API for Badge Buddy"
+LABEL description="Microservices API for BadgeBuddy"
 
 RUN corepack enable
 
