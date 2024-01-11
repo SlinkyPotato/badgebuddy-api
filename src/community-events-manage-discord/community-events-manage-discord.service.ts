@@ -31,6 +31,7 @@ import {
   CommunityEventsManageDiscordDeleteResponseDto,
   CommunityEventsManageDiscordDeleteRequestDto,
   CommunityEventActiveDiscordDto,
+  PoapsStoreDiscordPostResponseDto,
 } from '@badgebuddy/common';
 import { DataSource, MoreThan, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -372,23 +373,21 @@ export class CommunityEventsManageDiscordService {
       );
     });
 
-    let availablePOAPs = 0;
     if (poapLinksUrl) {
-      try {
-        const poapLinks =
-          await this.poapService.parsePoapLinksUrl(poapLinksUrl);
-        availablePOAPs = (
-          await this.poapService.insertPoapClaims(
-            discordEvent.communityEventId,
-            poapLinks,
-          )
-        ).affectedRows;
-      } catch (e) {
-        this.logger.error(
-          `Error saving poap links for event, eventId: ${discordEvent.communityEventId}`,
-          e,
-        );
-      }
+      const communityEventId = discordEvent.communityEventId;
+      this.poapService
+        .storePoapsForDiscord({ communityEventId, poapClaimsUrl: poapLinksUrl })
+        .then((response: PoapsStoreDiscordPostResponseDto) => {
+          this.logger.log(
+            `Stored poap links for end event, eventId: ${communityEventId}, poapsAvailable: ${response.poapsAvailable.length}`,
+          );
+        })
+        .catch((e) => {
+          this.logger.error(
+            `Error storing poap links for event, eventId: ${communityEventId}`,
+            e,
+          );
+        });
     }
 
     return {
@@ -398,7 +397,6 @@ export class CommunityEventsManageDiscordService {
       endDate: discordEvent.communityEvent.endDate.toISOString(),
       organizerUsername: discordEvent.organizer!.username,
       startDate: discordEvent.communityEvent.startDate.toISOString(),
-      availablePOAPs,
     };
   }
 

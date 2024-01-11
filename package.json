@@ -38,10 +38,11 @@
     "env:pull": "dotenv-vault pull",
     "publish-docker:staging": "node publish.docker.js staging latest-beta",
     "publish-docker:production": "node publish.docker.js production latest",
-    "sync": "git fetch && git pull && pnpm install && dotenv-vault pull"
+    "sync": "git fetch && git pull && pnpm install",
+    "sync:env": "git fetch && git pull && pnpm install && dotenv-vault pull"
   },
   "dependencies": {
-    "@badgebuddy/common": "2.2.0",
+    "@badgebuddy/common": "2.3.0-1",
     "@discord-nestjs/common": "^5.2.10",
     "@discord-nestjs/core": "^5.3.12",
     "@fastify/static": "^6.12.0",
