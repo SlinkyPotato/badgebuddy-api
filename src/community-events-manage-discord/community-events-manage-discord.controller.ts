@@ -47,7 +47,7 @@ export class CommunityEventsManageDiscordController {
   @Delete()
   @ApiOperation({ summary: 'Stop tracking voice channel event.' })
   @ApiResponse({
-    status: HttpStatus.OK,
+    status: HttpStatus.NO_CONTENT,
     description: 'Event stopped',
     type: CommunityEventsManageDiscordDeleteResponseDto,
   })
