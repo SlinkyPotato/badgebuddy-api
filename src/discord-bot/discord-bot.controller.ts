@@ -26,6 +26,7 @@ import {
   DiscordBotPermissionsPatchRequestDto,
   DiscordBotDeleteRequestDto,
 } from '@badgebuddy/common';
+import { ProcessorTokenGuard } from '@/auth/guards/processor-token/processor-token.guard';
 
 @Controller('discord/bot')
 @ApiTags('Discord Bot')
@@ -35,7 +36,7 @@ export class DiscordBotController {
   constructor(private readonly discordBotService: DiscordBotService) {}
 
   @Get('settings')
-  @UseGuards(UserTokenGuard)
+  @UseGuards(ProcessorTokenGuard)
   @ApiOperation({ summary: 'Retrieve discord bot settings by guildSId' })
   @ApiResponse({
     status: HttpStatus.FOUND,
@@ -53,7 +54,7 @@ export class DiscordBotController {
   }
 
   @Post()
-  @UseGuards(UserTokenGuard)
+  @UseGuards(ProcessorTokenGuard)
   @ApiOperation({ summary: 'Add discord bot to guild' })
   @ApiResponse({
     status: HttpStatus.CREATED,
@@ -89,7 +90,7 @@ export class DiscordBotController {
     return this.discordBotService.updateBotPermissions(userToken, request);
   }
 
-  // TODO: add admin guard
+  @UseGuards(ProcessorTokenGuard)
   @Delete()
   @ApiOperation({ summary: 'Remove a guild by guildSId.' })
   @HttpCode(HttpStatus.NO_CONTENT)
