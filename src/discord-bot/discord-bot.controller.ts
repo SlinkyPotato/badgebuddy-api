@@ -39,7 +39,7 @@ export class DiscordBotController {
   @UseGuards(ProcessorTokenGuard)
   @ApiOperation({ summary: 'Retrieve discord bot settings by guildSId' })
   @ApiResponse({
-    status: HttpStatus.FOUND,
+    status: HttpStatus.OK,
     description: 'Discord bot settings found',
     type: DiscordBotSettingsGetResponseDto,
   })
