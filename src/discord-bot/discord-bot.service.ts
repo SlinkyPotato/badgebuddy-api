@@ -221,7 +221,7 @@ export class DiscordBotService {
     { guildSId }: DiscordBotPermissionsPatchRequestDto,
   ) {
     this.logger.log(
-      `attemtping to update bot permissions for guild: ${guildSId}`,
+      `attempting to update bot permissions for guild: ${guildSId}`,
     );
 
     const botSettings = await this.botSettingsRepo.findOne({
