@@ -8,6 +8,11 @@ Processing module for badge buddy.
 $ pnpm install
 ```
 
+### Redis
+```base
+$ docker run --name local-redis -p 6379:6379 -d redis
+```
+
 ## Running the app
 
 ```bash

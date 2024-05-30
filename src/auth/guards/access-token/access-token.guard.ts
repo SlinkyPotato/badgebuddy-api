@@ -9,7 +9,7 @@ import { Observable } from 'rxjs';
 import { JwtService } from '@nestjs/jwt';
 import { AccessTokenDto } from '@badgebuddy/common';
 import { ConfigService } from '@nestjs/config';
-import { AUTH_ALLOWED_CLIENT_IDS_ENV } from '@/app.constants';
+import { AUTH_ALLOWED_CLIENT_IDS_ENV, AUTH_ENABLED } from '@/app.constants';
 
 @Injectable()
 export class AccessTokenGuard implements CanActivate {
@@ -22,6 +22,10 @@ export class AccessTokenGuard implements CanActivate {
   canActivate(
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
+    if (this.configService.get<string>(AUTH_ENABLED) === 'false') {
+      this.logger.warn('Auth is disabled');
+      return true;
+    }
     const authorizationHeader = context.switchToHttp().getRequest<{
       headers: { authorization: string | undefined } | undefined;
     }>().headers?.authorization;

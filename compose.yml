@@ -26,9 +26,11 @@ services:
     image: redis:latest
     networks:
       - local_server
+    ports:
+      - 6379:6379
 
   mariadb:
-    image: mariadb:latest
+    image: mariadb:10.11-jammy
     networks:
       - local_server
     environment:
@@ -37,6 +39,8 @@ services:
       MARIADB_DATABASE: badgebuddy
     volumes:
       - ../../packages/common/src/common-typeorm/scripts/mysql.setup.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - 3306:3306
 
 networks:
   local_server:
