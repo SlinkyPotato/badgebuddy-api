@@ -1,6 +1,6 @@
-# Badge Buddy Processor
+# Badge Buddy API
 
-Processing module for badge buddy.
+HTTP API server for badgebuddy.
 
 ## Installation
 
