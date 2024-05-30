@@ -42,7 +42,7 @@
     "sync:env": "pnpm sync && dotenv-vault pull"
   },
   "dependencies": {
-    "@badgebuddy/common": "2.3.0-7",
+    "@badgebuddy/common": "2.3.0-8",
     "@discord-nestjs/common": "^5.2.12",
     "@discord-nestjs/core": "^5.3.14",
     "@fastify/static": "^6.12.0",

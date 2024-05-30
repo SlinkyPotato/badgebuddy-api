@@ -6,8 +6,8 @@ settings:
 
 dependencies:
   '@badgebuddy/common':
-    specifier: 2.3.0-7
-    version: 2.3.0-7(@discord-nestjs/common@5.2.12)(@discord-nestjs/core@5.3.14)(@nestjs/bull@10.1.1)(@nestjs/cache-manager@2.2.2)(@nestjs/common@10.3.7)(@nestjs/config@3.2.1)(@nestjs/core@10.3.7)(@nestjs/jwt@10.2.0)(@nestjs/schematics@10.1.1)(@nestjs/swagger@7.3.1)(@nestjs/testing@10.3.7)(@nestjs/typeorm@10.0.2)(bull@4.12.2)(cache-manager-redis-yet@4.2.0)(cache-manager@5.4.0)(class-transformer@0.5.1)(class-validator@0.14.1)(discord.js@14.14.1)(joi@17.12.2)(mysql2@3.9.3)(redis@4.6.13)(reflect-metadata@0.1.14)(rxjs@7.8.1)(standard-version@9.5.0)(typeorm@0.3.20)
+    specifier: 2.3.0-8
+    version: 2.3.0-8(@discord-nestjs/common@5.2.12)(@discord-nestjs/core@5.3.14)(@nestjs/bull@10.1.1)(@nestjs/cache-manager@2.2.2)(@nestjs/common@10.3.7)(@nestjs/config@3.2.1)(@nestjs/core@10.3.7)(@nestjs/jwt@10.2.0)(@nestjs/schematics@10.1.1)(@nestjs/swagger@7.3.1)(@nestjs/testing@10.3.7)(@nestjs/typeorm@10.0.2)(bull@4.12.2)(cache-manager-redis-yet@4.2.0)(cache-manager@5.4.0)(class-transformer@0.5.1)(class-validator@0.14.1)(discord.js@14.14.1)(joi@17.12.2)(mysql2@3.9.3)(redis@4.6.13)(reflect-metadata@0.1.14)(rxjs@7.8.1)(standard-version@9.5.0)(typeorm@0.3.20)
   '@discord-nestjs/common':
     specifier: ^5.2.12
     version: 5.2.12(@discord-nestjs/core@5.3.14)(@nestjs/common@10.3.7)(@nestjs/core@10.3.7)(discord.js@14.14.1)(reflect-metadata@0.1.14)(rxjs@7.8.1)
@@ -586,8 +586,8 @@ packages:
       to-fast-properties: 2.0.0
     dev: true
 
-  /@badgebuddy/common@2.3.0-7(@discord-nestjs/common@5.2.12)(@discord-nestjs/core@5.3.14)(@nestjs/bull@10.1.1)(@nestjs/cache-manager@2.2.2)(@nestjs/common@10.3.7)(@nestjs/config@3.2.1)(@nestjs/core@10.3.7)(@nestjs/jwt@10.2.0)(@nestjs/schematics@10.1.1)(@nestjs/swagger@7.3.1)(@nestjs/testing@10.3.7)(@nestjs/typeorm@10.0.2)(bull@4.12.2)(cache-manager-redis-yet@4.2.0)(cache-manager@5.4.0)(class-transformer@0.5.1)(class-validator@0.14.1)(discord.js@14.14.1)(joi@17.12.2)(mysql2@3.9.3)(redis@4.6.13)(reflect-metadata@0.1.14)(rxjs@7.8.1)(standard-version@9.5.0)(typeorm@0.3.20):
-    resolution: {integrity: sha512-u3UE39lnBsXrOXbddAMNjsLJh9sgUa3Hv+hA0FgB9KuOjBqAsHKtsHjETWfm0OgeKJQovONGedxEuI+vzd4oMQ==}
+  /@badgebuddy/common@2.3.0-8(@discord-nestjs/common@5.2.12)(@discord-nestjs/core@5.3.14)(@nestjs/bull@10.1.1)(@nestjs/cache-manager@2.2.2)(@nestjs/common@10.3.7)(@nestjs/config@3.2.1)(@nestjs/core@10.3.7)(@nestjs/jwt@10.2.0)(@nestjs/schematics@10.1.1)(@nestjs/swagger@7.3.1)(@nestjs/testing@10.3.7)(@nestjs/typeorm@10.0.2)(bull@4.12.2)(cache-manager-redis-yet@4.2.0)(cache-manager@5.4.0)(class-transformer@0.5.1)(class-validator@0.14.1)(discord.js@14.14.1)(joi@17.12.2)(mysql2@3.9.3)(redis@4.6.13)(reflect-metadata@0.1.14)(rxjs@7.8.1)(standard-version@9.5.0)(typeorm@0.3.20):
+    resolution: {integrity: sha512-sLN6vFbkg5+NBz/WiIQgkyYj/hBi9xfKmIXUs30nctC4Jzqg/ZPXvQO8uHV/6mRe10+Wtt3xU7o6eMiPLhfsfA==}
     engines: {node: 20.11.1, pnpm: 8.15.5}
     peerDependencies:
       '@discord-nestjs/common': ^5.2.9
