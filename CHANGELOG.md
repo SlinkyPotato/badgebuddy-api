@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.6-22](https://github.com/SlinkyPotato/badgebuddy-api/compare/v0.0.6-21...v0.0.6-22) (2024-06-06)
+
+
+### Bug Fixes
+
+* readme ([6377b84](https://github.com/SlinkyPotato/badgebuddy-api/commit/6377b844cc44d0629312dba71c6cc08bbcc2a694))
+* response for discord bot settings swagger ([c8ae1e3](https://github.com/SlinkyPotato/badgebuddy-api/commit/c8ae1e3732829fd845e8b1080393c3a2d526ad2d))
+
+
+### Refactor
+
+* add DOTENV_KEY arg ([7cbf620](https://github.com/SlinkyPotato/badgebuddy-api/commit/7cbf620333d23e5a00a6beffc11b5c6828170613))
+* add husky ([62ebaa6](https://github.com/SlinkyPotato/badgebuddy-api/commit/62ebaa646e1775c710ad87c11ce8a8cf537fa62e))
+* pnpm up ([de38dfb](https://github.com/SlinkyPotato/badgebuddy-api/commit/de38dfb7e63971c104801b1e5420452f259b3e86))
+* rename staging_server -> stage_server ([fdb47ed](https://github.com/SlinkyPotato/badgebuddy-api/commit/fdb47ed556c808c2d36cd14768a25bdbdcca1675))
+* update dev:docker script ([d0e67a0](https://github.com/SlinkyPotato/badgebuddy-api/commit/d0e67a06f7413fd72e9a126814f49e0d506c28ea))
+* update local env ([58a9cb6](https://github.com/SlinkyPotato/badgebuddy-api/commit/58a9cb6f1b75ae72343bdc1030b6d5ac76a19615))
+* upgrade common ([bc92024](https://github.com/SlinkyPotato/badgebuddy-api/commit/bc92024be57bfb5f6671df14ba2c3ad72189c226))
+
 ### [0.0.6-21](https://github.com/SlinkyPotato/badge-buddy-api/compare/v0.0.6-20...v0.0.6-21) (2024-01-09)
 
 
