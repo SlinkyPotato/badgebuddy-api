@@ -12,6 +12,10 @@ import {
   CommunityEventsActiveDiscordGetResponseDto,
 } from '@badgebuddy/common';
 
+/**
+ * Service for getting active events
+ * UserID not required but login is required
+ */
 @Injectable()
 export class CommunityEventsActiveDiscordService {
   constructor(
@@ -20,6 +24,10 @@ export class CommunityEventsActiveDiscordService {
     private readonly logger: Logger,
   ) {}
 
+  /**
+   * Get all active events
+   * @returns {Promise<CommunityEventsActiveDiscordGetResponseDto>}
+   */
   async getActiveEvents(): Promise<CommunityEventsActiveDiscordGetResponseDto> {
     this.logger.log('Getting all active events');
     let activeEvents: CommunityEventDiscordEntity[] = [];

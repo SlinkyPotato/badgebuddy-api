@@ -26,10 +26,10 @@ import {
   COMMUNITY_EVENTS_ACTIVE_DISCORD_VOICE_CHANNEL,
   COMMUNITY_EVENTS_ACTIVE_DISCORD_GUILD_ORGANIZER,
   COMMUNITY_EVENTS_ACTIVE_DISCORD,
-  CommunityEventsManageDiscordPostRequestDto,
-  CommunityEventsManageDiscordPostResponseDto,
-  CommunityEventsManageDiscordDeleteResponseDto,
-  CommunityEventsManageDiscordDeleteRequestDto,
+  CommunityEventsManageDiscordEndEventRequestDto,
+  CommunityEventsManageDiscordEndEventResponseDto,
+  CommunityEventsManageDiscordStartEventRequestDto,
+  CommunityEventsManageDiscordStartEventResponseDto,
   CommunityEventActiveDiscordDto,
   PoapsStoreDiscordPostResponseDto,
 } from '@badgebuddy/common';
@@ -64,7 +64,7 @@ export class CommunityEventsManageDiscordService {
     description,
     organizerSId,
     poapLinksUrl,
-  }: CommunityEventsManageDiscordPostRequestDto): Promise<CommunityEventsManageDiscordPostResponseDto> {
+  }: CommunityEventsManageDiscordStartEventRequestDto): Promise<CommunityEventsManageDiscordStartEventResponseDto> {
     this.logger.log('Attempting to start new event.');
 
     const endDateObj: Date = new Date(endDate);
@@ -295,7 +295,7 @@ export class CommunityEventsManageDiscordService {
     guildSId,
     voiceChannelSId,
     poapLinksUrl,
-  }: CommunityEventsManageDiscordDeleteRequestDto): Promise<CommunityEventsManageDiscordDeleteResponseDto> {
+  }: CommunityEventsManageDiscordEndEventRequestDto): Promise<CommunityEventsManageDiscordEndEventResponseDto> {
     this.logger.log(
       `Stopping event for guildSId: ${guildSId}, voiceChannelSId: ${voiceChannelSId}`,
     );
