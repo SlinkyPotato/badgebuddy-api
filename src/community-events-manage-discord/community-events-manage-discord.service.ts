@@ -26,11 +26,12 @@ import {
   COMMUNITY_EVENTS_ACTIVE_DISCORD_VOICE_CHANNEL,
   COMMUNITY_EVENTS_ACTIVE_DISCORD_GUILD_ORGANIZER,
   COMMUNITY_EVENTS_ACTIVE_DISCORD,
-  CommunityEventsManageDiscordPostRequestDto,
-  CommunityEventsManageDiscordPostResponseDto,
-  CommunityEventsManageDiscordDeleteResponseDto,
-  CommunityEventsManageDiscordDeleteRequestDto,
+  CommunityEventsManageDiscordEndEventRequestDto,
+  CommunityEventsManageDiscordEndEventResponseDto,
+  CommunityEventsManageDiscordStartEventRequestDto,
+  CommunityEventsManageDiscordStartEventResponseDto,
   CommunityEventActiveDiscordDto,
+  PoapsStoreDiscordPostResponseDto,
 } from '@badgebuddy/common';
 import { DataSource, MoreThan, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -63,7 +64,7 @@ export class CommunityEventsManageDiscordService {
     description,
     organizerSId,
     poapLinksUrl,
-  }: CommunityEventsManageDiscordPostRequestDto): Promise<CommunityEventsManageDiscordPostResponseDto> {
+  }: CommunityEventsManageDiscordStartEventRequestDto): Promise<CommunityEventsManageDiscordStartEventResponseDto> {
     this.logger.log('Attempting to start new event.');
 
     const endDateObj: Date = new Date(endDate);
@@ -294,7 +295,7 @@ export class CommunityEventsManageDiscordService {
     guildSId,
     voiceChannelSId,
     poapLinksUrl,
-  }: CommunityEventsManageDiscordDeleteRequestDto): Promise<CommunityEventsManageDiscordDeleteResponseDto> {
+  }: CommunityEventsManageDiscordEndEventRequestDto): Promise<CommunityEventsManageDiscordEndEventResponseDto> {
     this.logger.log(
       `Stopping event for guildSId: ${guildSId}, voiceChannelSId: ${voiceChannelSId}`,
     );
@@ -372,23 +373,21 @@ export class CommunityEventsManageDiscordService {
       );
     });
 
-    let availablePOAPs = 0;
     if (poapLinksUrl) {
-      try {
-        const poapLinks =
-          await this.poapService.parsePoapLinksUrl(poapLinksUrl);
-        availablePOAPs = (
-          await this.poapService.insertPoapClaims(
-            discordEvent.communityEventId,
-            poapLinks,
-          )
-        ).affectedRows;
-      } catch (e) {
-        this.logger.error(
-          `Error saving poap links for event, eventId: ${discordEvent.communityEventId}`,
-          e,
-        );
-      }
+      const communityEventId = discordEvent.communityEventId;
+      this.poapService
+        .storePoapsForDiscord({ communityEventId, poapClaimsUrl: poapLinksUrl })
+        .then((response: PoapsStoreDiscordPostResponseDto) => {
+          this.logger.log(
+            `Stored poap links for end event, eventId: ${communityEventId}, poapsAvailable: ${response.poapsAvailable.length}`,
+          );
+        })
+        .catch((e) => {
+          this.logger.error(
+            `Error storing poap links for event, eventId: ${communityEventId}`,
+            e,
+          );
+        });
     }
 
     return {
@@ -398,7 +397,6 @@ export class CommunityEventsManageDiscordService {
       endDate: discordEvent.communityEvent.endDate.toISOString(),
       organizerUsername: discordEvent.organizer!.username,
       startDate: discordEvent.communityEvent.startDate.toISOString(),
-      availablePOAPs,
     };
   }
 

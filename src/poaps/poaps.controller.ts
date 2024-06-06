@@ -15,10 +15,10 @@ import {
   PoapsDistributeDiscordPostResponseDto,
   PoapsStoreDiscordPostRequestDto,
   PoapsStoreDiscordPostResponseDto,
+  PoapsClaimDiscordGetResponseDto,
 } from '@badgebuddy/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { PoapManagerGuard } from '@/auth/guards/poap-manager/poap-manager.guard';
-import { PoapsClaimDiscordGetResponseDto } from '@/poaps/poaps-claim-discord-get-response/poaps-claim-discord-get-response.dto';
 import { AuthService } from '@/auth/auth.service';
 import { CacheInterceptor } from '@nestjs/cache-manager';
 

@@ -14,15 +14,13 @@ import {
   PoapsDistributeDiscordPostResponseDto,
   PoapsStoreDiscordPostRequestDto,
   PoapsStoreDiscordPostResponseDto,
+  PoapsClaimDiscordDto,
+  PoapsClaimDiscordGetResponseDto,
 } from '@badgebuddy/common';
 import { DataSource, EntityManager } from 'typeorm';
 import { firstValueFrom, retry, timeout } from 'rxjs';
 import { HttpService } from '@nestjs/axios';
 import { ResultSetHeader } from 'mysql2';
-import {
-  PoapsClaimDiscordDto,
-  PoapsClaimDiscordGetResponseDto,
-} from '@/poaps/poaps-claim-discord-get-response/poaps-claim-discord-get-response.dto';
 
 type PoapLink = {
   qrCode: string | undefined;
@@ -247,7 +245,7 @@ export class PoapsService {
     return insertResult;
   }
 
-  async fetchAvailablePoaps(
+  private async fetchAvailablePoaps(
     communityEventId: string,
     executor: EntityManager | DataSource,
   ): Promise<{ id: string; claimUrl: string }[]> {

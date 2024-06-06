@@ -1,4 +1,5 @@
 import {
+  AUTH_ENABLED,
   AUTH_PROCESSOR_CLIENT_ID_ENV,
   AUTH_PROCESSOR_CLIENT_SECRET_ENV,
 } from '@/app.constants';
@@ -24,6 +25,11 @@ export class ProcessorTokenGuard implements CanActivate {
   canActivate(
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
+    if (this.configService.get<string>(AUTH_ENABLED) === 'false') {
+      this.logger.warn('Auth is disabled');
+      return true;
+    }
+
     const authorizationHeader = context.switchToHttp().getRequest<{
       headers: { authorization: string | undefined } | undefined;
     }>().headers?.authorization;

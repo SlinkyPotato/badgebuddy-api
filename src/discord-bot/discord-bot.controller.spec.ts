@@ -12,6 +12,10 @@ jest.mock('@/auth/guards/user-token/user-token.guard', () => ({
   UserTokenGuard: jest.fn().mockImplementation(() => ({})),
 }));
 
+jest.mock('@/auth/guards/processor-token/processor-token.guard', () => ({
+  ProcessorTokenGuard: jest.fn().mockImplementation(() => ({})),
+}));
+
 describe('DiscordBotController', () => {
   let controller: DiscordBotController;
 

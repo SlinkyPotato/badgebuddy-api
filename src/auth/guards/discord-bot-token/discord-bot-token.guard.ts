@@ -11,6 +11,7 @@ import { ConfigService } from '@nestjs/config';
 import {
   AUTH_DISCORD_BOT_CLIENT_ID_ENV,
   AUTH_DISCORD_BOT_CLIENT_SECRET_ENV,
+  AUTH_ENABLED,
 } from '@/app.constants';
 
 @Injectable()
@@ -24,6 +25,10 @@ export class DiscordBotTokenGuard implements CanActivate {
   canActivate(
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
+    if (this.configService.get<string>(AUTH_ENABLED) === 'false') {
+      this.logger.warn('Auth is disabled');
+      return true;
+    }
     const authorizationHeader = context.switchToHttp().getRequest<{
       headers: { authorization: string | undefined } | undefined;
     }>().headers?.authorization;

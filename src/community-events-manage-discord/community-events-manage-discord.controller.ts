@@ -1,8 +1,8 @@
 import {
   Body,
   Controller,
-  Delete,
   HttpStatus,
+  Patch,
   Post,
   UseGuards,
   UsePipes,
@@ -11,10 +11,10 @@ import {
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CommunityEventsManageDiscordService } from './community-events-manage-discord.service';
 import {
-  CommunityEventsManageDiscordDeleteRequestDto,
-  CommunityEventsManageDiscordDeleteResponseDto,
-  CommunityEventsManageDiscordPostRequestDto,
-  CommunityEventsManageDiscordPostResponseDto,
+  CommunityEventsManageDiscordEndEventRequestDto,
+  CommunityEventsManageDiscordEndEventResponseDto,
+  CommunityEventsManageDiscordStartEventRequestDto,
+  CommunityEventsManageDiscordStartEventResponseDto,
 } from '@badgebuddy/common';
 import { PoapManagerGuard } from '@/auth/guards/poap-manager/poap-manager.guard';
 
@@ -32,24 +32,24 @@ export class CommunityEventsManageDiscordController {
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: 'Event started',
-    type: CommunityEventsManageDiscordPostResponseDto,
+    type: CommunityEventsManageDiscordStartEventResponseDto,
   })
   @ApiResponse({
     status: HttpStatus.CONFLICT,
     description: 'Event in this channel is already active',
   })
   startEvent(
-    @Body() request: CommunityEventsManageDiscordPostRequestDto,
-  ): Promise<CommunityEventsManageDiscordPostResponseDto> {
+    @Body() request: CommunityEventsManageDiscordStartEventRequestDto,
+  ): Promise<CommunityEventsManageDiscordStartEventResponseDto> {
     return this.discordCommunityEventsManageService.startEvent(request);
   }
 
-  @Delete()
+  @Patch()
   @ApiOperation({ summary: 'Stop tracking voice channel event.' })
   @ApiResponse({
-    status: HttpStatus.OK,
+    status: HttpStatus.NO_CONTENT,
     description: 'Event stopped',
-    type: CommunityEventsManageDiscordDeleteResponseDto,
+    type: CommunityEventsManageDiscordEndEventResponseDto,
   })
   @ApiResponse({
     status: HttpStatus.CONFLICT,
@@ -59,9 +59,9 @@ export class CommunityEventsManageDiscordController {
     status: HttpStatus.NOT_FOUND,
     description: 'Active event not found',
   })
-  stopEvent(
-    @Body() request: CommunityEventsManageDiscordDeleteRequestDto,
-  ): Promise<CommunityEventsManageDiscordDeleteResponseDto> {
+  endEvent(
+    @Body() request: CommunityEventsManageDiscordEndEventRequestDto,
+  ): Promise<CommunityEventsManageDiscordEndEventResponseDto> {
     return this.discordCommunityEventsManageService.endEvent(request);
   }
 }

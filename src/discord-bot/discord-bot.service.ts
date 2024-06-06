@@ -29,7 +29,6 @@ import {
   UserTokenDto,
 } from '@badgebuddy/common';
 import { ConfigService } from '@nestjs/config';
-import { DiscordBotSettingsEntity } from '@badgebuddy/common/dist/common-typeorm/entities/discord/discord-bot-settings.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AuthService } from '@/auth/auth.service';
 import {
@@ -39,6 +38,7 @@ import {
   DiscordBotPostResponseDto,
   DiscordBotPermissionsPatchRequestDto,
   DiscordBotDeleteRequestDto,
+  DiscordBotSettingsEntity,
 } from '@badgebuddy/common';
 
 @Injectable()
@@ -118,25 +118,37 @@ export class DiscordBotService {
    * Setup the discord bot in a guild
    *
    * @param guildSId guild snowflake ID
+   * @param force force remove bot data from guild
    *
    * @returns Promise<DiscordBotPostResponseDto>
    */
   async addBotToGuild({
     guildSId,
+    force,
   }: DiscordBotPostRequestDto): Promise<DiscordBotPostResponseDto> {
     this.logger.log('starting discord bot setup process');
 
-    const botSettings = await this.botSettingsRepo.findOne({
-      where: {
-        guildSId: guildSId,
-      },
-    });
+    const botSettings: DiscordBotSettingsEntity | null =
+      await this.botSettingsRepo.findOne({
+        where: {
+          guildSId: guildSId,
+        },
+      });
     this.logger.verbose(`checking if bot already exists in guild: ${guildSId}`);
     if (botSettings) {
       this.logger.warn(`discord bot already exists in guild: ${guildSId}`);
-      throw new ConflictException('Discord bot already exists');
+      if (force) {
+        this.logger.verbose(
+          `removing bot data from guild for force add: ${guildSId}`,
+        );
+        const botSettingsId = botSettings.id;
+        await this.removeBotFromGuild({ guildSId, botSettingsId });
+        this.logger.verbose(`bot data removed from guild: ${guildSId}`);
+      } else {
+        throw new ConflictException('Discord bot already exists');
+      }
     }
-    this.logger.verbose(`discord bot does not exist, proceeding with setup`);
+    this.logger.verbose('processing with bot setup in guild');
     const guild = await this.discordClient.guilds.fetch(guildSId);
 
     if (!guild.available) {
@@ -221,7 +233,7 @@ export class DiscordBotService {
     { guildSId }: DiscordBotPermissionsPatchRequestDto,
   ) {
     this.logger.log(
-      `attemtping to update bot permissions for guild: ${guildSId}`,
+      `attempting to update bot permissions for guild: ${guildSId}`,
     );
 
     const botSettings = await this.botSettingsRepo.findOne({

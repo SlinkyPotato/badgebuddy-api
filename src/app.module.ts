@@ -21,6 +21,7 @@ import { DiscordBotModule } from '@/discord-bot/discord-bot.module';
         AUTH_SECRET_ENCRYPT_KEY: Joi.string().required(),
         AUTH_ISSUER: Joi.string().required(),
         AUTH_ALLOWED_CLIENT_IDS: Joi.string().required(),
+        AUTH_ENABLED: Joi.string().optional(),
         MAIL_HOST: Joi.string().required(),
         MAIL_PORT: Joi.number().required(),
         MAIL_USER: Joi.string().required(),
