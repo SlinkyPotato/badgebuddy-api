@@ -8,7 +8,7 @@ env:
 jobs:
   deploy-prod:
     runs-on: ubuntu-latest
-    environment: prod
+    environment: production
     permissions:
       contents: write
       pull-requests: write
