@@ -9,6 +9,13 @@ All notable changes to this project will be documented in this file. See [standa
 
 * add changes to changelog ([72367c0](https://github.com/SlinkyPotato/badgebuddy-api/commit/72367c05dff2c365a0a131020352de5a6f462cf6))
 
+## [1.0.0](https://github.com/SlinkyPotato/badgebuddy-api/compare/v0.0.6-22...v1.0.0) (2024-08-08)
+
+
+### Docs
+
+* add changes to changelog ([72367c0](https://github.com/SlinkyPotato/badgebuddy-api/commit/72367c05dff2c365a0a131020352de5a6f462cf6))
+
 ## [1.0.0](https://github.com/SlinkyPotato/badgebuddy-api/compare/v0.0.5...v1.0.0) (2024-08-08)
 
 
