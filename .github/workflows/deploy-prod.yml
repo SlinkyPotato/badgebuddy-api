@@ -28,14 +28,8 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm lint
       - run: pnpm test
-      - name: Retrieve pre-release package.json
-        id: pre-release
-        run: |
-          echo PRERELEASE_VERSION=$(node -e "console.log(require('./package.json').version)") >> "$GITHUB_OUTPUT"
-      - name: Remove prerelease tags
-        run: git tag -d $(git tag -l "v$(node -e "console.log('${{ steps.pre-release.outputs.PRERELEASE_VERSION }}'.split('-')[0]);")-*")
-      - run: pnpm standard-version --dry-run > changes.md | exit 0
-      - run: pnpm standard-version
+      - run: pnpm standard-version -r 1.0.0 --dry-run > changes.md | exit 0
+      - run: pnpm standard-version -r 1.0.0
       - name: Retrieve package.json
         id: package
         run: |
@@ -50,16 +44,15 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_TOKEN }}
       - name: Build Docker
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v6
         with:
           context: .
-          load: true
+          push: true
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/api:latest
             ${{ secrets.DOCKER_USERNAME }}/api:${{ steps.package.outputs.PACKAGE_VERSION }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-#      - run: docker push ${{ secrets.DOCKER_USERNAME }}/api -a
       - run: docker cp $(docker run -d --rm ${{ secrets.DOCKER_USERNAME }}/api:latest):/app/dist ./dist
       - uses: vimtor/action-zip@v1
         with:
