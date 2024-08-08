@@ -2,6 +2,136 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.0.0](https://github.com/SlinkyPotato/badgebuddy-api/compare/v0.0.5...v1.0.0) (2024-08-08)
+
+
+### Features
+
+* /authorize/email magic link ([e436afa](https://github.com/SlinkyPotato/badgebuddy-api/commit/e436afad2c9941324a251b235768eb92f472ce82))
+* add /poaps/store/discord endpoint ([11c637d](https://github.com/SlinkyPotato/badgebuddy-api/commit/11c637d9548032e18e907e7acd6831754fbf96a8))
+* add auth guards ([cf8f255](https://github.com/SlinkyPotato/badgebuddy-api/commit/cf8f25567a393f7d8fe4b610f2d32e6546bc5131))
+* add partial poaps distribute endpoint ([2d77fe7](https://github.com/SlinkyPotato/badgebuddy-api/commit/2d77fe74107d0a55fe557b639fddf88c6d159ffa))
+* add poap claims endpoint ([a073c88](https://github.com/SlinkyPotato/badgebuddy-api/commit/a073c8868cca0c70e913b8e8cbecea8f07395e9c))
+* complete happy path for /poaps/distribute/discord ([1f7d222](https://github.com/SlinkyPotato/badgebuddy-api/commit/1f7d222754e6c9c43fc9e50279b66cb68cbe5a78))
+* implement /auth/login ([c2f7294](https://github.com/SlinkyPotato/badgebuddy-api/commit/c2f72945f5b161adb94b0db562a3f21b3e011ccd))
+* implement /login ([e05472e](https://github.com/SlinkyPotato/badgebuddy-api/commit/e05472eff369e17b90e6b09c9e26b5bd0bcd4e61))
+* implement /register endpoint ([7faeb9f](https://github.com/SlinkyPotato/badgebuddy-api/commit/7faeb9fdbaf7844945e177bb55f74ca3c8b7c900))
+* implement /verify/email ([47b34a9](https://github.com/SlinkyPotato/badgebuddy-api/commit/47b34a92fa01a9638ee3c620153d0712c4ba6198))
+* implement access token service ([7a18441](https://github.com/SlinkyPotato/badgebuddy-api/commit/7a184413f23eb8887d7ad0dd733a9acbb3b2ba83))
+* implement discord bot permissions update ([ae711af](https://github.com/SlinkyPotato/badgebuddy-api/commit/ae711affb301baf890dc853d230c15a8ab597b8a))
+* initial google oauth flow ([c590bae](https://github.com/SlinkyPotato/badgebuddy-api/commit/c590baeb566169ebea096999a2894766d8c2c1c7))
+* store POAP links ([09df1d2](https://github.com/SlinkyPotato/badgebuddy-api/commit/09df1d28c8413454cc566fd88796be31b9578f65))
+* track active event in cache ([03e78d0](https://github.com/SlinkyPotato/badgebuddy-api/commit/03e78d0841de1d11cc41fd5c04b5e8c87af633bb))
+
+
+### Bug Fixes
+
+* add jest.config.ts to ts exclude ([fda19c6](https://github.com/SlinkyPotato/badgebuddy-api/commit/fda19c6581303e3562cdbaaa3aee5ac70c70545f))
+* add validation to get active events and allow eventId retrieval ([2128e13](https://github.com/SlinkyPotato/badgebuddy-api/commit/2128e13bb8d88a6a4f7d78f8075114895a068482))
+* bump @solidchain/badge-buddy-common -> 0.1.3-3 ([d69d9d5](https://github.com/SlinkyPotato/badgebuddy-api/commit/d69d9d541dd914b5add245694e51e612b91b8360))
+* class-validator and class-transformer placement ([a86cbe4](https://github.com/SlinkyPotato/badgebuddy-api/commit/a86cbe4ec85d46345f1a2cbbeec1f5b2a3cb2186))
+* disable bootstarp test unit until partial mocks work in github action ([e3c6265](https://github.com/SlinkyPotato/badgebuddy-api/commit/e3c62651ff9107615e564b0fb41553c5e50bd7e3))
+* docker build ([0f30707](https://github.com/SlinkyPotato/badgebuddy-api/commit/0f3070721b16bf6ca9be64d9c466ab3a6b45e920))
+* docker deploy ([c2c85e0](https://github.com/SlinkyPotato/badgebuddy-api/commit/c2c85e0a6b9260794f4be241c5c84928ca4c4bed))
+* readme ([6377b84](https://github.com/SlinkyPotato/badgebuddy-api/commit/6377b844cc44d0629312dba71c6cc08bbcc2a694))
+* remove ttl for processor event cache ([cdc9afc](https://github.com/SlinkyPotato/badgebuddy-api/commit/cdc9afcf29c8051c590434fedc1f9371dc7b8442))
+* response for discord bot settings swagger ([c8ae1e3](https://github.com/SlinkyPotato/badgebuddy-api/commit/c8ae1e3732829fd845e8b1080393c3a2d526ad2d))
+* set default isActive to false in swagger ([3c24c1b](https://github.com/SlinkyPotato/badgebuddy-api/commit/3c24c1bc9b0266458c4cc92b09dd980974943509))
+* swagger for active events response ([fc4670b](https://github.com/SlinkyPotato/badgebuddy-api/commit/fc4670b703683d721bdd9f5947c97c887a1b6253))
+* test cases ([f81202a](https://github.com/SlinkyPotato/badgebuddy-api/commit/f81202a8b2f8727f946f51a30a3408882ad8888c))
+* update env vault ([c69722d](https://github.com/SlinkyPotato/badgebuddy-api/commit/c69722da389ba41d41c515c9da48c3a846dec3d0))
+* update to latest common ([724b688](https://github.com/SlinkyPotato/badgebuddy-api/commit/724b688493d1c6e4d18164ef3498c90dbdf661fe))
+* use next @solidchain/badge-buddy-common ([9e733d0](https://github.com/SlinkyPotato/badgebuddy-api/commit/9e733d0e350d13fcfeb1ab6b4190c7d54448ebc7))
+* use PATCH /events instead of PUT /events ([25ad671](https://github.com/SlinkyPotato/badgebuddy-api/commit/25ad671ed086829d182bed12c4a8984c963f2733))
+
+
+### Docs
+
+* add function docs ([8aba3d1](https://github.com/SlinkyPotato/badgebuddy-api/commit/8aba3d14c9537f1d462edb2fe5c4945d573646fe))
+* add some jsdocs ([50c5dc3](https://github.com/SlinkyPotato/badgebuddy-api/commit/50c5dc332d22fd8f90755c706b633321cd22d21d))
+
+
+### Tests
+
+* add coverage for events.service.ts ([71c95ab](https://github.com/SlinkyPotato/badgebuddy-api/commit/71c95abd585b9eddd82752cd457156469f0d93b5))
+* add coverage for guild-create.service.ts ([3ff76c7](https://github.com/SlinkyPotato/badgebuddy-api/commit/3ff76c73b1293dbfe9ddbbc92db5eeb2d9e51ac0))
+* add coverage for guilds.service.ts ([3115ab4](https://github.com/SlinkyPotato/badgebuddy-api/commit/3115ab4c5fd14e035ae7bdbba8bb9d0f919ff664))
+* add coverage for health check ([640a306](https://github.com/SlinkyPotato/badgebuddy-api/commit/640a30688ea47bf61e9bf05cb94ae8ff5c838b3f))
+* add coverage for ready, guild-delete events ([b450aae](https://github.com/SlinkyPotato/badgebuddy-api/commit/b450aaeed02c78dbbd479eb210662ed38546dcaf))
+* add coverage to app module ([301ff49](https://github.com/SlinkyPotato/badgebuddy-api/commit/301ff49c62e40bad06466742c8a6aee2c0e21277))
+* add full coverage for discord-create ([f193e70](https://github.com/SlinkyPotato/badgebuddy-api/commit/f193e7036642e22916e8dd6954bb8df5aa5c528b))
+* add guilds api coverage ([859b090](https://github.com/SlinkyPotato/badgebuddy-api/commit/859b09021a8a58f53d658c9c5f82813cab6f46e4))
+* add passing tests ([e4bab89](https://github.com/SlinkyPotato/badgebuddy-api/commit/e4bab89b3b081fce5513c729e66efdfe082aa184))
+* add ready module coverage ([331dcac](https://github.com/SlinkyPotato/badgebuddy-api/commit/331dcac510b8de01005b9250d32a412749700c69))
+* add unit test for auth guard ([7f84907](https://github.com/SlinkyPotato/badgebuddy-api/commit/7f8490794744a5e099b0a6ed0c12cb5b282bdcf7))
+* fix DI in test cases ([9f35184](https://github.com/SlinkyPotato/badgebuddy-api/commit/9f351846b6e54252a3d7999a0801960f7c9f3cdf))
+* fix test cases ([8338971](https://github.com/SlinkyPotato/badgebuddy-api/commit/8338971e4fbf7b676384c7bbbc4945b40732bbfc))
+* multiple suites ([4240379](https://github.com/SlinkyPotato/badgebuddy-api/commit/424037997563c0a1bad389fad08c3590f51f355f))
+* set --verbose flag for jest test ([281436b](https://github.com/SlinkyPotato/badgebuddy-api/commit/281436b975bf208a41de3cae64abcea917b10cc0))
+
+
+### Performance
+
+* add additional build scripts ([28a8256](https://github.com/SlinkyPotato/badgebuddy-api/commit/28a825652491e21ba72db7da1cd4db948093aa08))
+* add pulled auth guild db call to cache ([e35ff2a](https://github.com/SlinkyPotato/badgebuddy-api/commit/e35ff2ad1002c59e5f7e3bf6fd788d7657c18e76))
+* enhance discord organizer insertion ([125287d](https://github.com/SlinkyPotato/badgebuddy-api/commit/125287d980ea94c74a6ed18718081460708137f0))
+* handle duplicate poap claim entries ([58b412b](https://github.com/SlinkyPotato/badgebuddy-api/commit/58b412b4bca5b7fed98e64642520fc558e5784f0))
+* remove github action package.json retrieval dep ([4cb3f25](https://github.com/SlinkyPotato/badgebuddy-api/commit/4cb3f25e69e7b5a39e48b1e2666976199f209ec3))
+* update deps ([e6b9014](https://github.com/SlinkyPotato/badgebuddy-api/commit/e6b9014b9887f3aa8bf1fa4de94ecd274531b507))
+* update deps and use common dto for event ([d9f6253](https://github.com/SlinkyPotato/badgebuddy-api/commit/d9f6253191159f8aff286e0730dde904ec05c3cd))
+* upgrade @solidchain/badge-buddy-common ([b094587](https://github.com/SlinkyPotato/badgebuddy-api/commit/b094587499c91473ca4401d48d57e6b93e9cc4d7))
+
+
+### Refactor
+
+* add DOTENV_KEY arg ([7cbf620](https://github.com/SlinkyPotato/badgebuddy-api/commit/7cbf620333d23e5a00a6beffc11b5c6828170613))
+* add helper function for event management service ([d8e62f3](https://github.com/SlinkyPotato/badgebuddy-api/commit/d8e62f3300173dbd03a616aeab156f0c17eb6c7b))
+* add husky ([62ebaa6](https://github.com/SlinkyPotato/badgebuddy-api/commit/62ebaa646e1775c710ad87c11ce8a8cf537fa62e))
+* api urls and files ([71ae280](https://github.com/SlinkyPotato/badgebuddy-api/commit/71ae280f0b5ad11d9cfc4a04dcdbc03fdaa1760f))
+* bump common -> 0.1.3-6 ([c60c449](https://github.com/SlinkyPotato/badgebuddy-api/commit/c60c44909277f0f4ff6bbc7b59537988614683c0))
+* bump common version ([e5be773](https://github.com/SlinkyPotato/badgebuddy-api/commit/e5be7730da59e30f45af6f10061c5a29dd8a56ca))
+* bump dep versions and add @jest/globals ([7348108](https://github.com/SlinkyPotato/badgebuddy-api/commit/73481088289973d42ed3e4d8c4806d64c0bc6e91))
+* codebase and beging testing ([230dfdf](https://github.com/SlinkyPotato/badgebuddy-api/commit/230dfdf2047d297cc463cf7ae7f73c7947a78693))
+* docker compose files ([da526a8](https://github.com/SlinkyPotato/badgebuddy-api/commit/da526a8ae65d38f899bdee74680122f7194d7265))
+* import discord-events from bot ([960e052](https://github.com/SlinkyPotato/badgebuddy-api/commit/960e0522579c0c6bbf0bebebe532a84222243a7b))
+* improve logging for get guild ([99c56ef](https://github.com/SlinkyPotato/badgebuddy-api/commit/99c56ef68a8cdb8a3f46d6bf8404795cbfb02e94))
+* include specific checks for PoapManagerGuard ([c0a5bb9](https://github.com/SlinkyPotato/badgebuddy-api/commit/c0a5bb9bfea026c7d8447c0273ac140727dabf4c))
+* integrate prettier and new eslint ([da050a9](https://github.com/SlinkyPotato/badgebuddy-api/commit/da050a937c5dea46fc6a892db58b9a2be6760c01))
+* migrate discord-guilds -> discord-bot and use mysql ([1ae7bac](https://github.com/SlinkyPotato/badgebuddy-api/commit/1ae7bac0a9de5adcf73664df5e7bd437793ce28a))
+* misc rename ([52bb448](https://github.com/SlinkyPotato/badgebuddy-api/commit/52bb448617962fceeffdec2052532c6444fd186c))
+* move api dtos to badge-buddy-common ([9a20372](https://github.com/SlinkyPotato/badgebuddy-api/commit/9a2037288770f77261ae9863c9f19e41a7892451))
+* move standard-version stanza and jest config ([fc791a3](https://github.com/SlinkyPotato/badgebuddy-api/commit/fc791a30a15ed6d8393d54b4825ce794f506518c))
+* organize auth guard ([2458a8b](https://github.com/SlinkyPotato/badgebuddy-api/commit/2458a8b9ff6015fb21b63699479909228dbb2e80))
+* pnpm up ([de38dfb](https://github.com/SlinkyPotato/badgebuddy-api/commit/de38dfb7e63971c104801b1e5420452f259b3e86))
+* production pipeline ([e7f49f2](https://github.com/SlinkyPotato/badgebuddy-api/commit/e7f49f278e3975f9572987e9d519d9b778f5d3e7))
+* reduce permissions for poapManagersRole ([b89f2bf](https://github.com/SlinkyPotato/badgebuddy-api/commit/b89f2bf02304b9bc07aa2d0ed190d4d99142b96e))
+* remove active discord events dto and use common ([9ea7573](https://github.com/SlinkyPotato/badgebuddy-api/commit/9ea75736bf38590d126587ad3566780e0554e343))
+* remove drizzle and migrate to swc ([9fe043f](https://github.com/SlinkyPotato/badgebuddy-api/commit/9fe043f04a2c70b48a419fb5a4891ff2e8a1ae64))
+* remove github action dep for package.json ([1fb0949](https://github.com/SlinkyPotato/badgebuddy-api/commit/1fb09490cffb7f617b5c01e5adaf91c6e3494d0c))
+* remove mongo ([fbb2239](https://github.com/SlinkyPotato/badgebuddy-api/commit/fbb2239df02231f129ffdef30c09cb6832a08caf))
+* remove organizerSId from endEvent, add auth guards ([c47072f](https://github.com/SlinkyPotato/badgebuddy-api/commit/c47072ff70782f73db9711fa99ab7477efb03dea))
+* remove uneeded guildId from post guilds api ([3e47688](https://github.com/SlinkyPotato/badgebuddy-api/commit/3e476889919bd63858f5fefc2d7ece6c47a82ec9))
+* rename app constants and add service test ([ea997be](https://github.com/SlinkyPotato/badgebuddy-api/commit/ea997be49acfa26f951a6c275e827bd51bf21704))
+* rename bot permissions command names ([589d8d7](https://github.com/SlinkyPotato/badgebuddy-api/commit/589d8d7953d1f217685f5d5a4dd71fe140f8c587))
+* rename db ([2601713](https://github.com/SlinkyPotato/badgebuddy-api/commit/2601713541deb0b85917985fff9dec468503c9c9))
+* rename db env ([b8921ff](https://github.com/SlinkyPotato/badgebuddy-api/commit/b8921ffbc6a68cce390937c71402c31aa7199007))
+* rename docker container name ([75f5e74](https://github.com/SlinkyPotato/badgebuddy-api/commit/75f5e74fee2c739e49f638d0fa48494d36ffe9c1))
+* rename docker container names ([e4aa27c](https://github.com/SlinkyPotato/badgebuddy-api/commit/e4aa27c1f73ddd4f7c624d5ef79fecff3f990183))
+* rename log to api ([00afa6f](https://github.com/SlinkyPotato/badgebuddy-api/commit/00afa6fe9ba2477dbd25d5b868a5bb2daed33ad1))
+* rename redis index ([60971e0](https://github.com/SlinkyPotato/badgebuddy-api/commit/60971e0f91befe0638639a919f71aea9c5668518))
+* rename staging_server -> stage_server ([fdb47ed](https://github.com/SlinkyPotato/badgebuddy-api/commit/fdb47ed556c808c2d36cd14768a25bdbdcca1675))
+* return bot member during bot assignment ([ddecc3f](https://github.com/SlinkyPotato/badgebuddy-api/commit/ddecc3f22b29f8fc9d65997eca21a055bd199e5a))
+* specify env requirement ([41c55a6](https://github.com/SlinkyPotato/badgebuddy-api/commit/41c55a60d5a037baa36895b7785aeb9f690acfd1))
+* specify processor constants and require mariadb log .env ([9f5e0bb](https://github.com/SlinkyPotato/badgebuddy-api/commit/9f5e0bb8077603ddd2c59dea54e0a6f16c3b0a66))
+* specify redis configs ([28b5a60](https://github.com/SlinkyPotato/badgebuddy-api/commit/28b5a60c1f9cc5cce17a68242d95e38340304a23))
+* staging pipeline ([8e3062c](https://github.com/SlinkyPotato/badgebuddy-api/commit/8e3062c58a996270f815faf8a0bffc5e9abea114))
+* update dev:docker script ([d0e67a0](https://github.com/SlinkyPotato/badgebuddy-api/commit/d0e67a06f7413fd72e9a126814f49e0d506c28ea))
+* update docker compose namespace ([db9d358](https://github.com/SlinkyPotato/badgebuddy-api/commit/db9d358c11f91cbd0d377f08cf02b8116480e868))
+* update local env ([58a9cb6](https://github.com/SlinkyPotato/badgebuddy-api/commit/58a9cb6f1b75ae72343bdc1030b6d5ac76a19615))
+* upgrade common ([bc92024](https://github.com/SlinkyPotato/badgebuddy-api/commit/bc92024be57bfb5f6671df14ba2c3ad72189c226))
+* use common configs ([1383101](https://github.com/SlinkyPotato/badgebuddy-api/commit/1383101fd8485832de17e2d8384d666db2464266))
+* use vars for github actions ([bb2feb9](https://github.com/SlinkyPotato/badgebuddy-api/commit/bb2feb973e044f197d4a3f7f4f21cffc076a81c0))
+
 ### [0.0.6-22](https://github.com/SlinkyPotato/badgebuddy-api/compare/v0.0.6-21...v0.0.6-22) (2024-06-06)
 
 
