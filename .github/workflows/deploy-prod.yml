@@ -28,8 +28,8 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm lint
       - run: pnpm test
-      - run: pnpm standard-version -r 1.0.0 --dry-run > changes.md | exit 0
-      - run: pnpm standard-version -r 1.0.0
+      - run: pnpm standard-version --dry-run > changes.md | exit 0
+      - run: pnpm standard-version
       - name: Retrieve package.json
         id: package
         run: |
