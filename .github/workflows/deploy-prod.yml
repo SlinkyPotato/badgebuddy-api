@@ -34,7 +34,6 @@ jobs:
         id: package
         run: |
           echo PACKAGE_VERSION=$(node -e "console.log(require('./package.json').version)") >> "$GITHUB_OUTPUT"
-      - run: git pull
       - run: git push --follow-tags
       - run: node -e "require('@badgebuddy/common')['parseReleaseUtil']();"
       - name: Set up Docker Buildx
