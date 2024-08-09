@@ -2,26 +2,26 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-## [1.0.0](https://github.com/SlinkyPotato/badgebuddy-api/compare/v0.0.6-22...v1.0.0) (2024-08-09)
+### [1.0.1-1](https://github.com/SlinkyPotato/badgebuddy-api/compare/v1.0.1-0...v1.0.1-1) (2024-08-09)
+
+### [1.0.1-0](https://github.com/SlinkyPotato/badgebuddy-api/compare/v1.0.0...v1.0.1-0) (2024-08-09)
+
+
+### Bug Fixes
+
+* docker name to include badgebuddy ([7bb239c](https://github.com/SlinkyPotato/badgebuddy-api/commit/7bb239cd2e11db3f17f5d4e2fd202b80f0516d50))
 
 
 ### Docs
 
-* add changes to changelog ([72367c0](https://github.com/SlinkyPotato/badgebuddy-api/commit/72367c05dff2c365a0a131020352de5a6f462cf6))
-
-## [1.0.0](https://github.com/SlinkyPotato/badgebuddy-api/compare/v0.0.6-22...v1.0.0) (2024-08-09)
+* cleanup changelog ([e81910d](https://github.com/SlinkyPotato/badgebuddy-api/commit/e81910d140d572f2727c1e55e4ba06c78f9a1a4e))
 
 
-### Docs
+### Refactor
 
-* add changes to changelog ([72367c0](https://github.com/SlinkyPotato/badgebuddy-api/commit/72367c05dff2c365a0a131020352de5a6f462cf6))
-
-## [1.0.0](https://github.com/SlinkyPotato/badgebuddy-api/compare/v0.0.6-22...v1.0.0) (2024-08-08)
-
-
-### Docs
-
-* add changes to changelog ([72367c0](https://github.com/SlinkyPotato/badgebuddy-api/commit/72367c05dff2c365a0a131020352de5a6f462cf6))
+* rename docker tag ([7156ea7](https://github.com/SlinkyPotato/badgebuddy-api/commit/7156ea756107f24d78cddefe3f6c1cf354ae0038))
+* upgrade build-dev checkout deps ([d79c012](https://github.com/SlinkyPotato/badgebuddy-api/commit/d79c01226a86a50c8a41f79e9a8ff41dac5945cf))
+* upgrade docker github action for build-dev ([c5036e2](https://github.com/SlinkyPotato/badgebuddy-api/commit/c5036e24d71c614f747cc7eb6ca1f3ad7cce66a2))
 
 ## [1.0.0](https://github.com/SlinkyPotato/badgebuddy-api/compare/v0.0.5...v1.0.0) (2024-08-08)
 
@@ -70,6 +70,7 @@ All notable changes to this project will be documented in this file. See [standa
 
 * add function docs ([8aba3d1](https://github.com/SlinkyPotato/badgebuddy-api/commit/8aba3d14c9537f1d462edb2fe5c4945d573646fe))
 * add some jsdocs ([50c5dc3](https://github.com/SlinkyPotato/badgebuddy-api/commit/50c5dc332d22fd8f90755c706b633321cd22d21d))
+* add changes to changelog ([72367c0](https://github.com/SlinkyPotato/badgebuddy-api/commit/72367c05dff2c365a0a131020352de5a6f462cf6))
 
 
 ### Tests

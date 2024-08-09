@@ -2,7 +2,7 @@ name: stage_badgebuddy
 services:
   api-1:
     container_name: api-1_stage-badgebuddy
-    image: amaredeus/api:next
+    image: amaredeus/badgebuddy-api:next
     restart: always
     ports:
       - 3010:3000
