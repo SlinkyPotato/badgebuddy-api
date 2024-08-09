@@ -1,4 +1,4 @@
-# Badge Buddy API
+# Badgebuddy API
 
 HTTP API server for badgebuddy.
 
