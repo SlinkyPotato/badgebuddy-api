@@ -2,7 +2,7 @@ name: prod_badgebuddy
 services:
   api-1:
     container_name: api-1_prod-badgebuddy
-    image: amaredeus/api:latest
+    image: amaredeus/badgebuddy-api:latest
     restart: always
     ports:
       - 3003:3000
